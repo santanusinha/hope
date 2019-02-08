@@ -1,0 +1,306 @@
+/* adder.jj Adding up numbers */
+
+options {
+    JAVA_UNICODE_ESCAPE = true;
+//    STATIC = false ;
+    LOOKAHEAD = 3;
+    FORCE_LA_CHECK = true;
+}
+PARSER_BEGIN(HopeParser)
+package io.appform.hope.lang.parser;
+
+import io.appform.hope.core.*;
+import io.appform.hope.core.combiners.*;
+import io.appform.hope.core.operators.*;
+import io.appform.hope.core.values.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class HopeParser {
+
+}
+PARSER_END(HopeParser)
+
+
+SKIP :  {" "}
+SKIP :  {"\n"|"\r"|"\r\n"}
+TOKEN : {<OPEN_BRACKET : "(">}
+TOKEN : {<CLOSE_BRACKET : ")">}
+TOKEN : {<EQUALS : "==">}
+TOKEN : {<NOT_EQUALS : "!=">}
+TOKEN : {<GREATER : ">">}
+TOKEN : {<GREATER_EQUALS : ">=">}
+TOKEN : {<LESSER : "<">}
+TOKEN : {<LESSER_EQUALS : "<=">}
+TOKEN : {<MATCHES : "~">}
+TOKEN : {<NOT : "^">}
+TOKEN : {<OR : "|">}
+TOKEN : {<AND : "&">}
+TOKEN : {<AND_COMBINER : "&&">}
+TOKEN : {<OR_COMBINER : "||">}
+TOKEN : {<QUOTE : "\"">}
+TOKEN : {<NUMBER :(["0"-"9"])+|(["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "."(["0"-"9"])+>}
+TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
+TOKEN : {<STRING_VALUE : (["0"-"9", "a"-"z", "A"-"Z" , "/", "+", "@"])+>}
+TOKEN : {<PATH_VALUE : "$." <STRING_VALUE>>}
+TOKEN : {<STRING: <QUOTE> <STRING_VALUE> <QUOTE>>}
+TOKEN : {<PATH: <QUOTE> <PATH_VALUE> <QUOTE>>}
+
+Evaluatable parse(): {
+    Evaluatable value = null;
+}
+{
+
+    value = CombinerOpRepr() {
+        return value;
+    }
+}
+
+Evaluatable CombinerOpRepr(): {
+    Combiner combiner = null;
+    Evaluatable current = null;
+    List<Evaluatable> ops = new ArrayList<Evaluatable>();
+}
+{
+    current = Expression() {
+        ops.add(current);
+    }
+    (
+
+        (
+            <AND_COMBINER> { combiner = new AndCombiner(ops); }
+            current = Expression() {
+                ops.add(current);
+            }
+        )
+        | (
+            <OR_COMBINER> { combiner = new OrCombiner(ops); }
+            current = Expression() {
+                ops.add(current);
+            }
+        )
+    )*
+    {
+        if(null == combiner) {
+            if(!ops.isEmpty()) {
+                return ops.get(0);
+            }
+        }
+        return combiner;
+    }
+
+}
+Evaluatable Expression(): {
+    Evaluatable value = null;
+}
+{
+    value = NativeOperations() {
+        return value;
+    }
+    |
+    <OPEN_BRACKET> [ value = NativeOperations() | value = CombinerOpRepr() ] <CLOSE_BRACKET> {
+        return value;
+    }
+}
+
+Evaluatable NativeOperations() : {
+    Evaluatable value = null;
+}
+{
+    (
+        value = BooleanOpsRepr()
+        | value = NumericalOpsRepr()
+        | value = StringOpsRepr()
+        | value = JsonPathOpsRepr()
+    )
+    {
+        return value;
+    }
+}
+
+Evaluatable StringOpsRepr(): {
+    StringValue lhs = null;
+    StringValue rhs = null;
+    Value strOrJsonPath = null;
+}
+{
+    lhs = StringRepr()
+    ( <EQUALS>
+        strOrJsonPath = StringOrJsonPathRhsOperand() {
+            return new Equals(lhs, strOrJsonPath);
+        }
+        | <NOT_EQUALS>
+        strOrJsonPath = StringOrJsonPathRhsOperand() {
+            return new NotEquals(lhs, strOrJsonPath);
+        }
+    )
+
+}
+
+Evaluatable JsonPathOpsRepr(): {
+    JsonPathValue lhs = null;
+    Value rhs = null;
+}
+{
+    lhs = JsonPathRepr()
+    ( <EQUALS>
+        rhs = RhsOperand() {
+            return new Equals(lhs, rhs);
+        }
+        | <NOT_EQUALS>
+        rhs = RhsOperand() {
+            return new NotEquals(lhs, rhs);
+        }
+    )
+}
+
+Evaluatable BooleanOpsRepr(): {
+    BooleanValue lhs = null;
+    BooleanValue rhs = null;
+    Value boolOrJsonPath = null;
+}
+{
+    lhs = BooleanRepr()
+    (
+        <AND>
+        rhs = BooleanRepr() {
+            return new And(lhs, rhs);
+        }
+        | <OR>
+        rhs = BooleanRepr() {
+            return new Or(lhs, rhs);
+        }
+        | <EQUALS>
+        boolOrJsonPath = BooleanOrJsonPathRhsOperand() {
+            return new Equals(lhs, boolOrJsonPath);
+        }
+        | <NOT_EQUALS>
+        boolOrJsonPath = BooleanOrJsonPathRhsOperand() {
+            return new NotEquals(lhs, boolOrJsonPath);
+        }
+    )
+}
+
+Evaluatable NumericalOpsRepr(): {
+    NumericValue lhs = null;
+    NumericValue rhs = null;
+    Value numOrJsonPath = null;
+}
+{
+    lhs = NumericRepr()
+    (
+        <GREATER>
+        rhs = NumericRepr() {
+            return new Greater(lhs, rhs);
+        }
+        | <GREATER_EQUALS>
+        rhs = NumericRepr() {
+            return new GreaterEquals(lhs, rhs);
+        }
+        | <LESSER>
+        rhs = NumericRepr() {
+            return new Lesser(lhs, rhs);
+        }
+        | <LESSER_EQUALS>
+        rhs = NumericRepr() {
+            return new LesserEquals(lhs, rhs);
+        }
+        | <EQUALS>
+        numOrJsonPath = NumericOrJsonPathRhsOperand() {
+            return new Equals(lhs, numOrJsonPath);
+        }
+        | <NOT_EQUALS>
+        numOrJsonPath = NumericOrJsonPathRhsOperand() {
+            return new NotEquals(lhs, numOrJsonPath);
+        }
+    )
+}
+
+Value RhsOperand(): {
+    Value result = null;
+}
+{
+    (result = StringRepr()
+     | result = JsonPathRepr()
+     | result = NumericRepr()
+     | result = BooleanRepr()
+     )
+    {
+        return result;
+    }
+}
+
+Value StringOrJsonPathRhsOperand(): {
+    Value result = null;
+}
+{
+    (result = StringRepr()
+     | result = JsonPathRepr()
+     )
+    {
+        return result;
+    }
+}
+
+Value NumericOrJsonPathRhsOperand(): {
+    Value result = null;
+}
+{
+    (result = NumericRepr()
+     | result = JsonPathRepr()
+     )
+    {
+        return result;
+    }
+}
+
+Value BooleanOrJsonPathRhsOperand(): {
+    Value result = null;
+}
+{
+    (result = BooleanRepr()
+     | result = JsonPathRepr()
+     )
+    {
+        return result;
+    }
+}
+
+StringValue StringRepr() : {
+    Token t = null;
+}
+{
+    t = <STRING>
+    {
+        return new StringValue(t.image.replaceAll("^\"|\"$", ""));
+    }
+}
+
+JsonPathValue JsonPathRepr() : {
+    Token t = null;
+}
+{
+    t = <PATH>
+    {
+        return new JsonPathValue(t.image.replaceAll("^\"|\"$", ""));
+    }
+}
+
+NumericValue NumericRepr() : {
+    Token t = null;
+}
+{
+    t = <NUMBER> {
+        return new NumericValue(Double.valueOf(t.image));
+    }
+}
+
+BooleanValue BooleanRepr() : {
+    Token t = null;
+}
+{
+    t = <BOOLEAN> {
+        return new BooleanValue(Boolean.valueOf(t.image));
+    }
+}
