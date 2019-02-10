@@ -20,24 +20,16 @@ public class EvaluatorTest {
         Assert.assertTrue(
                 evaluator.evaluate(
                         Equals.builder()
-                                .lhs(ObjectValue.builder()
-                                             .value("a")
-                                             .build())
-                                .rhs(ObjectValue.builder()
-                                             .value("a")
-                                             .build())
+                                .lhs(new ObjectValue("a"))
+                                .rhs(new ObjectValue("a"))
                                 .build()
                         , node))
         ;
         Assert.assertFalse(
                 evaluator.evaluate(
                         Equals.builder()
-                                .lhs(ObjectValue.builder()
-                                             .value("a")
-                                             .build())
-                                .rhs(ObjectValue.builder()
-                                             .value("b")
-                                             .build())
+                                .lhs(new ObjectValue("a"))
+                                .rhs(new ObjectValue("b"))
                                 .build()
                         , node));
     }

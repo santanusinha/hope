@@ -3,13 +3,20 @@ package io.appform.hope.core.visitors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
+import io.appform.hope.core.TreeNode;
 import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.values.*;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.Objects;
 
@@ -26,16 +33,27 @@ public class Evaluator {
         catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        return evaluatable.accept(new LogicEvaluator(node));
+        final Configuration configuration = Configuration.builder()
+                .jsonProvider(new JacksonJsonNodeJsonProvider())
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .build();
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(JsonPath.using(configuration).parse(node))));
+    }
+
+    @Data
+    @Builder
+    private static class EvaluationContext {
+        private final DocumentContext jsonContext;
     }
 
     private class LogicEvaluator extends VisitorAdapter<Boolean> {
 
-        private final JsonNode node;
+        private final EvaluationContext evaluationContext;
 
-        public LogicEvaluator(JsonNode node) {
+        public LogicEvaluator(
+                EvaluationContext evaluationContext) {
             super(true);
-            this.node = node;
+            this.evaluationContext = evaluationContext;
         }
 
         public boolean evaluate(Evaluatable evaluatable) {
@@ -46,14 +64,14 @@ public class Evaluator {
         public Boolean visit(AndCombiner andCombiner) {
             return andCombiner.getExpressions()
                     .stream()
-                    .allMatch(expression -> expression.accept(new LogicEvaluator(node)));
+                    .allMatch(expression -> expression.accept(new LogicEvaluator(evaluationContext)));
         }
 
         @Override
         public Boolean visit(OrCombiner orCombiner) {
             return orCombiner.getExpressions()
                     .stream()
-                    .anyMatch(expression -> expression.accept(new LogicEvaluator(node)));
+                    .anyMatch(expression -> expression.accept(new LogicEvaluator(evaluationContext)));
         }
 
         @Override
@@ -63,35 +81,43 @@ public class Evaluator {
 
         @Override
         public Boolean visit(Equals equals) {
-            return Objects.equals(equals.getLhs().accept(new ObjectValueEvaluator(node)), equals.getRhs().accept(new ObjectValueEvaluator(
-                    node)));
+            return Objects.equals(equals.getLhs().accept(new ObjectValueEvaluator(evaluationContext)), equals.getRhs().accept(new ObjectValueEvaluator(
+                    evaluationContext)));
         }
 
         @Override
         public Boolean visit(Greater greater) {
-            return greater.getLhs().getValue().doubleValue() > greater.getRhs().getValue().doubleValue();
+            final Number lhs = numericValue(evaluationContext, greater.getLhs(), 0);
+            final Number rhs = numericValue(evaluationContext, greater.getRhs(), 0);
+            return lhs.doubleValue() > rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(GreaterEquals greaterEquals) {
-            return greaterEquals.getLhs().getValue().doubleValue() >= greaterEquals.getRhs().getValue().doubleValue(); //TODO
+            final Number lhs = numericValue(evaluationContext, greaterEquals.getLhs(), 0);
+            final Number rhs = numericValue(evaluationContext, greaterEquals.getRhs(), 0);
+            return lhs.doubleValue() >= rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(Lesser lesser) {
-            return lesser.getLhs().getValue().doubleValue() < lesser.getRhs().getValue().doubleValue();
+            final Number lhs = numericValue(evaluationContext, lesser.getLhs(), 0);
+            final Number rhs = numericValue(evaluationContext, lesser.getRhs(), 0);
+            return lhs.doubleValue() < rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(LesserEquals lesserEquals) {
-            return lesserEquals.getLhs().getValue().doubleValue() <= lesserEquals.getRhs().getValue().doubleValue(); //TODO
+            final Number lhs = numericValue(evaluationContext, lesserEquals.getLhs(), 0);
+            final Number rhs = numericValue(evaluationContext, lesserEquals.getRhs(), 0);
+            return lhs.doubleValue() < rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(NotEquals notEquals) {
             return !Objects.equals(
-                    notEquals.getLhs().accept(new ObjectValueEvaluator(node)),
-                    notEquals.getRhs().accept(new ObjectValueEvaluator(node)));
+                    notEquals.getLhs().accept(new ObjectValueEvaluator(evaluationContext)),
+                    notEquals.getRhs().accept(new ObjectValueEvaluator(evaluationContext)));
         }
 
         @Override
@@ -102,18 +128,17 @@ public class Evaluator {
     }
 
     private class ObjectValueEvaluator extends VisitorAdapter<Object> {
-        private final JsonNode node;
+        private final EvaluationContext evaluationContext;
 
-        public ObjectValueEvaluator(JsonNode node) {
+        public ObjectValueEvaluator(EvaluationContext evaluationContext) {
             super(null);
-            this.node = node;
+            this.evaluationContext = evaluationContext;
         }
 
         @Override
         public Object visit(JsonPathValue jsonPathValue) {
-            final Object readValue = JsonPath.read(node.toString(), jsonPathValue.getPath());
-            if(null != readValue) {
-                final JsonNode extractedNode = mapper.valueToTree(readValue);
+            final JsonNode extractedNode = evaluationContext.getJsonContext().read(jsonPathValue.getPath());
+            if(null != extractedNode) {
                 if(extractedNode.isTextual()) {
                     return extractedNode.asText();
                 }
@@ -150,5 +175,37 @@ public class Evaluator {
             return booleanValue.getValue();
         }
 
+    }
+
+/*
+    private static <T> T  extractValue(BinaryOperator<T> operator) {
+
+    }
+*/
+
+    private static Number numericValue(EvaluationContext evaluationContext, TreeNode node, Number defaultValue) {
+        return node.accept(new VisitorAdapter<Number>(defaultValue) {
+            @Override
+            public Number visit(JsonPathValue jsonPathValue) {
+                final JsonNode value = evaluationContext.getJsonContext()
+                        .read(jsonPathValue.getPath());
+                if(value.isNumber()) {
+                    return value.asDouble();
+                }
+                return defaultValue;
+            }
+
+            @Override
+            public Number visit(NumericValue numericValue) {
+                final Number value = numericValue.getValue();
+                if(null == value) {
+                    final JsonPathValue pathValue = numericValue.getPathValue();
+                    if(null != pathValue) {
+                        return pathValue.accept(this);
+                    }
+                }
+                return value;
+            }
+        });
     }
 }

@@ -270,4 +270,70 @@ public class ParserTest {
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
+
+    @Test
+    public void testJsonPathNumericGreaterRhs() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"count\" : 93 }");
+
+        HopeParser parser = new HopeParser(new StringReader("94 > \"$.count\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathNumericGreaterLhs() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"count\" : 97 }");
+
+        HopeParser parser = new HopeParser(new StringReader("\"$.count\" > 94"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathNumericGreaterBothSide() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"lhs\" : 97, \"rhs\" : 94 }");
+
+        HopeParser parser = new HopeParser(new StringReader("\"$.lhs\" > \"$.rhs\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathNumericLesserRhs() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"count\" : 93 }");
+
+        HopeParser parser = new HopeParser(new StringReader("92 < \"$.count\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathNumericLesserLhs() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"count\" : 91 }");
+
+        HopeParser parser = new HopeParser(new StringReader("\"$.count\" < 94"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathNumericLesserBothSide() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"lhs\" : 94, \"rhs\" : 97 }");
+
+        HopeParser parser = new HopeParser(new StringReader("\"$.lhs\" < \"$.rhs\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
 }

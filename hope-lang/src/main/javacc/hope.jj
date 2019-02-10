@@ -141,10 +141,14 @@ Evaluatable StringOpsRepr(): {
 Evaluatable JsonPathOpsRepr(): {
     JsonPathValue lhs = null;
     Value rhs = null;
+    NumericValue nRhs = null;
+    BooleanValue bRhs = null;
+    StringValue sRhs = null;
 }
 {
     lhs = JsonPathRepr()
-    ( <EQUALS>
+    (
+        <EQUALS>
         rhs = RhsOperand() {
             return new Equals(lhs, rhs);
         }
@@ -152,32 +156,55 @@ Evaluatable JsonPathOpsRepr(): {
         rhs = RhsOperand() {
             return new NotEquals(lhs, rhs);
         }
+        | <GREATER>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new Greater(new NumericValue(lhs), nRhs);
+        }
+        | <GREATER_EQUALS>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new GreaterEquals(new NumericValue(lhs), nRhs);
+        }
+        | <LESSER>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new Lesser(new NumericValue(lhs), nRhs);
+        }
+        | <LESSER_EQUALS>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new LesserEquals(new NumericValue(lhs), nRhs);
+        }
+        | <AND>
+        bRhs = BooleanOrJsonPathRhsOperand() {
+            return new And(new BooleanValue(lhs), bRhs);
+        }
+        | <OR>
+        bRhs = BooleanOrJsonPathRhsOperand() {
+            return new Or(new BooleanValue(lhs), bRhs);
+        }
     )
 }
 
 Evaluatable BooleanOpsRepr(): {
     BooleanValue lhs = null;
     BooleanValue rhs = null;
-    Value boolOrJsonPath = null;
 }
 {
     lhs = BooleanRepr()
     (
         <AND>
-        rhs = BooleanRepr() {
+        rhs = BooleanOrJsonPathRhsOperand() {
             return new And(lhs, rhs);
         }
         | <OR>
-        rhs = BooleanRepr() {
+        rhs = BooleanOrJsonPathRhsOperand() {
             return new Or(lhs, rhs);
         }
         | <EQUALS>
-        boolOrJsonPath = BooleanOrJsonPathRhsOperand() {
-            return new Equals(lhs, boolOrJsonPath);
+        rhs = BooleanOrJsonPathRhsOperand() {
+            return new Equals(lhs, rhs);
         }
         | <NOT_EQUALS>
-        boolOrJsonPath = BooleanOrJsonPathRhsOperand() {
-            return new NotEquals(lhs, boolOrJsonPath);
+        rhs = BooleanOrJsonPathRhsOperand() {
+            return new NotEquals(lhs, rhs);
         }
     )
 }
@@ -185,34 +212,33 @@ Evaluatable BooleanOpsRepr(): {
 Evaluatable NumericalOpsRepr(): {
     NumericValue lhs = null;
     NumericValue rhs = null;
-    Value numOrJsonPath = null;
 }
 {
     lhs = NumericRepr()
     (
         <GREATER>
-        rhs = NumericRepr() {
+        rhs = NumericOrJsonPathRhsOperand() {
             return new Greater(lhs, rhs);
         }
         | <GREATER_EQUALS>
-        rhs = NumericRepr() {
+        rhs = NumericOrJsonPathRhsOperand() {
             return new GreaterEquals(lhs, rhs);
         }
         | <LESSER>
-        rhs = NumericRepr() {
+        rhs = NumericOrJsonPathRhsOperand() {
             return new Lesser(lhs, rhs);
         }
         | <LESSER_EQUALS>
-        rhs = NumericRepr() {
+        rhs = NumericOrJsonPathRhsOperand() {
             return new LesserEquals(lhs, rhs);
         }
         | <EQUALS>
-        numOrJsonPath = NumericOrJsonPathRhsOperand() {
-            return new Equals(lhs, numOrJsonPath);
+        rhs = NumericOrJsonPathRhsOperand() {
+            return new Equals(lhs, rhs);
         }
         | <NOT_EQUALS>
-        numOrJsonPath = NumericOrJsonPathRhsOperand() {
-            return new NotEquals(lhs, numOrJsonPath);
+        rhs = NumericOrJsonPathRhsOperand() {
+            return new NotEquals(lhs, rhs);
         }
     )
 }
@@ -231,40 +257,50 @@ Value RhsOperand(): {
     }
 }
 
-Value StringOrJsonPathRhsOperand(): {
-    Value result = null;
+StringValue StringOrJsonPathRhsOperand(): {
+    StringValue sResult = null;;
+    JsonPathValue jResult = null;;
 }
 {
-    (result = StringRepr()
-     | result = JsonPathRepr()
+    (
+        sResult = StringRepr() {
+            return result;
+        }
+        | jResult = JsonPathRepr() {
+            return new StringValue(jResult);
+        }
      )
-    {
-        return result;
-    }
 }
 
-Value NumericOrJsonPathRhsOperand(): {
-    Value result = null;
+NumericValue NumericOrJsonPathRhsOperand(): {
+    NumericValue nResult = null;
+    JsonPathValue jResult = null;
 }
 {
-    (result = NumericRepr()
-     | result = JsonPathRepr()
-     )
-    {
-        return result;
-    }
+    (
+        nResult = NumericRepr() {
+            return result;
+        }
+        | jResult = JsonPathRepr()
+        {
+            return new NumericValue(jResult);
+        }
+    )
 }
 
-Value BooleanOrJsonPathRhsOperand(): {
-    Value result = null;
+BooleanValue BooleanOrJsonPathRhsOperand(): {
+    BooleanValue bResult = null;
+    JsonPathValue jResult = null;
 }
 {
-    (result = BooleanRepr()
-     | result = JsonPathRepr()
-     )
-    {
-        return result;
-    }
+    (
+        bResult = BooleanRepr() {
+            return bResult;
+        }
+        | result = JsonPathRepr() {
+            return new BooleanValue(jResult);
+        }
+    )
 }
 
 StringValue StringRepr() : {

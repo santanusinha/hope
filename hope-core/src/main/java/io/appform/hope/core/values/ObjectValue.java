@@ -1,8 +1,6 @@
 package io.appform.hope.core.values;
 
-import io.appform.hope.core.Value;
 import io.appform.hope.core.Visitor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -13,12 +11,14 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ObjectValue extends Value {
-    private final Object value;
+public class ObjectValue extends EvaluatableValue<Object> {
 
-    @Builder
     public ObjectValue(Object value) {
-        this.value = value;
+        super(value);
+    }
+
+    public ObjectValue(JsonPathValue pathValue) {
+        super(pathValue);
     }
 
     @Override
