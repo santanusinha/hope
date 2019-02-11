@@ -7,22 +7,26 @@ import io.appform.hope.core.utils.Converters;
 import io.appform.hope.core.values.NumericValue;
 import io.appform.hope.core.visitors.Evaluator;
 
+import java.util.Arrays;
+
 /**
  *
  */
-@FunctionImplementation("abs")
-public class Abs extends HopeFunction<NumericValue> {
+@FunctionImplementation("add")
+public class Add extends HopeFunction<NumericValue> {
 
-    private final Value param;
+    private final Value[] values;
 
-    public Abs(Value param) {
-        this.param = param;
+    public Add(Value ... values) {
+        this.values = values;
     }
 
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {
-        double value = Converters.numericValue(evaluationContext, param, 0)
-                .doubleValue();
-        return new NumericValue(Math.abs(value));
+
+        return new NumericValue(Arrays.stream(values)
+                .mapToDouble(value -> Converters.numericValue(evaluationContext, value, 0)
+                        .doubleValue())
+                .sum());
     }
 }

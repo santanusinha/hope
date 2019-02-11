@@ -1,5 +1,6 @@
 package io.appform.hope.core.values;
 
+import io.appform.hope.core.FunctionValue;
 import io.appform.hope.core.Visitor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +20,10 @@ public class BooleanValue extends EvaluatableValue<Boolean> {
 
     public BooleanValue(JsonPathValue pathValue) {
         super(pathValue);
+    }
+
+    public BooleanValue(FunctionValue function) {
+        super(function);
     }
 
     @Override

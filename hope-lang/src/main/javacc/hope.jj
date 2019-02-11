@@ -278,6 +278,9 @@ FunctionValue FunctionOpRepr() : {
     (
         t = <FUNCTION_CALL> <OPEN_BRACKET>
         (value = RhsOperand() {
+                    params.add(value);
+        })?
+        (<COMMA> value = RhsOperand() {
             params.add(value);
         })*
         <CLOSE_BRACKET>

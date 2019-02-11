@@ -11,13 +11,15 @@ import io.appform.hope.core.values.BooleanValue;
 import io.appform.hope.core.values.JsonPathValue;
 import io.appform.hope.core.values.NumericValue;
 import io.appform.hope.core.visitors.Evaluator;
+import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 /**
  *
  */
+@Slf4j
 public class Converters {
     public static Number numericValue(
             Evaluator.EvaluationContext evaluationContext,
@@ -53,30 +55,9 @@ public class Converters {
             @Override
             public Number visit(FunctionValue functionValue) {
                 final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
-                final List<Class<? extends Value>> paramTypes = functionMeta.getParamTypes();
                 final List<Value> parameters = functionValue.getParameters();
-                try {
-                    final HopeFunction hopeFunction = functionMeta.getFunctionClass()
-                            .getDeclaredConstructor(paramTypes
-                                                            .toArray(new Class<?>[paramTypes.size()]))
-                            .newInstance(
-                                    parameters.toArray(new Object[parameters.size()]));
-                    return numericValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
-                }
-                catch (InstantiationException e) {
-                    e.printStackTrace();
-                }
-                catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-                catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
-
-                return defaultValue;
+                final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
+                return numericValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
             }
         });
     }
@@ -104,9 +85,45 @@ public class Converters {
                     if(null != pathValue) {
                         return pathValue.accept(this);
                     }
+                    final FunctionValue functionValue = booleanValue.getFunction();
+                    if(null != functionValue) {
+                        return functionValue.accept(this);
+                    }
                 }
                 return value;
             }
+
+            @Override
+            public Boolean visit(FunctionValue functionValue) {
+                final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
+                final List<Value> parameters = functionValue.getParameters();
+                final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
+                return booleanValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
+            }
         });
+    }
+
+
+    private static HopeFunction createFunction(String name, FunctionRegistry.FunctionMeta functionMeta, List<Value> parameters) {
+        final List<Class<?>> paramTypes = functionMeta.getParamTypes();
+        try {
+            final Constructor<? extends HopeFunction> constructor = functionMeta.getFunctionClass()
+                    .getDeclaredConstructor(paramTypes
+                                                    .toArray(new Class<?>[paramTypes.size()]));
+            log.info("Found constructor: {}", constructor);
+            if(functionMeta.isArrayValue()) {
+                return constructor
+                        .newInstance(
+                                new Object[] { parameters.toArray(new Value[parameters.size()]) });
+            }
+            else {
+                return constructor
+                        .newInstance(
+                                parameters.toArray(new Object[parameters.size()]));
+            }
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("Could not create instance of function: '" + name + "'", e);
+        }
     }
 }

@@ -1,12 +1,9 @@
 package io.appform.hope.lang;
 
-import com.google.common.base.Preconditions;
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionRegistry;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -18,13 +15,17 @@ public class TypeUtils {
         if (null == functionMeta) {
             return null;
         }
-        final List<Class<? extends Value>> paramTypes = functionMeta.getParamTypes();
+        if(functionMeta.isArrayValue()) {
+            return functionMeta;
+        }
+        final List<Class<?>> paramTypes = functionMeta.getParamTypes();
         if(!paramTypes.isEmpty()) {
             if (values.size() != paramTypes.size()) {
                 throw new IllegalArgumentException(
                         String.format("Function '%s' expects '%d' arguments but '%d' provided",
                                       name, paramTypes.size(), values.size()));
             }
+/*
             final List<Value> unmatched = IntStream.range(0, values.size())
                     .filter(i -> values.get(i).getClass().isAssignableFrom(paramTypes.get(i)))
                     .mapToObj(values::get)
@@ -40,6 +41,7 @@ public class TypeUtils {
                                           .map(Object::getClass)
                                           .map(Class::getSimpleName)
                                           .collect(Collectors.toList())));
+*/
         }
         return functionMeta;
     }

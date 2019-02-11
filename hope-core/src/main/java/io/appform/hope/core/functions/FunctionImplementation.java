@@ -14,5 +14,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface FunctionImplementation {
     String value();
-    Class<? extends Value>[] paramTypes() default {};
 }
