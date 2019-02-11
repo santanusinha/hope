@@ -9,11 +9,13 @@ import java.util.List;
  *
  */
 public class TypeUtils {
+    private TypeUtils() {}
+
     public static FunctionRegistry.FunctionMeta function(String name, List<Value> values) {
         final FunctionRegistry.FunctionMeta functionMeta = FunctionRegistry.find(name)
                 .orElse(null);
         if (null == functionMeta) {
-            return null;
+            throw new IllegalArgumentException("Unknown function '" + name + "'");
         }
         if(functionMeta.isArrayValue()) {
             return functionMeta;

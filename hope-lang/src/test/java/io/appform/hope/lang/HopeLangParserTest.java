@@ -449,6 +449,17 @@ public class HopeLangParserTest {
     }
 
     @Test
+    public void testJsonPathFuncMathNestedLHS() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3, \"c\" : 5 }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.neg(math.minus(math.add(\"$.a\", \"$.b\", 7), 13)) == 1"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
     public void testFuncSysEpochLHS() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
