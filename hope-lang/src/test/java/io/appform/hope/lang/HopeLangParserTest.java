@@ -453,7 +453,7 @@ public class HopeLangParserTest {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3, \"c\" : 5 }");
 
-        HopeParser parser = new HopeParser(new StringReader("math.neg(math.minus(math.add(\"$.a\", \"$.b\", 7), 13)) == 1"));
+        HopeParser parser = new HopeParser(new StringReader("math.negate(math.sub(math.add(\"$.a\", \"$.b\", 7), 13)) == 1"));
         final Evaluatable operator = parser.parse();
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
@@ -469,4 +469,50 @@ public class HopeLangParserTest {
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
+
+    @Test
+    public void testFuncStrLower() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"ABC\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.lower(\"$.val\") == \"abc\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncStrUpper() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"abc\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.upper(\"$.val\") == \"ABC\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncStrLen() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"abc\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.len(\"$.val\") == 3"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncStrSubStr() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"abcdef\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.substr(\"$.val\", 0, 3) == \"abc\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+
 }

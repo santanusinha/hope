@@ -10,7 +10,7 @@ import io.appform.hope.core.visitors.Evaluator;
 /**
  *
  */
-@FunctionImplementation("math.minus")
+@FunctionImplementation("math.sub")
 public class Substract extends HopeFunction<NumericValue> {
     private final Value lhs;
     private final Value rhs;

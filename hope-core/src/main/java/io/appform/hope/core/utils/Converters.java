@@ -19,6 +19,43 @@ import java.util.List;
  */
 @Slf4j
 public class Converters {
+    public static String stringValue(
+            Evaluator.EvaluationContext evaluationContext,
+            TreeNode node,
+            String defaultValue) {
+        return node.accept(new VisitorAdapter<String>(defaultValue) {
+            @Override
+            public String visit(JsonPathValue jsonPathValue) {
+                final JsonNode value = evaluationContext.getJsonContext()
+                        .read(jsonPathValue.getPath());
+                if(value.isTextual()) {
+                    return value.asText();
+                }
+                return defaultValue;
+            }
+
+            @Override
+            public String visit(StringValue stringValue) {
+                final String value = stringValue.getValue();
+                if(null == value) {
+                    final JsonPathValue pathValue = stringValue.getPathValue();
+                    if(null != pathValue) {
+                        return pathValue.accept(this);
+                    }
+                    final FunctionValue functionValue = stringValue.getFunction();
+                    if(null != functionValue) {
+                        return functionValue.accept(this);
+                    }
+                }
+                return value;
+            }
+
+            @Override
+            public String visit(FunctionValue functionValue) {
+                return stringValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
+            }
+        });
+    }
     public static Number numericValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -52,10 +89,7 @@ public class Converters {
 
             @Override
             public Number visit(FunctionValue functionValue) {
-                final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
-                final List<Value> parameters = functionValue.getParameters();
-                final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
-                return numericValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
+                return numericValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
             }
         });
     }
@@ -93,10 +127,7 @@ public class Converters {
 
             @Override
             public Boolean visit(FunctionValue functionValue) {
-                final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
-                final List<Value> parameters = functionValue.getParameters();
-                final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
-                return booleanValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
+                return booleanValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
             }
         });
     }
@@ -138,7 +169,7 @@ public class Converters {
 
             @Override
             public Object visit(StringValue stringValue) {
-                return stringValue.getValue();
+                return stringValue(evaluationContext, stringValue, "");
             }
 
             @Override
@@ -148,14 +179,16 @@ public class Converters {
 
             @Override
             public Object visit(FunctionValue functionValue) {
-                final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
-                final List<Value> parameters = functionValue.getParameters();
-                final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
-                return objectValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
+                return objectValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
             }
         });
     }
 
+    private static HopeFunction function(FunctionValue functionValue) {
+        final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
+        final List<Value> parameters = functionValue.getParameters();
+        return createFunction(functionValue.getName(), functionMeta, parameters);
+    }
 
     private static HopeFunction createFunction(String name, FunctionRegistry.FunctionMeta functionMeta, List<Value> parameters) {
         final List<Class<?>> paramTypes = functionMeta.getParamTypes();

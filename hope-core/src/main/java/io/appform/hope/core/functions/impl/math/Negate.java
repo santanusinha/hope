@@ -10,7 +10,7 @@ import io.appform.hope.core.visitors.Evaluator;
 /**
  *
  */
-@FunctionImplementation("math.neg")
+@FunctionImplementation("math.negate")
 public class Negate extends HopeFunction<NumericValue> {
 
     private final Value param;
