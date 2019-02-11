@@ -416,7 +416,7 @@ public class HopeLangParserTest {
     }
 
     @Test
-    public void testJsonPathFuncSysEpoch() throws Exception {
+    public void testFuncSysEpoch() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
 
@@ -438,7 +438,7 @@ public class HopeLangParserTest {
     }
 
     @Test
-    public void testJsonPathFuncSysEpochLHS() throws Exception {
+    public void testFuncSysEpochLHS() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
 
