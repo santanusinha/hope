@@ -59,14 +59,17 @@ public class FunctionRegistry {
                 .anyMatch(Class::isArray);
         Preconditions.checkArgument(!arrayValue || paramTypes.size() == 1,
                                     "For (Value... ) vararg func only one param is allowed.");
+        final String functionName = annotation.value();
+        Preconditions.checkArgument(!knownFunctions.containsKey(functionName),
+                                    "Function '" + functionName + "' is already registered");
         knownFunctions.put(
-                annotation.value(),
+                functionName,
                 FunctionMeta.builder()
                         .paramTypes(paramTypes)
                         .arrayValue(arrayValue)
                         .functionClass(clazz)
                         .build());
-        log.debug("Registered function: {}", annotation.value());
+        log.debug("Registered function: {}", functionName);
     }
 
     public static Optional<FunctionMeta> find(String name) {
