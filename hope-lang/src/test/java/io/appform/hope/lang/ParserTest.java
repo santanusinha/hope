@@ -336,4 +336,59 @@ public class ParserTest {
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
+
+    @Test
+    public void  testNotSimple() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"boolValue\" : false }");
+
+        HopeParser parser = new HopeParser(new StringReader("^false"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void  testNotSimplePath() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"boolValue\" : false }");
+
+        HopeParser parser = new HopeParser(new StringReader("^\"$.boolValue\""));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void  testNotSimplePathParenth() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"boolValue\" : false }");
+
+        HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\")"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void  testNotCombinerPathParenth() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"boolValue\" : false, \"num\" : 43 }");
+
+        HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\" && \"$.num\" > 40)"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void  testNotCombinerPathParenthComplex() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"boolValue\" : false, \"num1\" : 43, \"num2\" : 49}");
+
+        HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\" && (\"$.num1\" > 45 || \"$.num2\" < 50))"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
 }

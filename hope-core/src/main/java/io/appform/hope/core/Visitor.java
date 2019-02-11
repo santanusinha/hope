@@ -38,4 +38,6 @@ public interface Visitor<T> {
     T visit(StringValue stringValue);
 
     T visit(BooleanValue booleanValue);
+
+    T visit(Not not);
 }

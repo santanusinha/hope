@@ -75,11 +75,6 @@ public class Evaluator {
         }
 
         @Override
-        public Boolean visit(And and) {
-            return and.getLhs().getValue() && and.getRhs().getValue();
-        }
-
-        @Override
         public Boolean visit(Equals equals) {
             return Objects.equals(equals.getLhs().accept(new ObjectValueEvaluator(evaluationContext)), equals.getRhs().accept(new ObjectValueEvaluator(
                     evaluationContext)));
@@ -121,8 +116,25 @@ public class Evaluator {
         }
 
         @Override
+        public Boolean visit(And and) {
+            boolean lhs = booleanValue(evaluationContext, and.getLhs(), false);
+            boolean rhs = booleanValue(evaluationContext, and.getRhs(), false);
+
+            return lhs && rhs;
+        }
+
+        @Override
         public Boolean visit(Or or) {
-            return or.getLhs().getValue() || or.getRhs().getValue();
+            boolean lhs = booleanValue(evaluationContext, or.getLhs(), false);
+            boolean rhs = booleanValue(evaluationContext, or.getRhs(), false);
+
+            return lhs || rhs;
+        }
+
+        @Override
+        public Boolean visit(Not not) {
+            boolean operand = booleanValue(evaluationContext, not.getOperand(), false);
+            return !operand;
         }
 
     }
@@ -200,6 +212,32 @@ public class Evaluator {
                 final Number value = numericValue.getValue();
                 if(null == value) {
                     final JsonPathValue pathValue = numericValue.getPathValue();
+                    if(null != pathValue) {
+                        return pathValue.accept(this);
+                    }
+                }
+                return value;
+            }
+        });
+    }
+
+    private static Boolean booleanValue(EvaluationContext evaluationContext, TreeNode node, boolean defaultValue) {
+        return node.accept(new VisitorAdapter<Boolean>(defaultValue) {
+            @Override
+            public Boolean visit(JsonPathValue jsonPathValue) {
+                final JsonNode value = evaluationContext.getJsonContext()
+                        .read(jsonPathValue.getPath());
+                if(value.isBoolean()) {
+                    return value.asBoolean();
+                }
+                return super.visit(jsonPathValue);
+            }
+
+            @Override
+            public Boolean visit(BooleanValue booleanValue) {
+                final Boolean value = booleanValue.getValue();
+                if(null == value) {
+                    final JsonPathValue pathValue = booleanValue.getPathValue();
                     if(null != pathValue) {
                         return pathValue.accept(this);
                     }

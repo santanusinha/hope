@@ -99,7 +99,7 @@ Evaluatable Expression(): {
         return value;
     }
     |
-    <OPEN_BRACKET> [ value = NativeOperations() | value = CombinerOpRepr() ] <CLOSE_BRACKET> {
+    <OPEN_BRACKET> [ value = CombinerOpRepr() | value = NativeOperations()] <CLOSE_BRACKET> {
         return value;
     }
 }
@@ -113,9 +113,19 @@ Evaluatable NativeOperations() : {
         | value = NumericalOpsRepr()
         | value = StringOpsRepr()
         | value = JsonPathOpsRepr()
+        | value = UnaryOpRepr()
     )
     {
         return value;
+    }
+}
+
+Evaluatable UnaryOpRepr(): {
+    BooleanValue bOp = null;
+}
+{
+    <NOT> bOp = BooleanOrJsonPathRhsOperand() {
+        return new Not(bOp);
     }
 }
 
@@ -264,7 +274,7 @@ StringValue StringOrJsonPathRhsOperand(): {
 {
     (
         sResult = StringRepr() {
-            return result;
+            return sResult;
         }
         | jResult = JsonPathRepr() {
             return new StringValue(jResult);
@@ -279,7 +289,7 @@ NumericValue NumericOrJsonPathRhsOperand(): {
 {
     (
         nResult = NumericRepr() {
-            return result;
+            return nResult;
         }
         | jResult = JsonPathRepr()
         {
@@ -297,7 +307,7 @@ BooleanValue BooleanOrJsonPathRhsOperand(): {
         bResult = BooleanRepr() {
             return bResult;
         }
-        | result = JsonPathRepr() {
+        | jResult = JsonPathRepr() {
             return new BooleanValue(jResult);
         }
     )

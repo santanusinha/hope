@@ -90,4 +90,9 @@ public abstract class VisitorAdapter<T> implements Visitor<T> {
     public T visit(BooleanValue booleanValue) {
         return defaultValue;
     }
+
+    @Override
+    public T visit(Not not) {
+        return defaultValue;
+    }
 }
