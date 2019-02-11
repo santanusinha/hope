@@ -40,4 +40,6 @@ public interface Visitor<T> {
     T visit(BooleanValue booleanValue);
 
     T visit(Not not);
+
+    T visit(FunctionValue functionValue);
 }

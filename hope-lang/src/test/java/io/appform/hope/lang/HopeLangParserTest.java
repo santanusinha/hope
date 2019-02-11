@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.Value;
+import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.values.BooleanValue;
 import io.appform.hope.core.values.JsonPathValue;
 import io.appform.hope.core.values.NumericValue;
@@ -19,7 +20,7 @@ import java.io.StringReader;
 /**
  *
  */
-public class ParserTest {
+public class HopeLangParserTest {
 
     final JsonNode node = NullNode.getInstance();
 
@@ -387,6 +388,18 @@ public class ParserTest {
         final JsonNode node = mapper.readTree("{ \"boolValue\" : false, \"num1\" : 43, \"num2\" : 49}");
 
         HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\" && (\"$.num1\" > 45 || \"$.num2\" < 50))"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathFuncNumeric() throws Exception {
+        FunctionRegistry.discover();
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"count\" : 93 }");
+
+        HopeParser parser = new HopeParser(new StringReader("93 <= abs(\"$.count\")"));
         final Evaluatable operator = parser.parse();
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));

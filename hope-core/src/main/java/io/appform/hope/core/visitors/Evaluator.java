@@ -9,11 +9,11 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
-import io.appform.hope.core.TreeNode;
 import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.operators.*;
+import io.appform.hope.core.utils.Converters;
 import io.appform.hope.core.values.*;
 import lombok.Builder;
 import lombok.Data;
@@ -42,7 +42,7 @@ public class Evaluator {
 
     @Data
     @Builder
-    private static class EvaluationContext {
+    public static class EvaluationContext {
         private final DocumentContext jsonContext;
     }
 
@@ -82,30 +82,30 @@ public class Evaluator {
 
         @Override
         public Boolean visit(Greater greater) {
-            final Number lhs = numericValue(evaluationContext, greater.getLhs(), 0);
-            final Number rhs = numericValue(evaluationContext, greater.getRhs(), 0);
+            final Number lhs = Converters.numericValue(evaluationContext, greater.getLhs(), 0);
+            final Number rhs = Converters.numericValue(evaluationContext, greater.getRhs(), 0);
             return lhs.doubleValue() > rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(GreaterEquals greaterEquals) {
-            final Number lhs = numericValue(evaluationContext, greaterEquals.getLhs(), 0);
-            final Number rhs = numericValue(evaluationContext, greaterEquals.getRhs(), 0);
+            final Number lhs = Converters.numericValue(evaluationContext, greaterEquals.getLhs(), 0);
+            final Number rhs = Converters.numericValue(evaluationContext, greaterEquals.getRhs(), 0);
             return lhs.doubleValue() >= rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(Lesser lesser) {
-            final Number lhs = numericValue(evaluationContext, lesser.getLhs(), 0);
-            final Number rhs = numericValue(evaluationContext, lesser.getRhs(), 0);
+            final Number lhs = Converters.numericValue(evaluationContext, lesser.getLhs(), 0);
+            final Number rhs = Converters.numericValue(evaluationContext, lesser.getRhs(), 0);
             return lhs.doubleValue() < rhs.doubleValue();
         }
 
         @Override
         public Boolean visit(LesserEquals lesserEquals) {
-            final Number lhs = numericValue(evaluationContext, lesserEquals.getLhs(), 0);
-            final Number rhs = numericValue(evaluationContext, lesserEquals.getRhs(), 0);
-            return lhs.doubleValue() < rhs.doubleValue();
+            final Number lhs = Converters.numericValue(evaluationContext, lesserEquals.getLhs(), 0);
+            final Number rhs = Converters.numericValue(evaluationContext, lesserEquals.getRhs(), 0);
+            return lhs.doubleValue() <= rhs.doubleValue();
         }
 
         @Override
@@ -117,23 +117,23 @@ public class Evaluator {
 
         @Override
         public Boolean visit(And and) {
-            boolean lhs = booleanValue(evaluationContext, and.getLhs(), false);
-            boolean rhs = booleanValue(evaluationContext, and.getRhs(), false);
+            boolean lhs = Converters.booleanValue(evaluationContext, and.getLhs(), false);
+            boolean rhs = Converters.booleanValue(evaluationContext, and.getRhs(), false);
 
             return lhs && rhs;
         }
 
         @Override
         public Boolean visit(Or or) {
-            boolean lhs = booleanValue(evaluationContext, or.getLhs(), false);
-            boolean rhs = booleanValue(evaluationContext, or.getRhs(), false);
+            boolean lhs = Converters.booleanValue(evaluationContext, or.getLhs(), false);
+            boolean rhs = Converters.booleanValue(evaluationContext, or.getRhs(), false);
 
             return lhs || rhs;
         }
 
         @Override
         public Boolean visit(Not not) {
-            boolean operand = booleanValue(evaluationContext, not.getOperand(), false);
+            boolean operand = Converters.booleanValue(evaluationContext, not.getOperand(), false);
             return !operand;
         }
 
@@ -195,55 +195,4 @@ public class Evaluator {
     }
 */
 
-    private static Number numericValue(EvaluationContext evaluationContext, TreeNode node, Number defaultValue) {
-        return node.accept(new VisitorAdapter<Number>(defaultValue) {
-            @Override
-            public Number visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = evaluationContext.getJsonContext()
-                        .read(jsonPathValue.getPath());
-                if(value.isNumber()) {
-                    return value.asDouble();
-                }
-                return defaultValue;
-            }
-
-            @Override
-            public Number visit(NumericValue numericValue) {
-                final Number value = numericValue.getValue();
-                if(null == value) {
-                    final JsonPathValue pathValue = numericValue.getPathValue();
-                    if(null != pathValue) {
-                        return pathValue.accept(this);
-                    }
-                }
-                return value;
-            }
-        });
-    }
-
-    private static Boolean booleanValue(EvaluationContext evaluationContext, TreeNode node, boolean defaultValue) {
-        return node.accept(new VisitorAdapter<Boolean>(defaultValue) {
-            @Override
-            public Boolean visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = evaluationContext.getJsonContext()
-                        .read(jsonPathValue.getPath());
-                if(value.isBoolean()) {
-                    return value.asBoolean();
-                }
-                return super.visit(jsonPathValue);
-            }
-
-            @Override
-            public Boolean visit(BooleanValue booleanValue) {
-                final Boolean value = booleanValue.getValue();
-                if(null == value) {
-                    final JsonPathValue pathValue = booleanValue.getPathValue();
-                    if(null != pathValue) {
-                        return pathValue.accept(this);
-                    }
-                }
-                return value;
-            }
-        });
-    }
 }

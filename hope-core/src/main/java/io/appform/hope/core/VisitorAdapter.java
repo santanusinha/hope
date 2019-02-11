@@ -95,4 +95,9 @@ public abstract class VisitorAdapter<T> implements Visitor<T> {
     public T visit(Not not) {
         return defaultValue;
     }
+
+    @Override
+    public T visit(FunctionValue functionValue) {
+        return defaultValue;
+    }
 }

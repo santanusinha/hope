@@ -1,8 +1,5 @@
-/* adder.jj Adding up numbers */
-
 options {
     JAVA_UNICODE_ESCAPE = true;
-//    STATIC = false ;
     LOOKAHEAD = 3;
     FORCE_LA_CHECK = true;
 }
@@ -13,6 +10,9 @@ import io.appform.hope.core.*;
 import io.appform.hope.core.combiners.*;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.values.*;
+import io.appform.hope.core.functions.*;
+import io.appform.hope.core.*;
+import io.appform.hope.lang.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,7 @@ PARSER_END(HopeParser)
 
 SKIP :  {" "}
 SKIP :  {"\n"|"\r"|"\r\n"}
+TOKEN : {<COMMA : ",">}
 TOKEN : {<OPEN_BRACKET : "(">}
 TOKEN : {<CLOSE_BRACKET : ")">}
 TOKEN : {<EQUALS : "==">}
@@ -42,6 +43,7 @@ TOKEN : {<OR_COMBINER : "||">}
 TOKEN : {<QUOTE : "\"">}
 TOKEN : {<NUMBER :(["0"-"9"])+|(["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "."(["0"-"9"])+>}
 TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
+TOKEN : {<FUNCTION_CALL : (["0"-"9", "a"-"z", "A"-"Z" , "_"])+>}
 TOKEN : {<STRING_VALUE : (["0"-"9", "a"-"z", "A"-"Z" , "/", "+", "@"])+>}
 TOKEN : {<PATH_VALUE : "$." <STRING_VALUE>>}
 TOKEN : {<STRING: <QUOTE> <STRING_VALUE> <QUOTE>>}
@@ -67,7 +69,6 @@ Evaluatable CombinerOpRepr(): {
         ops.add(current);
     }
     (
-
         (
             <AND_COMBINER> { combiner = new AndCombiner(ops); }
             current = Expression() {
@@ -89,8 +90,8 @@ Evaluatable CombinerOpRepr(): {
         }
         return combiner;
     }
-
 }
+
 Evaluatable Expression(): {
     Evaluatable value = null;
 }
@@ -261,9 +262,29 @@ Value RhsOperand(): {
      | result = JsonPathRepr()
      | result = NumericRepr()
      | result = BooleanRepr()
+     | result = FunctionOpRepr()
      )
     {
         return result;
+    }
+}
+
+FunctionValue FunctionOpRepr() : {
+    Token t = null;
+    List<Value> params = new ArrayList();
+    Value value = null;
+}
+{
+    (
+        t = <FUNCTION_CALL> <OPEN_BRACKET>
+        (value = RhsOperand() {
+            params.add(value);
+        })*
+        <CLOSE_BRACKET>
+    )
+    {
+        FunctionRegistry.FunctionMeta function = TypeUtils.function(t.image, params);
+        return new FunctionValue(t.image, params, function);
     }
 }
 
@@ -285,6 +306,7 @@ StringValue StringOrJsonPathRhsOperand(): {
 NumericValue NumericOrJsonPathRhsOperand(): {
     NumericValue nResult = null;
     JsonPathValue jResult = null;
+    FunctionValue fResult = null;
 }
 {
     (
@@ -294,6 +316,9 @@ NumericValue NumericOrJsonPathRhsOperand(): {
         | jResult = JsonPathRepr()
         {
             return new NumericValue(jResult);
+        }
+        | fResult = FunctionOpRepr() {
+            return new NumericValue(fResult);
         }
     )
 }
