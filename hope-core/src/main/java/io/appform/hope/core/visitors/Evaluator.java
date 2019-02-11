@@ -14,7 +14,6 @@ import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.utils.Converters;
-import io.appform.hope.core.values.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -76,8 +75,16 @@ public class Evaluator {
 
         @Override
         public Boolean visit(Equals equals) {
-            return Objects.equals(equals.getLhs().accept(new ObjectValueEvaluator(evaluationContext)), equals.getRhs().accept(new ObjectValueEvaluator(
-                    evaluationContext)));
+            final Object lhs = Converters.objectValue(evaluationContext, equals.getLhs(), null);
+            final Object rhs = Converters.objectValue(evaluationContext, equals.getRhs(), null);
+            return Objects.equals(lhs, rhs);
+        }
+
+        @Override
+        public Boolean visit(NotEquals notEquals) {
+            final Object lhs = Converters.objectValue(evaluationContext, notEquals.getLhs(), null);
+            final Object rhs = Converters.objectValue(evaluationContext, notEquals.getRhs(), null);
+            return !Objects.equals(lhs, rhs);
         }
 
         @Override
@@ -109,13 +116,6 @@ public class Evaluator {
         }
 
         @Override
-        public Boolean visit(NotEquals notEquals) {
-            return !Objects.equals(
-                    notEquals.getLhs().accept(new ObjectValueEvaluator(evaluationContext)),
-                    notEquals.getRhs().accept(new ObjectValueEvaluator(evaluationContext)));
-        }
-
-        @Override
         public Boolean visit(And and) {
             boolean lhs = Converters.booleanValue(evaluationContext, and.getLhs(), false);
             boolean rhs = Converters.booleanValue(evaluationContext, and.getRhs(), false);
@@ -135,56 +135,6 @@ public class Evaluator {
         public Boolean visit(Not not) {
             boolean operand = Converters.booleanValue(evaluationContext, not.getOperand(), false);
             return !operand;
-        }
-
-    }
-
-    private class ObjectValueEvaluator extends VisitorAdapter<Object> {
-        private final EvaluationContext evaluationContext;
-
-        public ObjectValueEvaluator(EvaluationContext evaluationContext) {
-            super(null);
-            this.evaluationContext = evaluationContext;
-        }
-
-        @Override
-        public Object visit(JsonPathValue jsonPathValue) {
-            final JsonNode extractedNode = evaluationContext.getJsonContext().read(jsonPathValue.getPath());
-            if(null != extractedNode) {
-                if(extractedNode.isTextual()) {
-                    return extractedNode.asText();
-                }
-                if(extractedNode.isBoolean()) {
-                    return extractedNode.asBoolean();
-                }
-                if(extractedNode.isNumber()) {
-                    return extractedNode.asDouble();
-                }
-                if(extractedNode.isPojo()) {
-                    return extractedNode.isPojo();
-                }
-            }
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Object visit(ObjectValue objectValue) {
-            return objectValue.getValue();
-        }
-
-        @Override
-        public Object visit(NumericValue numericValue) {
-            return numericValue.getValue();
-        }
-
-        @Override
-        public Object visit(StringValue stringValue) {
-            return stringValue.getValue();
-        }
-
-        @Override
-        public Object visit(BooleanValue booleanValue) {
-            return booleanValue.getValue();
         }
 
     }

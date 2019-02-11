@@ -7,9 +7,7 @@ import io.appform.hope.core.Value;
 import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.functions.HopeFunction;
-import io.appform.hope.core.values.BooleanValue;
-import io.appform.hope.core.values.JsonPathValue;
-import io.appform.hope.core.values.NumericValue;
+import io.appform.hope.core.values.*;
 import io.appform.hope.core.visitors.Evaluator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -99,6 +97,61 @@ public class Converters {
                 final List<Value> parameters = functionValue.getParameters();
                 final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
                 return booleanValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
+            }
+        });
+    }
+
+    public static Object objectValue(
+            Evaluator.EvaluationContext evaluationContext,
+            TreeNode node,
+            Object defaultValue) {
+        return node.accept(new VisitorAdapter<Object>(defaultValue) {
+            @Override
+            public Object visit(JsonPathValue jsonPathValue) {
+                final JsonNode extractedNode = evaluationContext.getJsonContext().read(jsonPathValue.getPath());
+                if(null != extractedNode) {
+                    if(extractedNode.isTextual()) {
+                        return extractedNode.asText();
+                    }
+                    if(extractedNode.isBoolean()) {
+                        return extractedNode.asBoolean();
+                    }
+                    if(extractedNode.isNumber()) {
+                        return extractedNode.asDouble();
+                    }
+                    if(extractedNode.isPojo()) {
+                        return extractedNode.isPojo();
+                    }
+                }
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Object visit(ObjectValue objectValue) {
+                return objectValue.getValue();
+            }
+
+            @Override
+            public Object visit(NumericValue numericValue) {
+                return numericValue(evaluationContext, numericValue, 0);
+            }
+
+            @Override
+            public Object visit(StringValue stringValue) {
+                return stringValue.getValue();
+            }
+
+            @Override
+            public Object visit(BooleanValue booleanValue) {
+                return booleanValue(evaluationContext, booleanValue, false);
+            }
+
+            @Override
+            public Object visit(FunctionValue functionValue) {
+                final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
+                final List<Value> parameters = functionValue.getParameters();
+                final HopeFunction hopeFunction = createFunction(functionValue.getName(), functionMeta, parameters);
+                return objectValue(evaluationContext, hopeFunction.apply(evaluationContext), defaultValue);
             }
         });
     }

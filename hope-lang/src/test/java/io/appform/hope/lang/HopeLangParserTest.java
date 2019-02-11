@@ -406,7 +406,6 @@ public class HopeLangParserTest {
 
     @Test
     public void testJsonPathFuncMathAdd() throws Exception {
-        //FunctionRegistry.discover();
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
 
@@ -418,11 +417,32 @@ public class HopeLangParserTest {
 
     @Test
     public void testJsonPathFuncSysEpoch() throws Exception {
-        //FunctionRegistry.discover();
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
 
         HopeParser parser = new HopeParser(new StringReader("7 <= sys.epoch()"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathFuncMathAddLHS() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.add(\"$.a\", \"$.b\", 7) == 12"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathFuncSysEpochLHS() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
+
+        HopeParser parser = new HopeParser(new StringReader("sys.epoch() >= 7"));
         final Evaluatable operator = parser.parse();
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));

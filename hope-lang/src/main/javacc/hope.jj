@@ -114,6 +114,7 @@ Evaluatable NativeOperations() : {
         | value = NumericalOpsRepr()
         | value = StringOpsRepr()
         | value = JsonPathOpsRepr()
+        | value = FunctionOpsRepr()
         | value = UnaryOpRepr()
     )
     {
@@ -158,6 +159,51 @@ Evaluatable JsonPathOpsRepr(): {
 }
 {
     lhs = JsonPathRepr()
+    (
+        <EQUALS>
+        rhs = RhsOperand() {
+            return new Equals(lhs, rhs);
+        }
+        | <NOT_EQUALS>
+        rhs = RhsOperand() {
+            return new NotEquals(lhs, rhs);
+        }
+        | <GREATER>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new Greater(new NumericValue(lhs), nRhs);
+        }
+        | <GREATER_EQUALS>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new GreaterEquals(new NumericValue(lhs), nRhs);
+        }
+        | <LESSER>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new Lesser(new NumericValue(lhs), nRhs);
+        }
+        | <LESSER_EQUALS>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new LesserEquals(new NumericValue(lhs), nRhs);
+        }
+        | <AND>
+        bRhs = BooleanOrJsonPathRhsOperand() {
+            return new And(new BooleanValue(lhs), bRhs);
+        }
+        | <OR>
+        bRhs = BooleanOrJsonPathRhsOperand() {
+            return new Or(new BooleanValue(lhs), bRhs);
+        }
+    )
+}
+
+Evaluatable FunctionOpsRepr(): {
+    FunctionValue lhs = null;
+    Value rhs = null;
+    NumericValue nRhs = null;
+    BooleanValue bRhs = null;
+    StringValue sRhs = null;
+}
+{
+    lhs = FunctionRepr()
     (
         <EQUALS>
         rhs = RhsOperand() {
@@ -262,14 +308,14 @@ Value RhsOperand(): {
      | result = JsonPathRepr()
      | result = NumericRepr()
      | result = BooleanRepr()
-     | result = FunctionOpRepr()
+     | result = FunctionRepr()
      )
     {
         return result;
     }
 }
 
-FunctionValue FunctionOpRepr() : {
+FunctionValue FunctionRepr() : {
     Token t = null;
     List<Value> params = new ArrayList();
     Value value = null;
@@ -320,7 +366,7 @@ NumericValue NumericOrJsonPathRhsOperand(): {
         {
             return new NumericValue(jResult);
         }
-        | fResult = FunctionOpRepr() {
+        | fResult = FunctionRepr() {
             return new NumericValue(fResult);
         }
     )
