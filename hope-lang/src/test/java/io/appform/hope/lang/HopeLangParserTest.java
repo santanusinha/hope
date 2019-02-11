@@ -393,24 +393,36 @@ public class HopeLangParserTest {
     }
 
     @Test
-    public void testJsonPathFuncNumericAbs() throws Exception {
+    public void testJsonPathFuncMathAbs() throws Exception {
         //FunctionRegistry.discover();
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"count\" : 93 }");
 
-        HopeParser parser = new HopeParser(new StringReader("93 <= abs(\"$.count\")"));
+        HopeParser parser = new HopeParser(new StringReader("93 <= math.abs(\"$.count\")"));
         final Evaluatable operator = parser.parse();
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
-    public void testJsonPathFuncNumericAdd() throws Exception {
+    public void testJsonPathFuncMathAdd() throws Exception {
         //FunctionRegistry.discover();
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
 
-        HopeParser parser = new HopeParser(new StringReader("7 <= add(\"$.a\", \"$.b\", 7)"));
+        HopeParser parser = new HopeParser(new StringReader("7 <= math.add(\"$.a\", \"$.b\", 7)"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathFuncSysEpoch() throws Exception {
+        //FunctionRegistry.discover();
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
+
+        HopeParser parser = new HopeParser(new StringReader("7 <= sys.epoch()"));
         final Evaluatable operator = parser.parse();
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));

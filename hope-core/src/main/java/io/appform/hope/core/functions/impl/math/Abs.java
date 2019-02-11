@@ -1,4 +1,4 @@
-package io.appform.hope.core.functions.impl;
+package io.appform.hope.core.functions.impl.math;
 
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionImplementation;
@@ -10,7 +10,7 @@ import io.appform.hope.core.visitors.Evaluator;
 /**
  *
  */
-@FunctionImplementation("abs")
+@FunctionImplementation("math.abs")
 public class Abs extends HopeFunction<NumericValue> {
 
     private final Value param;

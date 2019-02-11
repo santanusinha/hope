@@ -1,4 +1,4 @@
-package io.appform.hope.core.functions.impl;
+package io.appform.hope.core.functions.impl.math;
 
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionImplementation;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  *
  */
-@FunctionImplementation("add")
+@FunctionImplementation("math.add")
 public class Add extends HopeFunction<NumericValue> {
 
     private final Value[] values;
