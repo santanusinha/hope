@@ -525,5 +525,69 @@ public class HopeLangParserTest {
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
 
+    @Test
+    public void testFuncArrContainsAny() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : [1,2,4,8,16] }");
 
+        HopeParser parser = new HopeParser(new StringReader("arr.contains_any(\"$.val\", [2,3]) == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrContainsAnyNeg() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : [1,2,4,8,16] }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.contains_any([9,7], \"$.val\") == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrContainsAll() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : [1,2,3, 4,8,16] }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.contains_all(\"$.val\", [2,3]) == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrContainsAllNeg() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : [1,2,4,8,16] }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.contains_all([1, 9,7], \"$.val\") == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrIn() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"haystack\" : [1,2,3, 4,8,16], \"needle\" : 2 }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrNotIn() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"haystack\" : [1,2,3, 4,8,16], \"needle\" : 9 }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.not_in(\"$.needle\", \"$.haystack\") == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
 }

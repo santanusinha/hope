@@ -100,4 +100,9 @@ public abstract class VisitorAdapter<T> implements Visitor<T> {
     public T visit(FunctionValue functionValue) {
         return defaultValue;
     }
+
+    @Override
+    public T visit(ArrayValue arrayValue) {
+        return defaultValue;
+    }
 }

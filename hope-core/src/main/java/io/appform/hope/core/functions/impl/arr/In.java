@@ -1,0 +1,37 @@
+package io.appform.hope.core.functions.impl.arr;
+
+import com.google.common.collect.Sets;
+import io.appform.hope.core.Value;
+import io.appform.hope.core.functions.FunctionImplementation;
+import io.appform.hope.core.functions.HopeFunction;
+import io.appform.hope.core.utils.Converters;
+import io.appform.hope.core.values.BooleanValue;
+import io.appform.hope.core.visitors.Evaluator;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
+/**
+ *
+ */
+@FunctionImplementation("arr.in")
+public class In extends HopeFunction<BooleanValue> {
+    private final Value lhs;
+    private final Value rhs;
+
+    public In(Value lhs, Value rhs) {
+        this.lhs = lhs;
+        this.rhs = rhs;
+    }
+
+    @Override
+    public BooleanValue apply(Evaluator.EvaluationContext evaluationContext) {
+        final Object lhsValue = Converters.objectValue(evaluationContext, lhs, null);
+        return new BooleanValue(
+                null != lhsValue
+                        && new HashSet<>(
+                        Converters.flattenArray(evaluationContext, rhs, Collections.emptyList())).contains(lhsValue));
+    }
+}

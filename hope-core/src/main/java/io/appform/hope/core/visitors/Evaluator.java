@@ -1,5 +1,6 @@
 package io.appform.hope.core.visitors;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +26,11 @@ import java.util.Objects;
 public class Evaluator {
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    static {
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
     public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
         try {
             System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(evaluatable));
@@ -36,16 +42,17 @@ public class Evaluator {
                 .jsonProvider(new JacksonJsonNodeJsonProvider())
                 .options(Option.SUPPRESS_EXCEPTIONS)
                 .build();
-        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(JsonPath.using(configuration).parse(node))));
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(JsonPath.using(configuration).parse(node), this)));
     }
 
     @Data
     @Builder
     public static class EvaluationContext {
         private final DocumentContext jsonContext;
+        private final Evaluator evaluator;
     }
 
-    private class LogicEvaluator extends VisitorAdapter<Boolean> {
+    public static class LogicEvaluator extends VisitorAdapter<Boolean> {
 
         private final EvaluationContext evaluationContext;
 

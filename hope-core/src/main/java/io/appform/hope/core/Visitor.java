@@ -42,4 +42,6 @@ public interface Visitor<T> {
     T visit(Not not);
 
     T visit(FunctionValue functionValue);
+
+    T visit(ArrayValue arrayValue);
 }

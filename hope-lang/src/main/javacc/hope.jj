@@ -43,11 +43,14 @@ TOKEN : {<OR_COMBINER : "||">}
 TOKEN : {<QUOTE : "\"">}
 TOKEN : {<NUMBER :(["0"-"9"])+|(["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "."(["0"-"9"])+>}
 TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
-TOKEN : {<FUNCTION_CALL : (["0"-"9", "a"-"z", "A"-"Z" , "_", "."])+>}
+TOKEN : {<FUNCTION_CALL : ["a"-"z", "A"-"Z"](["0"-"9", "a"-"z", "A"-"Z" , "_", "."])+>}
 TOKEN : {<STRING_VALUE : (["0"-"9", "a"-"z", "A"-"Z" , "/", "+", "@"])+>}
 TOKEN : {<PATH_VALUE : "$." <STRING_VALUE>>}
 TOKEN : {<STRING: <QUOTE> <STRING_VALUE> <QUOTE>>}
 TOKEN : {<PATH: <QUOTE> <PATH_VALUE> <QUOTE>>}
+TOKEN : {<ARRAY_START: "[">}
+TOKEN : {<ARRAY_END: "]">}
+TOKEN : {<ARRAY_NAME : (["a"-"z", "A"-"Z"]["0"-"9", "a"-"z", "A"-"Z" , "_"])+>}
 
 Evaluatable parse(): {
     Evaluatable value = null;
@@ -323,17 +326,39 @@ FunctionValue FunctionRepr() : {
 {
     (
         t = <FUNCTION_CALL> <OPEN_BRACKET>
-        (value = RhsOperand() {
-                    params.add(value);
-        })?
-        (<COMMA> value = RhsOperand() {
-            params.add(value);
-        })*
+        (
+            (value = RhsOperand() { params.add(value); })
+            |( value = ArrayRepr() { params.add(value); })
+        )?
+        (<COMMA>
+            ((value = RhsOperand() { params.add(value); })
+            |( value = ArrayRepr() { params.add(value); }))
+        )*
         <CLOSE_BRACKET>
     )
     {
         FunctionRegistry.FunctionMeta function = TypeUtils.function(t.image, params);
         return new FunctionValue(t.image, params, function);
+    }
+}
+
+ArrayValue ArrayRepr() : {
+    List<Value> params = new ArrayList();
+    Value value = null;
+}
+{
+    (
+        <ARRAY_START>
+        (value = RhsOperand() {
+            params.add(value);
+        })?
+        (<COMMA> value = RhsOperand() {
+            params.add(value);
+        })*
+        <ARRAY_END>
+    )
+    {
+        return new ArrayValue(params);
     }
 }
 
