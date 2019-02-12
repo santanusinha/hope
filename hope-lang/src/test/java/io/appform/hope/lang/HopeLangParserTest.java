@@ -514,5 +514,16 @@ public class HopeLangParserTest {
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
 
+    @Test
+    public void testFuncPathExists() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"abcdef\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("path.exists(\"$.val\") == true"));
+        final Evaluatable operator = parser.parse();
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
 
 }

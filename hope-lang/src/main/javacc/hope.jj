@@ -337,9 +337,25 @@ FunctionValue FunctionRepr() : {
     }
 }
 
+JsonPathValue PathOrEvaluatedPathRhsOperand(): {
+    JsonPathValue jResult = null;
+    FunctionValue fResult = null;
+}
+{
+    (
+        jResult = JsonPathRepr() {
+            return jResult;
+        }
+        | fResult = FunctionRepr() {
+            return new JsonPathValue(fResult);
+        }
+     )
+}
+
 StringValue StringOrJsonPathRhsOperand(): {
     StringValue sResult = null;;
     JsonPathValue jResult = null;;
+    FunctionValue fResult = null;
 }
 {
     (
@@ -348,6 +364,9 @@ StringValue StringOrJsonPathRhsOperand(): {
         }
         | jResult = JsonPathRepr() {
             return new StringValue(jResult);
+        }
+        | fResult = FunctionRepr() {
+            return new StringValue(fResult);
         }
      )
 }

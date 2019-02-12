@@ -1,6 +1,7 @@
 package io.appform.hope.core.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Strings;
 import io.appform.hope.core.FunctionValue;
 import io.appform.hope.core.TreeNode;
 import io.appform.hope.core.Value;
@@ -128,6 +129,29 @@ public class Converters {
             @Override
             public Boolean visit(FunctionValue functionValue) {
                 return booleanValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
+            }
+        });
+    }
+
+    public static String jsonPathValue(
+            Evaluator.EvaluationContext evaluationContext,
+            TreeNode node,
+            String defaultValue) {
+        return node.accept(new VisitorAdapter<String>(defaultValue) {
+            @Override
+            public String visit(JsonPathValue jsonPathValue) {
+                final String path = jsonPathValue.getPath();
+
+                if(Strings.isNullOrEmpty(path)) {
+                    final FunctionValue functionValue = jsonPathValue.getFunction();
+                    return functionValue.accept(this);
+                }
+                return path;
+            }
+
+            @Override
+            public String visit(FunctionValue functionValue) {
+                return jsonPathValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
             }
         });
     }
