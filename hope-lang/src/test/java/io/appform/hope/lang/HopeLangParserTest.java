@@ -603,7 +603,9 @@ public class HopeLangParserTest {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"value\": 20, \"string\" : \"Hello\" }");
 
-        final HopeLangParser hopeLangParser = new HopeLangParser(functionRegistry);
+        final HopeLangParser hopeLangParser = HopeLangParser.builder()
+                .build();
+
         final String payload = "\"$.value\" > 11" +
                 " && \"$.value\" <30" +
                 " && \"$.value\" > 19 && \"$.value\" < 21" +

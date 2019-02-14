@@ -43,7 +43,7 @@ public class FunctionRegistry {
         if(discoveredAlready) {
             return;
         }
-        final List<URL> packageUrls = new ImmutableList.Builder()
+        final List<URL> packageUrls = new ImmutableList.Builder<URL>()
                 .addAll(ClasspathHelper.forPackage("io.appform.hope.core.functions.impl"))
                 .addAll(packages.stream()
                        .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath).stream())
