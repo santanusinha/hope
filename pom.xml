@@ -19,7 +19,7 @@
         <junit.version>4.12</junit.version>
         <guava.version>27.0.1-jre</guava.version>
         <json-path.version>2.3.0</json-path.version>
-        <jackson.version>2.9.6</jackson.version>
+        <jackson.version>[2.9.8,)</jackson.version>
     </properties>
 
     <dependencyManagement>

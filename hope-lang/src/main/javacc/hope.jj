@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HopeParser {
-
+    private FunctionRegistry functionRegistry;
 }
 PARSER_END(HopeParser)
 
@@ -52,7 +52,8 @@ TOKEN : {<ARRAY_START: "[">}
 TOKEN : {<ARRAY_END: "]">}
 TOKEN : {<ARRAY_NAME : (["a"-"z", "A"-"Z"]["0"-"9", "a"-"z", "A"-"Z" , "_"])+>}
 
-Evaluatable parse(): {
+Evaluatable parse(FunctionRegistry functionRegistry): {
+    this.functionRegistry = functionRegistry;
     Evaluatable value = null;
 }
 {
@@ -337,7 +338,7 @@ FunctionValue FunctionRepr() : {
         <CLOSE_BRACKET>
     )
     {
-        FunctionRegistry.FunctionMeta function = TypeUtils.function(t.image, params);
+        FunctionRegistry.FunctionMeta function = TypeUtils.function(functionRegistry, t.image, params);
         return new FunctionValue(t.image, params, function);
     }
 }

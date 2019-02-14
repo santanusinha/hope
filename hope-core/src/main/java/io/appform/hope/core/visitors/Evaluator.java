@@ -1,13 +1,9 @@
 package io.appform.hope.core.visitors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.*;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
@@ -18,6 +14,8 @@ import io.appform.hope.core.utils.Converters;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,18 +29,21 @@ public class Evaluator {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
-        try {
-            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(evaluatable));
-        }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        final Configuration configuration = Configuration.builder()
+    private final Configuration configuration;
+    private final ParseContext parseContext;
+
+    public Evaluator() {
+        configuration = Configuration.builder()
                 .jsonProvider(new JacksonJsonNodeJsonProvider())
                 .options(Option.SUPPRESS_EXCEPTIONS)
                 .build();
-        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(JsonPath.using(configuration).parse(node), this)));
+        parseContext = JsonPath.using(configuration);
+
+    }
+
+    public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext
+                                                                                   .parse(node), this)));
     }
 
     @Data
@@ -50,6 +51,7 @@ public class Evaluator {
     public static class EvaluationContext {
         private final DocumentContext jsonContext;
         private final Evaluator evaluator;
+        private final Map<String, JsonNode> jsonPathEvalCache = new HashMap<>(128);
     }
 
     public static class LogicEvaluator extends VisitorAdapter<Boolean> {
@@ -145,11 +147,5 @@ public class Evaluator {
         }
 
     }
-
-/*
-    private static <T> T  extractValue(BinaryOperator<T> operator) {
-
-    }
-*/
 
 }

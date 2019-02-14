@@ -14,7 +14,10 @@ import io.appform.hope.core.visitors.Evaluator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +26,9 @@ import java.util.stream.StreamSupport;
  */
 @Slf4j
 public class Converters {
+
+    private Converters() {}
+
     public static String stringValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -30,8 +36,7 @@ public class Converters {
         return node.accept(new VisitorAdapter<String>(defaultValue) {
             @Override
             public String visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = evaluationContext.getJsonContext()
-                        .read(jsonPathValue.getPath());
+                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
                 if (value.isTextual()) {
                     return value.asText();
                 }
@@ -68,8 +73,7 @@ public class Converters {
         return node.accept(new VisitorAdapter<Number>(defaultValue) {
             @Override
             public Number visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = evaluationContext.getJsonContext()
-                        .read(jsonPathValue.getPath());
+                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
                 if (value.isNumber()) {
                     return value.asDouble();
                 }
@@ -106,8 +110,7 @@ public class Converters {
         return node.accept(new VisitorAdapter<Boolean>(defaultValue) {
             @Override
             public Boolean visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = evaluationContext.getJsonContext()
-                        .read(jsonPathValue.getPath());
+                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
                 if (value.isBoolean()) {
                     return value.asBoolean();
                 }
@@ -135,31 +138,6 @@ public class Converters {
                 return booleanValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
             }
         });
-    }
-
-    public static Value jsonNodeToValue(JsonNode node) {
-        if (node.isTextual()) {
-            return new StringValue(node.asText());
-        }
-        if (node.isBoolean()) {
-            return new BooleanValue(node.asBoolean());
-        }
-        if (node.isNumber()) {
-            return new NumericValue(node.doubleValue());
-        }
-        if (node.isPojo()) {
-            return new ObjectValue(node);
-        }
-        if (node.isArray()) {
-            return new ArrayValue(StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(ArrayNode.class.cast(node)
-                                                                .elements(), Spliterator.ORDERED),
-                    false)
-                                          .map(child -> jsonNodeToValue(node))
-                                          .collect(Collectors.toList()));
-        }
-        throw new UnsupportedOperationException(node.getNodeType()
-                                                        .name() + " is not supported");
     }
 
     public static List<Value> explodeArray(
@@ -256,20 +234,19 @@ public class Converters {
         return node.accept(new VisitorAdapter<Object>(defaultValue) {
             @Override
             public Object visit(JsonPathValue jsonPathValue) {
-                final JsonNode extractedNode = evaluationContext.getJsonContext()
-                        .read(jsonPathValue.getPath());
-                if (null != extractedNode && ! extractedNode.isNull()) {
-                    if (extractedNode.isTextual()) {
-                        return extractedNode.asText();
+                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
+                if (null != value && ! value.isNull()) {
+                    if (value.isTextual()) {
+                        return value.asText();
                     }
-                    if (extractedNode.isBoolean()) {
-                        return extractedNode.asBoolean();
+                    if (value.isBoolean()) {
+                        return value.asBoolean();
                     }
-                    if (extractedNode.isNumber()) {
-                        return extractedNode.asDouble();
+                    if (value.isNumber()) {
+                        return value.asDouble();
                     }
-                    if (extractedNode.isPojo()) {
-                        return extractedNode.isPojo();
+                    if (value.isPojo()) {
+                        return value.isPojo();
                     }
                 }
                 return defaultValue;
@@ -332,5 +309,49 @@ public class Converters {
         catch (Exception e) {
             throw new IllegalArgumentException("Could not create instance of function: '" + name + "'", e);
         }
+    }
+
+    private static Value jsonNodeToValue(JsonNode node) {
+        if (node.isTextual()) {
+            return new StringValue(node.asText());
+        }
+        if (node.isBoolean()) {
+            return new BooleanValue(node.asBoolean());
+        }
+        if (node.isNumber()) {
+            return new NumericValue(node.doubleValue());
+        }
+        if (node.isPojo()) {
+            return new ObjectValue(node);
+        }
+        if (node.isArray()) {
+            return new ArrayValue(StreamSupport.stream(
+                    Spliterators.spliteratorUnknownSize(ArrayNode.class.cast(node)
+                                                                .elements(), Spliterator.ORDERED),
+                    false)
+                                          .map(child -> jsonNodeToValue(node))
+                                          .collect(Collectors.toList()));
+        }
+        throw new UnsupportedOperationException(node.getNodeType()
+                                                        .name() + " is not supported");
+    }
+
+    private static JsonNode nodeForJsonPath(
+            JsonPathValue jsonPathValue,
+            Evaluator.EvaluationContext evaluationContext) {
+        final String path = jsonPathValue.getPath();
+        final JsonNode existing = evaluationContext.getJsonPathEvalCache()
+                .getOrDefault(path, null);
+
+        final JsonNode value;
+        if(null == existing) {
+            value = evaluationContext.getJsonContext()
+                    .read(path);
+            evaluationContext.getJsonPathEvalCache().put(path, value);
+        }
+        else {
+            value = existing;
+        }
+        return value;
     }
 }

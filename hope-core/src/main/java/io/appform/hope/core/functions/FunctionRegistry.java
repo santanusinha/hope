@@ -1,6 +1,7 @@
 package io.appform.hope.core.functions;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import io.appform.hope.core.Value;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,16 +32,26 @@ public class FunctionRegistry {
         private final Class<? extends HopeFunction> functionClass;
     }
 
-    private static final Map<String, FunctionMeta> knownFunctions = new HashMap<>();
+    private final Map<String, FunctionMeta> knownFunctions = new HashMap<>();
+    private volatile boolean discoveredAlready = false;
 
-    static {
-        discover();
+    public void discover() {
+        discover(Collections.emptyList());
     }
 
-    public static void discover() {
+    public synchronized void discover(List<String> packages) {
+        if(discoveredAlready) {
+            return;
+        }
+        final List<URL> packageUrls = new ImmutableList.Builder()
+                .addAll(ClasspathHelper.forPackage("io.appform.hope.core.functions.impl"))
+                .addAll(packages.stream()
+                       .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath).stream())
+                       .collect(Collectors.toList()))
+                .build();
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
-                        .setUrls(ClasspathHelper.forPackage("io.appform.hope.core.functions.impl"))
+                        .setUrls(packageUrls)
                         .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner())
                         .filterInputsBy(new FilterBuilder().includePackage("io.appform.hope.core.functions.impl")));
         log.info("Type scanning complete");
@@ -47,12 +59,13 @@ public class FunctionRegistry {
         classes
                 .stream()
                 .filter(type -> type.getAnnotation(FunctionImplementation.class) != null)
-                .forEach(FunctionRegistry::register);
+                .forEach(this::register);
+        discoveredAlready = true;
     }
 
-    public static void register(Class<? extends HopeFunction> clazz) {
+    public void register(Class<? extends HopeFunction> clazz) {
         final FunctionImplementation annotation = clazz.getAnnotation(FunctionImplementation.class);
-        Preconditions.checkNotNull("annotation",
+        Preconditions.checkNotNull(annotation,
                                    clazz.getSimpleName() + " is not annotated with FucntionImplementation");
         final List<Class<?>> paramTypes = paramTypes(clazz);
         final boolean arrayValue = paramTypes.stream()
@@ -72,7 +85,7 @@ public class FunctionRegistry {
         log.debug("Registered function: {}", functionName);
     }
 
-    public static Optional<FunctionMeta> find(String name) {
+    public Optional<FunctionMeta> find(String name) {
         return Optional.ofNullable(knownFunctions.getOrDefault(name, null));
     }
 

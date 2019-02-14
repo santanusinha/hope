@@ -1,6 +1,5 @@
 package io.appform.hope.core.functions.impl.arr;
 
-import com.google.common.collect.Sets;
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionImplementation;
 import io.appform.hope.core.functions.HopeFunction;
@@ -10,8 +9,6 @@ import io.appform.hope.core.visitors.Evaluator;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  *

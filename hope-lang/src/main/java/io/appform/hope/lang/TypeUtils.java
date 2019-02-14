@@ -11,8 +11,8 @@ import java.util.List;
 public class TypeUtils {
     private TypeUtils() {}
 
-    public static FunctionRegistry.FunctionMeta function(String name, List<Value> values) {
-        final FunctionRegistry.FunctionMeta functionMeta = FunctionRegistry.find(name)
+    public static FunctionRegistry.FunctionMeta function(FunctionRegistry functionRegistry, String name, List<Value> values) {
+        final FunctionRegistry.FunctionMeta functionMeta = functionRegistry.find(name)
                 .orElse(null);
         if (null == functionMeta) {
             throw new IllegalArgumentException("Unknown function '" + name + "'");
