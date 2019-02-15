@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.base.Stopwatch;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.Value;
+import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
+import io.appform.hope.core.exceptions.impl.HopeMissingValueError;
+import io.appform.hope.core.exceptions.impl.HopeTypeMismatchError;
 import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.values.BooleanValue;
 import io.appform.hope.core.values.JsonPathValue;
@@ -624,4 +627,77 @@ public class HopeLangParserTest {
             });
 
     }
+
+
+    @Test(expected = HopeMissingValueError.class)
+    public void testFuncStrLenFailNoNode() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.len(\"$.val\") == 3"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+
+    @Test(expected = HopeTypeMismatchError.class)
+    public void testFuncStrLenFailBadType() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : 29 }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.len(\"$.val\") == 3"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test(expected = HopeMissingValueError.class)
+    public void testFuncIntFailNoNode() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{  }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.negate(\"$.val\") == 1"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test(expected = HopeTypeMismatchError.class)
+    public void testFuncIntFailBadType() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"Blah\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.negate(\"$.val\") == 1"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test(expected = HopeMissingValueError.class)
+    public void testFuncBoolFailNoNode() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{  }");
+
+        HopeParser parser = new HopeParser(new StringReader("\"$.val\" == true"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncIntFailNoExceptNoNode() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{  }");
+        final HopeLangParser hopeLangParser = HopeLangParser.builder()
+                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
+                .build();
+
+        final Evaluatable operator = hopeLangParser.parse("\"$.val\" == 0");
+
+        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
+        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
+        Assert.assertFalse(hopeLangParser.evaluate(operator, node));
+    }
+
 }

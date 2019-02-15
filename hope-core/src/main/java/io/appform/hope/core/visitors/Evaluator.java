@@ -11,8 +11,11 @@ import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.utils.Converters;
+import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrategy;
+import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,15 +32,20 @@ public class Evaluator {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    private final Configuration configuration;
     private final ParseContext parseContext;
+    @Getter
+    private final ErrorHandlingStrategy errorHandlingStrategy;
 
     public Evaluator() {
-        configuration = Configuration.builder()
-                .jsonProvider(new JacksonJsonNodeJsonProvider())
-                .options(Option.SUPPRESS_EXCEPTIONS)
-                .build();
-        parseContext = JsonPath.using(configuration);
+        this(new DefaultErrorHandlingStrategy());
+    }
+
+    public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
+        this.errorHandlingStrategy = errorHandlingStrategy;
+        parseContext = JsonPath.using(Configuration.builder()
+                                              .jsonProvider(new JacksonJsonNodeJsonProvider())
+                                              .options(Option.SUPPRESS_EXCEPTIONS)
+                                              .build());
 
     }
 
@@ -60,7 +68,7 @@ public class Evaluator {
 
         public LogicEvaluator(
                 EvaluationContext evaluationContext) {
-            super(true);
+            super(() -> true);
             this.evaluationContext = evaluationContext;
         }
 

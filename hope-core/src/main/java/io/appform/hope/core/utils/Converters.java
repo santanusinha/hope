@@ -2,6 +2,7 @@ package io.appform.hope.core.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.common.base.Strings;
 import io.appform.hope.core.FunctionValue;
 import io.appform.hope.core.TreeNode;
@@ -11,6 +12,7 @@ import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.functions.HopeFunction;
 import io.appform.hope.core.values.*;
 import io.appform.hope.core.visitors.Evaluator;
+import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
@@ -18,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -27,20 +30,24 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class Converters {
 
-    private Converters() {}
+    private Converters() {
+    }
 
     public static String stringValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             String defaultValue) {
-        return node.accept(new VisitorAdapter<String>(defaultValue) {
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        return node.accept(new VisitorAdapter<String>(
+                () -> errorHandlingStrategy.handleIllegalEval("String value eval", defaultValue)) {
             @Override
             public String visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
-                if (value.isTextual()) {
-                    return value.asText();
-                }
-                return defaultValue;
+                return extractNodeValue(jsonPathValue,
+                                        evaluationContext,
+                                        JsonNodeType.STRING,
+                                        JsonNode::asText,
+                                        defaultValue);
             }
 
             @Override
@@ -66,18 +73,45 @@ public class Converters {
         });
     }
 
+    private static <T> T extractNodeValue(
+            JsonPathValue jsonPathValue,
+            Evaluator.EvaluationContext evaluationContext,
+            JsonNodeType expectedType,
+            Function<JsonNode, T> extractor,
+            T defaultValue) {
+        final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        if (null == value || value.isNull() || value.isMissingNode()) {
+            return errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(), defaultValue);
+        }
+        final JsonNodeType nodeType = value.getNodeType();
+        if (nodeType != expectedType) {
+            return errorHandlingStrategy.handleTypeMismatch(
+                    jsonPathValue.getPath(),
+                    expectedType.name(),
+                    nodeType.name(),
+                    defaultValue);
+        }
+        return extractor.apply(value);
+    }
+
     public static Number numericValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             Number defaultValue) {
-        return node.accept(new VisitorAdapter<Number>(defaultValue) {
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        return node.accept(new VisitorAdapter<Number>(() -> errorHandlingStrategy.handleIllegalEval("Number eval",
+                                                                                                    defaultValue)) {
             @Override
             public Number visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
-                if (value.isNumber()) {
-                    return value.asDouble();
-                }
-                return defaultValue;
+                return extractNodeValue(jsonPathValue,
+                                        evaluationContext,
+                                        JsonNodeType.NUMBER,
+                                        JsonNode::asDouble,
+                                        defaultValue);
+
             }
 
             @Override
@@ -107,14 +141,18 @@ public class Converters {
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             boolean defaultValue) {
-        return node.accept(new VisitorAdapter<Boolean>(defaultValue) {
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        return node.accept(new VisitorAdapter<Boolean>(
+                () -> errorHandlingStrategy.handleIllegalEval("Boolean eval", defaultValue)) {
             @Override
             public Boolean visit(JsonPathValue jsonPathValue) {
-                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
-                if (value.isBoolean()) {
-                    return value.asBoolean();
-                }
-                return super.visit(jsonPathValue);
+                return extractNodeValue(jsonPathValue,
+                                        evaluationContext,
+                                        JsonNodeType.BOOLEAN,
+                                        JsonNode::asBoolean,
+                                        defaultValue);
+
             }
 
             @Override
@@ -144,7 +182,7 @@ public class Converters {
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             List<Value> defaultValue) {
-        return node.accept(new VisitorAdapter<List<Value>>(defaultValue) {
+        return node.accept(new VisitorAdapter<List<Value>>(() -> defaultValue) {
             @Override
             public List<Value> visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = evaluationContext.getJsonContext()
@@ -208,7 +246,7 @@ public class Converters {
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             String defaultValue) {
-        return node.accept(new VisitorAdapter<String>(defaultValue) {
+        return node.accept(new VisitorAdapter<String>(() -> defaultValue) {
             @Override
             public String visit(JsonPathValue jsonPathValue) {
                 final String path = jsonPathValue.getPath();
@@ -231,11 +269,13 @@ public class Converters {
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             Object defaultValue) {
-        return node.accept(new VisitorAdapter<Object>(defaultValue) {
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        return node.accept(new VisitorAdapter<Object>(() -> errorHandlingStrategy.handleIllegalEval("Object eval", defaultValue)) {
             @Override
             public Object visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
-                if (null != value && ! value.isNull()) {
+                if (null != value && !value.isNull() && !value.isMissingNode()) {
                     if (value.isTextual()) {
                         return value.asText();
                     }
@@ -249,7 +289,7 @@ public class Converters {
                         return value.isPojo();
                     }
                 }
-                return defaultValue;
+                return errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(), defaultValue);
             }
 
             @Override
@@ -344,10 +384,11 @@ public class Converters {
                 .getOrDefault(path, null);
 
         final JsonNode value;
-        if(null == existing) {
+        if (null == existing) {
             value = evaluationContext.getJsonContext()
                     .read(path);
-            evaluationContext.getJsonPathEvalCache().put(path, value);
+            evaluationContext.getJsonPathEvalCache()
+                    .put(path, value);
         }
         else {
             value = existing;

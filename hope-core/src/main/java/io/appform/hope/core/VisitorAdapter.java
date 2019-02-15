@@ -5,104 +5,106 @@ import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.values.*;
 
+import java.util.function.Supplier;
+
 /**
  *
  */
 public abstract class VisitorAdapter<T> implements Visitor<T> {
 
-    private final T defaultValue;
+    private final Supplier<T> defaultValueGenerator;
 
-    protected VisitorAdapter(T defaultValue) {
-        this.defaultValue = defaultValue;
+    protected VisitorAdapter(Supplier<T> defaultValueGenerator) {
+        this.defaultValueGenerator = defaultValueGenerator;
     }
 
     @Override
     public T visit(AndCombiner andCombiner) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(OrCombiner orCombiner) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(And and) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(Equals equals) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(Greater greater) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(GreaterEquals greaterEquals) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(Lesser lesser) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(LesserEquals lesserEquals) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(NotEquals notEquals) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(Or or) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(JsonPathValue jsonPathValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(ObjectValue objectValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(NumericValue numericValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(StringValue stringValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(BooleanValue booleanValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(Not not) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(FunctionValue functionValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 
     @Override
     public T visit(ArrayValue arrayValue) {
-        return defaultValue;
+        return defaultValueGenerator.get();
     }
 }

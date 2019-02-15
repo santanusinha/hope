@@ -1,4 +1,4 @@
-package io.appform.hope.lang;
+package io.appform.hope.lang.utils;
 
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionRegistry;
