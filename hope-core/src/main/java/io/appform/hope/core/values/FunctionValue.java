@@ -12,12 +12,11 @@
  * under the License.
  */
 
-package io.appform.hope.core.combiners;
+package io.appform.hope.core.values;
 
-import io.appform.hope.core.Combiner;
-import io.appform.hope.core.Evaluatable;
+import io.appform.hope.core.Value;
 import io.appform.hope.core.Visitor;
-import lombok.Builder;
+import io.appform.hope.core.functions.FunctionRegistry;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -25,20 +24,29 @@ import lombok.ToString;
 import java.util.List;
 
 /**
- * Combines multiple {@link Evaluatable} expressions with and logic
+ * An abstraction for a {@link io.appform.hope.core.functions.HopeFunction} call.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class AndCombiner extends Combiner {
-    @Builder
-    public AndCombiner(List<Evaluatable> expressions) {
-        super(expressions);
+public class FunctionValue extends Value {
+    private final String name;
+    private final List<Value> parameters;
+    private final FunctionRegistry.FunctionMeta function;
+
+    /**
+     * @param name Name of the function as provided to {@link io.appform.hope.core.functions.FunctionImplementation}
+     * @param parameters Parameters to be passed to the function
+     * @param function Metadata from the function as found from {@link FunctionRegistry}
+     */
+    public FunctionValue(String name, List<Value> parameters, FunctionRegistry.FunctionMeta function) {
+        this.name = name;
+        this.parameters = parameters;
+        this.function = function;
     }
 
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
-
 }

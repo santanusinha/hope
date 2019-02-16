@@ -1,3 +1,17 @@
+/*
+ * Copyright 2019. Santanu Sinha
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.appform.hope.core.functions;
 
 import com.google.common.base.Preconditions;
@@ -19,7 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
+ * A global registry of functions provided by library as well as registered by user.
  */
 @Slf4j
 public class FunctionRegistry {
@@ -35,10 +49,10 @@ public class FunctionRegistry {
     private final Map<String, FunctionMeta> knownFunctions = new HashMap<>();
     private volatile boolean discoveredAlready = false;
 
-    public void discover() {
-        discover(Collections.emptyList());
-    }
-
+    /**
+     * Discover and register {@link HopeFunction} implementations that are annotated with {@link FunctionImplementation}.
+     * @param packages Extra packages to be scanned besides the standard library.
+     */
     public synchronized void discover(List<String> packages) {
         if(discoveredAlready) {
             return;
@@ -63,6 +77,10 @@ public class FunctionRegistry {
         discoveredAlready = true;
     }
 
+    /**
+     * Register a {@link HopeFunction} implementation. Needs to be annotated with {@link FunctionImplementation}.
+     * @param clazz Function class.
+     */
     public void register(Class<? extends HopeFunction> clazz) {
         final FunctionImplementation annotation = clazz.getAnnotation(FunctionImplementation.class);
         Preconditions.checkNotNull(annotation,
@@ -85,6 +103,11 @@ public class FunctionRegistry {
         log.debug("Registered function: {}", functionName);
     }
 
+    /**
+     * Find a {@link HopeFunction} implementation by name.
+     * @param name Name for the function to find
+     * @return Meta data for the function if found or null.
+     */
     public Optional<FunctionMeta> find(String name) {
         return Optional.ofNullable(knownFunctions.getOrDefault(name, null));
     }

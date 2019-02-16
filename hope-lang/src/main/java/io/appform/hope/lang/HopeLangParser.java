@@ -1,3 +1,17 @@
+/*
+ * Copyright 2019. Santanu Sinha
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.appform.hope.lang;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Top level accessor for hope. Creation is expensive. Create and reuse.
  */
 public class HopeLangParser {
     private final FunctionRegistry functionRegistry;
@@ -29,6 +43,12 @@ public class HopeLangParser {
         this.errorHandlingStrategy = errorHandlingStrategy;
     }
 
+    /**
+     * Parse a hope lang string. The resultant parsed rule can be reused for multiple evaluations.
+     * @param payload Parse a string
+     * @return An evaluatable expression tree
+     * @throws HopeExpressionParserError
+     */
     public Evaluatable parse(final String payload) throws HopeExpressionParserError {
         try {
             return new HopeParser(new StringReader(payload)).parse(functionRegistry);
@@ -38,6 +58,12 @@ public class HopeLangParser {
         }
     }
 
+    /**
+     * Evaluate a hope lang parsed expression
+     * @param rule Parsed rule
+     * @param node JsonNode for which the match rule is to be evaluated
+     * @return true in case of match
+     */
     public boolean evaluate(Evaluatable rule, JsonNode node) {
         return new Evaluator(errorHandlingStrategy).evaluate(rule, node);
     }
@@ -47,27 +73,57 @@ public class HopeLangParser {
         private final FunctionRegistry functionRegistry = new FunctionRegistry();
         private ErrorHandlingStrategy errorHandlingStrategy = new DefaultErrorHandlingStrategy();
 
+        private Builder() {}
+
+        /**
+         * Add a package that will be scanned besides stdlib for implementations of {@link HopeFunction}
+         * @param userPackage package to be scanned
+         * @return builder
+         */
         public Builder addPackage(final String userPackage) {
             userPackages.add(userPackage);
             return this;
         }
 
+        /**
+         * Register a {@link HopeFunction} implementation directly to the function registry
+         * @param hopeFunctionClass Implementation of {@link HopeFunction}.
+         *                          Needs to be annotated with {@link io.appform.hope.core.functions.FunctionImplementation}
+         *                          and have a constructor only having zero or more {@link io.appform.hope.core.Value}
+         *                          as params.
+         * @return builder
+         */
         public Builder registerFunction(Class<? extends HopeFunction> hopeFunctionClass) {
             functionRegistry.register(hopeFunctionClass);
             return this;
         }
 
+        /**
+         * Override error handling strategy. Default is {@link DefaultErrorHandlingStrategy}.
+         * Can also be {@link io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy}
+         * or something custom.
+         * @param errorHandlingStrategy Error handling strategy
+         * @return builder
+         */
         public Builder errorHandlingStrategy(ErrorHandlingStrategy errorHandlingStrategy) {
             this.errorHandlingStrategy = errorHandlingStrategy;
             return this;
         }
 
+        /**
+         * Build a Hope language parser
+         * @return a fully initialized immutable parser
+         */
         public HopeLangParser build() {
             functionRegistry.discover(userPackages);
             return new HopeLangParser(functionRegistry, errorHandlingStrategy);
         }
     }
 
+    /**
+     * Create a builder for the parser.
+     * @return An initialized builder.
+     */
     public static Builder builder() {
         return new Builder();
     }

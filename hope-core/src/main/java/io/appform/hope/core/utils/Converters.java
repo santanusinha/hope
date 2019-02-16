@@ -1,10 +1,24 @@
+/*
+ * Copyright 2019. Santanu Sinha
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.appform.hope.core.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.common.base.Strings;
-import io.appform.hope.core.FunctionValue;
+import io.appform.hope.core.values.FunctionValue;
 import io.appform.hope.core.TreeNode;
 import io.appform.hope.core.Value;
 import io.appform.hope.core.VisitorAdapter;
@@ -25,7 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- *
+ * Evaluated {@link Value}, {@link JsonPathValue} and {@link HopeFunction} to leaf native types.
  */
 @Slf4j
 public class Converters {
@@ -33,6 +47,13 @@ public class Converters {
     private Converters() {
     }
 
+    /**
+     * Evaluates a {@link TreeNode} to find eventual String value.
+     * @param evaluationContext Current eval context
+     * @param node Node to be evaluated
+     * @param defaultValue Default value if eval fails
+     * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static String stringValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -73,29 +94,13 @@ public class Converters {
         });
     }
 
-    private static <T> T extractNodeValue(
-            JsonPathValue jsonPathValue,
-            Evaluator.EvaluationContext evaluationContext,
-            JsonNodeType expectedType,
-            Function<JsonNode, T> extractor,
-            T defaultValue) {
-        final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
-        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
-                .getErrorHandlingStrategy();
-        if (null == value || value.isNull() || value.isMissingNode()) {
-            return errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(), defaultValue);
-        }
-        final JsonNodeType nodeType = value.getNodeType();
-        if (nodeType != expectedType) {
-            return errorHandlingStrategy.handleTypeMismatch(
-                    jsonPathValue.getPath(),
-                    expectedType.name(),
-                    nodeType.name(),
-                    defaultValue);
-        }
-        return extractor.apply(value);
-    }
-
+    /**
+     * Evaluates a {@link TreeNode} to find eventual numeric value.
+     * @param evaluationContext Current eval context
+     * @param node Node to be evaluated
+     * @param defaultValue Default value if eval fails
+     * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static Number numericValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -137,6 +142,14 @@ public class Converters {
         });
     }
 
+
+    /**
+     * Evaluates a {@link TreeNode} to find eventual boolean value.
+     * @param evaluationContext Current eval context
+     * @param node Node to be evaluated
+     * @param defaultValue Default value if eval fails
+     * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static Boolean booleanValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -178,10 +191,20 @@ public class Converters {
         });
     }
 
+
+    /**
+     * Evaluates a {@link TreeNode} to find eventual array.
+     * @param evaluationContext Current eval context
+     * @param node Node to be evaluated
+     * @param defaultValue Default value if eval fails
+     * @return Evaluated array on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static List<Value> explodeArray(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             List<Value> defaultValue) {
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
         return node.accept(new VisitorAdapter<List<Value>>(() -> defaultValue) {
             @Override
             public List<Value> visit(JsonPathValue jsonPathValue) {
@@ -197,7 +220,11 @@ public class Converters {
                             .map(Converters::jsonNodeToValue)
                             .collect(Collectors.toList());
                 }
-                return super.visit(jsonPathValue);
+                return errorHandlingStrategy.handleTypeMismatch(
+                        jsonPathValue.getPath(),
+                        JsonNodeType.ARRAY.name(),
+                        value.getNodeType().name(),
+                        defaultValue);
             }
 
             @Override
@@ -223,25 +250,30 @@ public class Converters {
         });
     }
 
-    public static List<Object> flatten(
-            Evaluator.EvaluationContext evaluationContext,
-            List<Value> values,
-            Object defaultValue) {
-        return values
-                .stream()
-                .map(value -> objectValue(evaluationContext, value, defaultValue))
-                .collect(Collectors.toList());
-    }
-
+    /**
+     * Flatten an {@link ArrayNode} into List of objects
+     * @param evaluationContext Current eval context
+     * @param value Value that evaluates to an array
+     * @param defaultValue Default value if eval fails
+     * @return Evaluated list on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static List<Object> flattenArray(
             Evaluator.EvaluationContext evaluationContext,
             Value value,
             Object defaultValue) {
-        return flatten(evaluationContext,
-                       explodeArray(evaluationContext, value, Collections.emptyList()),
-                       defaultValue);
+        return arrayToObjectList(evaluationContext,
+                                 explodeArray(evaluationContext, value, Collections.emptyList()),
+                                 defaultValue);
     }
 
+
+    /**
+     * Evaluates a {@link TreeNode} to find eventual json path value.
+     * @param evaluationContext Current eval context
+     * @param node Node to be evaluated
+     * @param defaultValue Default value if eval fails
+     * @return provided json path on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static String jsonPathValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -265,6 +297,14 @@ public class Converters {
         });
     }
 
+
+    /**
+     * Evaluates a {@link TreeNode} to find eventual object.
+     * @param evaluationContext Current eval context
+     * @param node Node to be evaluated
+     * @param defaultValue Default value if eval fails
+     * @return Evaluated object on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     */
     public static Object objectValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
@@ -395,4 +435,38 @@ public class Converters {
         }
         return value;
     }
+
+    private static <T> T extractNodeValue(
+            JsonPathValue jsonPathValue,
+            Evaluator.EvaluationContext evaluationContext,
+            JsonNodeType expectedType,
+            Function<JsonNode, T> extractor,
+            T defaultValue) {
+        final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        if (null == value || value.isNull() || value.isMissingNode()) {
+            return errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(), defaultValue);
+        }
+        final JsonNodeType nodeType = value.getNodeType();
+        if (nodeType != expectedType) {
+            return errorHandlingStrategy.handleTypeMismatch(
+                    jsonPathValue.getPath(),
+                    expectedType.name(),
+                    nodeType.name(),
+                    defaultValue);
+        }
+        return extractor.apply(value);
+    }
+
+    private static List<Object> arrayToObjectList(
+            Evaluator.EvaluationContext evaluationContext,
+            List<Value> values,
+            Object defaultValue) {
+        return values
+                .stream()
+                .map(value -> objectValue(evaluationContext, value, defaultValue))
+                .collect(Collectors.toList());
+    }
+
 }

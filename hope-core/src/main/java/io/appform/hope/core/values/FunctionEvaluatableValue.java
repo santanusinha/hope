@@ -12,32 +12,27 @@
  * under the License.
  */
 
-package io.appform.hope.core.operators;
+package io.appform.hope.core.values;
 
-import io.appform.hope.core.BinaryOperator;
-import io.appform.hope.core.Visitor;
-import io.appform.hope.core.values.NumericValue;
-import lombok.Builder;
+import io.appform.hope.core.Value;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Checks if lhs {@link NumericValue} is lesser than rhs {@link NumericValue}
+ * Abstraction of a value that is generated as eval of a {@link io.appform.hope.core.functions.HopeFunction} call.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Lesser extends BinaryOperator<NumericValue> {
+public abstract class FunctionEvaluatableValue extends Value {
+    protected final FunctionValue function;
 
-    @Builder
-    public Lesser(NumericValue lhs, NumericValue rhs) {
-        super(lhs, rhs);
+    protected FunctionEvaluatableValue() {
+        this(null);
     }
 
-    @Override
-    public <T> T accept(Visitor<T> visitor) {
-        return visitor.visit(this);
+    protected FunctionEvaluatableValue(FunctionValue function) {
+        this.function = function;
     }
-
 }
