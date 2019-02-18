@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.base.Stopwatch;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.Value;
-import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.impl.HopeMissingValueError;
 import io.appform.hope.core.exceptions.impl.HopeTypeMismatchError;
 import io.appform.hope.core.functions.FunctionRegistry;
@@ -41,15 +40,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
- *
+ * Tests hope lang parsing
  */
 @Slf4j
-public class HopeLangParserTest {
-
+public class HopeLangParsingTest {
     final JsonNode node = NullNode.getInstance();
     final FunctionRegistry functionRegistry;
 
-    public HopeLangParserTest() {
+    public HopeLangParsingTest() {
         this.functionRegistry = new FunctionRegistry();
         functionRegistry.discover(Collections.emptyList());
     }
@@ -621,7 +619,7 @@ public class HopeLangParserTest {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"value\": 20, \"string\" : \"Hello\" }");
 
-        final HopeLangParser hopeLangParser = HopeLangParser.builder()
+        final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
                 .build();
 
         final String payload = "\"$.value\" > 11" +
@@ -634,12 +632,12 @@ public class HopeLangParserTest {
                 payload);
 
         IntStream.range(0, 10)
-            .forEach( times -> {
-                Stopwatch stopwatch = Stopwatch.createStarted();
-                IntStream.range(1, 1_000_000)
-                        .forEach(i -> hopeLangParser.evaluate(rule, node));
-                log.info("Time taken: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            });
+                .forEach( times -> {
+                    Stopwatch stopwatch = Stopwatch.createStarted();
+                    IntStream.range(1, 1_000_000)
+                            .forEach(i -> hopeLangParser.evaluate(rule, node));
+                    log.info("Time taken: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                });
 
     }
 
@@ -698,21 +696,6 @@ public class HopeLangParserTest {
         final Evaluatable operator = parser.parse(functionRegistry);
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
-    }
-
-    @Test
-    public void testFuncIntFailNoExceptNoNode() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode node = mapper.readTree("{  }");
-        final HopeLangParser hopeLangParser = HopeLangParser.builder()
-                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
-                .build();
-
-        final Evaluatable operator = hopeLangParser.parse("\"$.val\" == 0");
-
-        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
-        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
-        Assert.assertFalse(hopeLangParser.evaluate(operator, node));
     }
 
 }

@@ -32,11 +32,11 @@ import java.util.List;
 /**
  * Top level accessor for hope. Creation is expensive. Create and reuse.
  */
-public class HopeLangParser {
+public class HopeLangEngine {
     private final FunctionRegistry functionRegistry;
     private final ErrorHandlingStrategy errorHandlingStrategy;
 
-    private HopeLangParser(
+    private HopeLangEngine(
             FunctionRegistry functionRegistry,
             ErrorHandlingStrategy errorHandlingStrategy) {
         this.functionRegistry = functionRegistry;
@@ -44,14 +44,25 @@ public class HopeLangParser {
     }
 
     /**
+     * Evaluates a hope expression using the provided json to return true or false.
+     * @param hopeLangExpression A hope language expression
+     * @param root The json node to be evaluated
+     * @return true in  case of match
+     */
+    public boolean evaluate(final String hopeLangExpression, JsonNode root) {
+        final Evaluatable evaluatable = parse(hopeLangExpression);
+        return evaluate(evaluatable, root);
+    }
+
+    /**
      * Parse a hope lang string. The resultant parsed rule can be reused for multiple evaluations.
-     * @param payload Parse a string
+     * @param hopeLangExpression Parse a string
      * @return An evaluatable expression tree
      * @throws HopeExpressionParserError
      */
-    public Evaluatable parse(final String payload) throws HopeExpressionParserError {
+    public Evaluatable parse(final String hopeLangExpression) throws HopeExpressionParserError {
         try {
-            return new HopeParser(new StringReader(payload)).parse(functionRegistry);
+            return new HopeParser(new StringReader(hopeLangExpression)).parse(functionRegistry);
         }
         catch (ParseException e) {
             throw new HopeExpressionParserError(e.getMessage());
@@ -114,9 +125,9 @@ public class HopeLangParser {
          * Build a Hope language parser
          * @return a fully initialized immutable parser
          */
-        public HopeLangParser build() {
+        public HopeLangEngine build() {
             functionRegistry.discover(userPackages);
-            return new HopeLangParser(functionRegistry, errorHandlingStrategy);
+            return new HopeLangEngine(functionRegistry, errorHandlingStrategy);
         }
     }
 
