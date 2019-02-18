@@ -13,6 +13,38 @@
         <module>hope-lang</module>
     </modules>
 
+    <distributionManagement>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/santanusinha/hope.git</connection>
+        <developerConnection>scm:git:git@github.com:santanusinha/hope.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/santanusinha/hope</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>santanusinha</id>
+            <name>Santanu Sinha</name>
+            <email>santanu.sinha@gmail.com</email>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.16.16</lombok.version>
