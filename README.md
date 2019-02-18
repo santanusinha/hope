@@ -27,7 +27,7 @@ Use the following dependency in your code.
 ```
     <dependency>
         <groupId>io.appform.hope</groupId>
-        <artifactId>hope</artifactId>
+        <artifactId>hope-lang</artifactId>
         <packaging>pom</packaging>
         <version>1.0-SNAPSHOT</version>
     </dependency>
