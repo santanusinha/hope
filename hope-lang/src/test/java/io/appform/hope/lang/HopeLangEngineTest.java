@@ -36,11 +36,22 @@ public class HopeLangEngineTest {
                 .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
                 .build();
 
-        final Evaluatable operator = hopeLangParser.parse("\"$.val\" == 0");
+        final Evaluatable operator = hopeLangParser.parse("true == \"true\"");
 
         //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
         //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
         Assert.assertFalse(hopeLangParser.evaluate(operator, node));
     }
 
+    @Test
+    public void testBlah() throws Exception {
+
+        final HopeLangEngine hope
+                = HopeLangEngine.builder()
+                .registerFunction(Blah.class) //Register class by class
+                .build();
+
+        JsonNode node = new ObjectMapper().readTree("{}");
+        Assert.assertTrue(hope.evaluate("ss.blah() == \"blah\"", node));
+    }
 }
