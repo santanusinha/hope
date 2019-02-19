@@ -527,6 +527,17 @@ public class HopeLangParsingTest {
     }
 
     @Test
+    public void testFuncStrMatch() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"abc\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.match(\"^a.*\", \"$.val\") == true"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
     public void testFuncStrSubStr() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"val\" : \"abcdef\" }");
