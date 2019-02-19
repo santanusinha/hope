@@ -41,12 +41,12 @@ TOKEN : {<OR : "|">}
 TOKEN : {<AND : "&">}
 TOKEN : {<AND_COMBINER : "&&">}
 TOKEN : {<OR_COMBINER : "||">}
-TOKEN : {<QUOTE : "\"">}
+TOKEN : {<QUOTE : ("\"" | "'")>}
 TOKEN : {<NUMBER :(["0"-"9"])+|(["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "."(["0"-"9"])+>}
 TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
 TOKEN : {<FUNCTION_CALL : ["a"-"z", "A"-"Z"](["0"-"9", "a"-"z", "A"-"Z" , "_", "."])+>}
-TOKEN : {<STRING_VALUE : (["0"-"9", "a"-"z", "A"-"Z" , "/", "+", "@"])+>}
-TOKEN : {<PATH_VALUE : "$." <STRING_VALUE>>}
+TOKEN : {<PATH_VALUE : "$." (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ",", ":", "-", "'", "&", "|", "<", ">", "=", "~", "!", "/"])+>}
+TOKEN : {<STRING_VALUE :(["0"-"9", "a"-"z", "A"-"Z" , "/", "+", "@"])+>}
 TOKEN : {<STRING: <QUOTE> <STRING_VALUE> <QUOTE>>}
 TOKEN : {<PATH: <QUOTE> <PATH_VALUE> <QUOTE>>}
 TOKEN : {<ARRAY_START: "[">}
@@ -421,6 +421,7 @@ NumericValue NumericOrJsonPathRhsOperand(): {
 BooleanValue BooleanOrJsonPathRhsOperand(): {
     BooleanValue bResult = null;
     JsonPathValue jResult = null;
+    FunctionValue fResult = null;
 }
 {
     (
@@ -429,6 +430,9 @@ BooleanValue BooleanOrJsonPathRhsOperand(): {
         }
         | jResult = JsonPathRepr() {
             return new BooleanValue(jResult);
+        }
+        | fResult = FunctionRepr() {
+            return new BooleanValue(fResult);
         }
     )
 }

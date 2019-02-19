@@ -615,6 +615,28 @@ public class HopeLangParsingTest {
     }
 
     @Test
+    public void testFuncArrIsEmpty() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"nonempty\" : [1,2,3, 4,8,16], \"empty\" : [] }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.is_empty(\"$.empty\") == true  && false == arr.is_empty(\"$.nonempty\")"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrLen() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"array\" : [1,2,3, 4,8,16]}");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.len(\"$.array\") == 6"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
     public void testFuncPerf() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"value\": 20, \"string\" : \"Hello\" }");
