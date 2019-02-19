@@ -16,6 +16,7 @@ package io.appform.hope.core.exceptions.errorstrategy;
 
 import io.appform.hope.core.exceptions.impl.HopeIllegalEvaluationError;
 import io.appform.hope.core.exceptions.impl.HopeMissingValueError;
+import io.appform.hope.core.exceptions.impl.HopeParameterValidationFailureError;
 import io.appform.hope.core.exceptions.impl.HopeTypeMismatchError;
 
 /**

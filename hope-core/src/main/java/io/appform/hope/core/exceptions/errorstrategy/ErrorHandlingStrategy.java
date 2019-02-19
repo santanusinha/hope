@@ -14,6 +14,8 @@
 
 package io.appform.hope.core.exceptions.errorstrategy;
 
+import io.appform.hope.core.exceptions.impl.HopeParameterValidationFailureError;
+
 /**
  * This class is called in error situations. This lets' users configure the behaviour in scenarios where these
  * scenarios appear.
@@ -40,6 +42,14 @@ public interface ErrorHandlingStrategy {
      * @return defaultValue or throws exception depending on implementation
      */
     <T> T handleTypeMismatch(String path, String expected, String actual, T defaultValue);
+
+    /**
+     * This handler is invoked when param evaluation in a {@link io.appform.hope.core.functions.HopeFunction} evaluation fails
+     * @param checkFailureMessage Message describing the failure
+     */
+    default void paramValidationFailure(String checkFailureMessage) {
+        throw new HopeParameterValidationFailureError(checkFailureMessage);
+    }
 
     /**
      * This handler is called in case there is some bug in the evaluation.

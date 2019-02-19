@@ -14,12 +14,12 @@
 
 package io.appform.hope.core.functions.impl.str;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionImplementation;
 import io.appform.hope.core.functions.HopeFunction;
 import io.appform.hope.core.utils.Converters;
+import io.appform.hope.core.utils.FunctionHelpers;
 import io.appform.hope.core.values.BooleanValue;
 import io.appform.hope.core.visitors.Evaluator;
 
@@ -40,8 +40,7 @@ public class Match extends HopeFunction<BooleanValue> {
     public BooleanValue apply(Evaluator.EvaluationContext evaluationContext) {
         final String regexValue = Converters.stringValue(evaluationContext, regex, "");
         final String target = Converters.stringValue(evaluationContext, str, "");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(regexValue));
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(target));
+        FunctionHelpers.checkArgument(evaluationContext, !Strings.isNullOrEmpty(regexValue), "Regex is empty");
         return new BooleanValue(target.matches(regexValue));
     }
 }
