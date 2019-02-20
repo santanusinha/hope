@@ -40,10 +40,17 @@ public class FunctionRegistry {
 
     @Data
     @Builder
-    public static class FunctionMeta {
+    public static class ConstructorMeta {
         private final List<Class<?>> paramTypes;
-        private final boolean arrayValue;
-        private final Class<? extends HopeFunction> functionClass;
+        private final boolean hasVariableArgs;
+        private final Constructor<? extends HopeFunction> constructor;
+    }
+
+
+    @Data
+    @Builder
+    public static class FunctionMeta {
+        private final List<ConstructorMeta> constructors;
     }
 
     private final Map<String, FunctionMeta> knownFunctions = new HashMap<>();
@@ -51,17 +58,19 @@ public class FunctionRegistry {
 
     /**
      * Discover and register {@link HopeFunction} implementations that are annotated with {@link FunctionImplementation}.
+     *
      * @param packages Extra packages to be scanned besides the standard library.
      */
     public synchronized void discover(List<String> packages) {
-        if(discoveredAlready) {
+        if (discoveredAlready) {
             return;
         }
         final List<URL> packageUrls = new ImmutableList.Builder<URL>()
                 .addAll(ClasspathHelper.forPackage("io.appform.hope.core.functions.impl"))
                 .addAll(packages.stream()
-                       .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath).stream())
-                       .collect(Collectors.toList()))
+                                .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath)
+                                        .stream())
+                                .collect(Collectors.toList()))
                 .build();
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
@@ -79,32 +88,39 @@ public class FunctionRegistry {
 
     /**
      * Register a {@link HopeFunction} implementation. Needs to be annotated with {@link FunctionImplementation}.
+     *
      * @param clazz Function class.
      */
     public void register(Class<? extends HopeFunction> clazz) {
         final FunctionImplementation annotation = clazz.getAnnotation(FunctionImplementation.class);
         Preconditions.checkNotNull(annotation,
                                    clazz.getSimpleName() + " is not annotated with FucntionImplementation");
-        final List<Class<?>> paramTypes = paramTypes(clazz);
-        final boolean arrayValue = paramTypes.stream()
-                .anyMatch(Class::isArray);
-        Preconditions.checkArgument(!arrayValue || paramTypes.size() == 1,
-                                    "For (Value... ) vararg func only one param is allowed.");
+        final List<ConstructorMeta> constructors = constructors(clazz);
         final String functionName = annotation.value();
         Preconditions.checkArgument(!knownFunctions.containsKey(functionName),
                                     "Function '" + functionName + "' is already registered");
+        Preconditions.checkArgument(constructors.stream()
+                                            .noneMatch(ConstructorMeta::isHasVariableArgs)
+                                             || constructors.size() == 1,
+                                    "Illegal declaration for: " + functionName +"." +
+                                            "Functions with variant args can have only one implementation." +
+                                            " Overloads are not allowed");
+        Preconditions.checkArgument(constructors.stream()
+                                   .distinct()
+                                   .count() == constructors.size(),
+                                    "Function " + functionName + " has multiple constructors (overloads) " +
+                                            "with same number of params. This means it cannot be resolved at runtime.");
         knownFunctions.put(
                 functionName,
                 FunctionMeta.builder()
-                        .paramTypes(paramTypes)
-                        .arrayValue(arrayValue)
-                        .functionClass(clazz)
+                        .constructors(constructors)
                         .build());
         log.debug("Registered function: {}", functionName);
     }
 
     /**
      * Find a {@link HopeFunction} implementation by name.
+     *
      * @param name Name for the function to find
      * @return Meta data for the function if found or null.
      */
@@ -112,25 +128,42 @@ public class FunctionRegistry {
         return Optional.ofNullable(knownFunctions.getOrDefault(name, null));
     }
 
-    private static List<Class<?>> paramTypes(Class<? extends HopeFunction> type) {
-        final Constructor<?>[] declaredConstructors = type.getDeclaredConstructors();
+    @SuppressWarnings("unchecked")
+    private static List<ConstructorMeta> constructors(Class<? extends HopeFunction> type) {
+        final Constructor<? extends HopeFunction>[] declaredConstructors
+                = (Constructor<? extends HopeFunction>[]) type.getDeclaredConstructors();
         FunctionImplementation annotation = type.getAnnotation(FunctionImplementation.class);
-        Preconditions.checkArgument(
+/*        Preconditions.checkArgument(
                 declaredConstructors != null && declaredConstructors.length == 1,
-                "Function " + annotation.value() + " must have only one constructor");
-        final Class<?>[] declaredParamTypes = declaredConstructors[0]
-                .getParameterTypes();
-        final List<Class<?>> paramTypes = Arrays.stream(declaredParamTypes)
-                .filter(parameterType -> parameterType.isArray()
-                        ? parameterType.getComponentType().isAssignableFrom(Value.class)
-                        : parameterType.isAssignableFrom(Value.class))
+                "Function " + annotation.value() + " must have only one constructor");*/
+        return Arrays.stream(declaredConstructors)
+                .map(declaredConstructor -> {
+                    final Class<?>[] declaredParamTypes = declaredConstructor
+                            .getParameterTypes();
+                    final List<Class<?>> paramTypes = Arrays.stream(declaredParamTypes)
+                            .filter(parameterType -> parameterType.isArray()
+                                    ? parameterType.getComponentType()
+                                    .isAssignableFrom(Value.class)
+                                    : parameterType.isAssignableFrom(Value.class))
+                            .collect(Collectors.toList());
+                    Preconditions.checkArgument(
+                            paramTypes.size() == declaredParamTypes.length,
+                            "Non value parameter types declared for constructor in function '"
+                                    + annotation.value() + "'. Param types: " + Arrays.stream(declaredParamTypes)
+                                    .map(Class::getSimpleName)
+                                    .collect(Collectors.toList()));
+                    final boolean variantArgs = paramTypes.stream()
+                            .anyMatch(Class::isArray);
+                    Preconditions.checkArgument(!variantArgs || paramTypes.size() == 1,
+                                                "For (Value... ) vararg func only one param is allowed.");
+
+                    return ConstructorMeta.builder()
+                            .paramTypes(paramTypes)
+                            .hasVariableArgs(variantArgs)
+                            .constructor(declaredConstructor)
+                            .build();
+                })
                 .collect(Collectors.toList());
-        Preconditions.checkArgument(
-                paramTypes.size() == declaredParamTypes.length,
-                "Non value parameter types declared for constructor in function '"
-                        + annotation.value() + "'. Param types: " + Arrays.stream(declaredParamTypes)
-                        .map(Class::getSimpleName)
-                        .collect(Collectors.toList()));
-        return paramTypes;
+
     }
 }

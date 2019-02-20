@@ -14,10 +14,13 @@
 
 package io.appform.hope.lang.utils;
 
+import com.google.common.base.Preconditions;
 import io.appform.hope.core.Value;
 import io.appform.hope.core.functions.FunctionRegistry;
+import io.appform.hope.core.values.FunctionValue;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A bunch of utils used by parser
@@ -25,41 +28,29 @@ import java.util.List;
 public class TypeUtils {
     private TypeUtils() {}
 
-    public static FunctionRegistry.FunctionMeta function(FunctionRegistry functionRegistry, String name, List<Value> values) {
+    public static FunctionValue function(FunctionRegistry functionRegistry, String name, List<Value> values) {
         final FunctionRegistry.FunctionMeta functionMeta = functionRegistry.find(name)
                 .orElse(null);
         if (null == functionMeta) {
             throw new IllegalArgumentException("Unknown function '" + name + "'");
         }
-        if(functionMeta.isArrayValue()) {
-            return functionMeta;
+        final List<FunctionRegistry.ConstructorMeta> constructors = functionMeta.getConstructors();
+        if(constructors.stream().anyMatch(FunctionRegistry.ConstructorMeta::isHasVariableArgs)) {
+            return new FunctionValue(name, values, constructors.get(0));
         }
-        final List<Class<?>> paramTypes = functionMeta.getParamTypes();
-        if(!paramTypes.isEmpty()) {
-            if (values.size() != paramTypes.size()) {
-                throw new IllegalArgumentException(
-                        String.format("Function '%s' expects '%d' arguments but '%d' provided",
-                                      name, paramTypes.size(), values.size()));
-            }
-/*
-            final List<Value> unmatched = IntStream.range(0, values.size())
-                    .filter(i -> values.get(i).getClass().isAssignableFrom(paramTypes.get(i)))
-                    .mapToObj(values::get)
-                    .collect(Collectors.toList());
-            Preconditions.checkArgument(
-                    unmatched.isEmpty(),
-                    String.format("Type mismatch for function params passed to %s. Required: %s, Provided: %s",
-                                  name,
-                                  paramTypes.stream()
-                                          .map(Class::getSimpleName)
-                                          .collect(Collectors.toList()),
-                                  values.stream()
-                                          .map(Object::getClass)
-                                          .map(Class::getSimpleName)
-                                          .collect(Collectors.toList())));
-*/
-        }
-        return functionMeta;
+        final int numProvidedParams = values.size();
+        final List<FunctionRegistry.ConstructorMeta> matchingConstructors = constructors.stream()
+                .filter(constructorMeta -> constructorMeta.getParamTypes()
+                        .size() == numProvidedParams)
+                .collect(Collectors.toList());
+        Preconditions.checkArgument(!matchingConstructors.isEmpty(),
+                                    String.format("No matching function named %s that accepts %d params.",
+                                                  name, numProvidedParams));
+        Preconditions.checkArgument(matchingConstructors.size() == 1,
+                                    "Function " + name + " seems to have more than one matching overload." +
+                                            " Cannot resolve.");
+
+        return new FunctionValue(name, values, matchingConstructors.get(0));
     }
 }
 

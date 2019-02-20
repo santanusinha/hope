@@ -19,9 +19,6 @@ package io.appform.hope.core.exceptions.errorstrategy;
  */
 public class InjectValueErrorHandlingStrategy implements ErrorHandlingStrategy {
 
-    public InjectValueErrorHandlingStrategy() {
-    }
-
     /**
      * {@inheritDoc}
      */

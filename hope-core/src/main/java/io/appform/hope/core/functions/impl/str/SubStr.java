@@ -32,6 +32,10 @@ public class SubStr extends HopeFunction {
     private final Value start;
     private final Value end;
 
+    public SubStr(Value arg, Value start) {
+        this(arg, start, null);
+    }
+
     public SubStr(Value arg, Value start, Value end) {
         this.arg = arg;
         this.start = start;
@@ -40,9 +44,15 @@ public class SubStr extends HopeFunction {
 
     @Override
     public Value apply(Evaluator.EvaluationContext evaluationContext) {
-        int startIndex = Converters.numericValue(evaluationContext, start, 0).intValue();
-        int endIndex = Converters.numericValue(evaluationContext, end, 0).intValue();
         final String argValue = Converters.stringValue(evaluationContext, arg, "");
-        return new StringValue(argValue.substring(startIndex, endIndex));
+        int startIndex = Converters.numericValue(evaluationContext, start, 0).intValue();
+        final int endIndex;
+        if(null != end) {
+            endIndex = Converters.numericValue(evaluationContext, end, 0).intValue();
+        }
+        else {
+            endIndex = argValue.length();
+        }
+        return new StringValue(argValue.substring(startIndex, 0 == endIndex ? argValue.length() - startIndex : endIndex));
     }
 }

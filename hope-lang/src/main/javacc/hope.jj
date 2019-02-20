@@ -349,8 +349,7 @@ FunctionValue FunctionRepr() : {
         <CLOSE_BRACKET>
     )
     {
-        FunctionRegistry.FunctionMeta function = TypeUtils.function(functionRegistry, t.image, params);
-        return new FunctionValue(t.image, params, function);
+        return TypeUtils.function(functionRegistry, t.image, params);
     }
 }
 

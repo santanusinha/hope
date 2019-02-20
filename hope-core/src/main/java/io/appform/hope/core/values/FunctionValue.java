@@ -32,17 +32,17 @@ import java.util.List;
 public class FunctionValue extends Value {
     private final String name;
     private final List<Value> parameters;
-    private final FunctionRegistry.FunctionMeta function;
+    private final FunctionRegistry.ConstructorMeta selectedConstructor;
 
     /**
-     * @param name Name of the function as provided to {@link io.appform.hope.core.functions.FunctionImplementation}
-     * @param parameters Parameters to be passed to the function
-     * @param function Metadata from the function as found from {@link FunctionRegistry}
+     * @param name                Name of the function as provided to {@link io.appform.hope.core.functions.FunctionImplementation}
+     * @param parameters          Parameters to be passed to the function
+     * @param selectedConstructor Selected overload of the function from {@link FunctionRegistry}
      */
-    public FunctionValue(String name, List<Value> parameters, FunctionRegistry.FunctionMeta function) {
+    public FunctionValue(String name, List<Value> parameters, FunctionRegistry.ConstructorMeta selectedConstructor) {
         this.name = name;
         this.parameters = parameters;
-        this.function = function;
+        this.selectedConstructor = selectedConstructor;
     }
 
     @Override

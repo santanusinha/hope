@@ -49,9 +49,10 @@ public class Converters {
 
     /**
      * Evaluates a {@link TreeNode} to find eventual String value.
+     *
      * @param evaluationContext Current eval context
-     * @param node Node to be evaluated
-     * @param defaultValue Default value if eval fails
+     * @param node              Node to be evaluated
+     * @param defaultValue      Default value if eval fails
      * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static String stringValue(
@@ -96,9 +97,10 @@ public class Converters {
 
     /**
      * Evaluates a {@link TreeNode} to find eventual numeric value.
+     *
      * @param evaluationContext Current eval context
-     * @param node Node to be evaluated
-     * @param defaultValue Default value if eval fails
+     * @param node              Node to be evaluated
+     * @param defaultValue      Default value if eval fails
      * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static Number numericValue(
@@ -145,9 +147,10 @@ public class Converters {
 
     /**
      * Evaluates a {@link TreeNode} to find eventual boolean value.
+     *
      * @param evaluationContext Current eval context
-     * @param node Node to be evaluated
-     * @param defaultValue Default value if eval fails
+     * @param node              Node to be evaluated
+     * @param defaultValue      Default value if eval fails
      * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static Boolean booleanValue(
@@ -194,9 +197,10 @@ public class Converters {
 
     /**
      * Evaluates a {@link TreeNode} to find eventual array.
+     *
      * @param evaluationContext Current eval context
-     * @param node Node to be evaluated
-     * @param defaultValue Default value if eval fails
+     * @param node              Node to be evaluated
+     * @param defaultValue      Default value if eval fails
      * @return Evaluated array on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static List<Value> explodeArray(
@@ -223,7 +227,8 @@ public class Converters {
                 return errorHandlingStrategy.handleTypeMismatch(
                         jsonPathValue.getPath(),
                         JsonNodeType.ARRAY.name(),
-                        value.getNodeType().name(),
+                        value.getNodeType()
+                                .name(),
                         defaultValue);
             }
 
@@ -252,9 +257,10 @@ public class Converters {
 
     /**
      * Flatten an {@link ArrayNode} into List of objects
+     *
      * @param evaluationContext Current eval context
-     * @param value Value that evaluates to an array
-     * @param defaultValue Default value if eval fails
+     * @param value             Value that evaluates to an array
+     * @param defaultValue      Default value if eval fails
      * @return Evaluated list on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static List<Object> flattenArray(
@@ -269,9 +275,10 @@ public class Converters {
 
     /**
      * Evaluates a {@link TreeNode} to find eventual json path value.
+     *
      * @param evaluationContext Current eval context
-     * @param node Node to be evaluated
-     * @param defaultValue Default value if eval fails
+     * @param node              Node to be evaluated
+     * @param defaultValue      Default value if eval fails
      * @return provided json path on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static String jsonPathValue(
@@ -300,9 +307,10 @@ public class Converters {
 
     /**
      * Evaluates a {@link TreeNode} to find eventual object.
+     *
      * @param evaluationContext Current eval context
-     * @param node Node to be evaluated
-     * @param defaultValue Default value if eval fails
+     * @param node              Node to be evaluated
+     * @param defaultValue      Default value if eval fails
      * @return Evaluated object on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
      */
     public static Object objectValue(
@@ -311,7 +319,8 @@ public class Converters {
             Object defaultValue) {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
-        return node.accept(new VisitorAdapter<Object>(() -> errorHandlingStrategy.handleIllegalEval("Object eval", defaultValue)) {
+        return node.accept(new VisitorAdapter<Object>(() -> errorHandlingStrategy.handleIllegalEval("Object eval",
+                                                                                                    defaultValue)) {
             @Override
             public Object visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
@@ -360,22 +369,20 @@ public class Converters {
     }
 
     private static HopeFunction function(FunctionValue functionValue) {
-        final FunctionRegistry.FunctionMeta functionMeta = functionValue.getFunction();
         final List<Value> parameters = functionValue.getParameters();
-        return createFunction(functionValue.getName(), functionMeta, parameters);
+        return createFunction(functionValue.getName(),
+                              functionValue.getSelectedConstructor(),
+                              parameters);
     }
 
     private static HopeFunction createFunction(
             String name,
-            FunctionRegistry.FunctionMeta functionMeta,
+            FunctionRegistry.ConstructorMeta selectedConstructor,
             List<Value> parameters) {
-        final List<Class<?>> paramTypes = functionMeta.getParamTypes();
         try {
-            final Constructor<? extends HopeFunction> constructor = functionMeta.getFunctionClass()
-                    .getDeclaredConstructor(paramTypes
-                                                    .toArray(new Class<?>[paramTypes.size()]));
+            final Constructor<? extends HopeFunction> constructor = selectedConstructor.getConstructor();
             log.info("Found constructor: {}", constructor);
-            if (functionMeta.isArrayValue()) {
+            if (selectedConstructor.isHasVariableArgs()) {
                 return constructor
                         .newInstance(
                                 new Object[]{parameters.toArray(new Value[parameters.size()])});

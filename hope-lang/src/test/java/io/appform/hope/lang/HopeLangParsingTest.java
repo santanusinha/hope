@@ -549,6 +549,17 @@ public class HopeLangParsingTest {
     }
 
     @Test
+    public void testFuncStrSubStrNoEndOverload() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val\" : \"abcdef\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.substr(\"$.val\", 3) == \"def\""));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
     public void testFuncPathExists() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"val\" : \"abcdef\" }");
