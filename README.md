@@ -29,7 +29,7 @@ Use the following dependency in your code.
         <groupId>io.appform.hope</groupId>
         <artifactId>hope-lang</artifactId>
         <packaging>pom</packaging>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
     </dependency>
 ```
 
