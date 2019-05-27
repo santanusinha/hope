@@ -23,7 +23,6 @@ import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.functions.HopeFunction;
 import io.appform.hope.core.visitors.Evaluator;
 import io.appform.hope.lang.parser.HopeParser;
-import io.appform.hope.lang.parser.ParseException;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public class HopeLangEngine {
         try {
             return new HopeParser(new StringReader(hopeLangExpression)).parse(functionRegistry);
         }
-        catch (ParseException e) {
+        catch (Exception e) {
             throw new HopeExpressionParserError(e.getMessage());
         }
     }
