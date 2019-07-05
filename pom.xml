@@ -7,7 +7,7 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <modules>
         <module>hope-core</module>
         <module>hope-lang</module>
