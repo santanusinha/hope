@@ -13,15 +13,7 @@ Hope is a high level language for predicate evaluation on JSON written in java. 
 - Performant
 - Easy to add custom functions
 # Getting started
-Hope in deployed in clojure maven repository. To use hope, please add the following to `<repository/>` section of your pom.xml file.
 
-```
-        <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
-        </repository>
-```
 ### Maven dependency
 Use the following dependency in your code.
 ```
@@ -29,7 +21,7 @@ Use the following dependency in your code.
         <groupId>io.appform.hope</groupId>
         <artifactId>hope-lang</artifactId>
         <packaging>pom</packaging>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </dependency>
 ```
 

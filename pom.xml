@@ -7,17 +7,27 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
+
+    <name>Dropwizard RabbitMQ Bundle</name>
+    <url>https://github.com/santanusinha/hope</url>
+    <description>High level language for predicate evaluation on JSON written in java. It uses jackson
+        for json handling and json-path for value extraction.</description>
+    <inceptionYear>2018</inceptionYear>
+
     <modules>
         <module>hope-core</module>
         <module>hope-lang</module>
     </modules>
 
     <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
@@ -37,19 +47,33 @@
         </license>
     </licenses>
 
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/santanusinha/hope/issues</url>
+    </issueManagement>
+
     <developers>
         <developer>
             <id>santanusinha</id>
             <name>Santanu Sinha</name>
             <email>santanu.sinha@gmail.com</email>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
         </developer>
     </developers>
 
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/santanusinha/hope</url>
+    </ciManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lombok.version>1.16.16</lombok.version>
+        <lombok.version>1.18.8</lombok.version>
         <junit.version>4.12</junit.version>
-        <guava.version>27.0.1-jre</guava.version>
+        <guava.version>28.0-jre</guava.version>
         <json-path.version>2.3.0</json-path.version>
         <jackson.version>2.9.9</jackson.version>
     </properties>
@@ -64,6 +88,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -99,27 +124,34 @@
 
     <profiles>
         <profile>
-            <id>lombok-needs-tools-jar</id>
+            <id>release</id>
             <activation>
-                <file>
-                    <exists>${java.home}/../lib/tools.jar</exists>
-                </file>
+                <property>
+                    <name>release</name>
+                    <value>true</value>
+                </property>
             </activation>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok-maven-plugin</artifactId>
-                        <version>1.16.4.1</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>sun.jdk</groupId>
-                                <artifactId>tools</artifactId>
-                                <version>1.6</version>
-                                <scope>system</scope>
-                                <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                            </dependency>
-                        </dependencies>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <useAgent>true</useAgent>
+                                    <executable>gpg2</executable>
+                                    <!-- Run something like 'gpg2 -ab out' to cache the creds
+                                     on agent before running if needed -->
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
