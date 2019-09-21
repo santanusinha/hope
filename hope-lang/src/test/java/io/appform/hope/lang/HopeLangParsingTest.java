@@ -625,6 +625,17 @@ public class HopeLangParsingTest {
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
     }
 
+    @Test(expected = HopeMissingValueError.class)
+    public void testFuncArrInWithNullArr() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{\"needle\" : 2 }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
     @Test
     public void testFuncArrNotIn() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
