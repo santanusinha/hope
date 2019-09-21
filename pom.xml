@@ -7,7 +7,7 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 
     <name>Dropwizard RabbitMQ Bundle</name>
     <url>https://github.com/santanusinha/hope</url>
