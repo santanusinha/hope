@@ -213,6 +213,11 @@ public class Converters {
             public List<Value> visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = evaluationContext.getJsonContext()
                         .read(jsonPathValue.getPath());
+                if(null == value || value.isNull() || value.isMissingNode()){
+                    return errorHandlingStrategy.handleMissingValue(
+                            jsonPathValue.getPath(),
+                            defaultValue);
+                }
                 if (value.isArray()) {
                     return StreamSupport.stream(
                             Spliterators.spliteratorUnknownSize(

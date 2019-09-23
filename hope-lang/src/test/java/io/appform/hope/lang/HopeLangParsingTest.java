@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.base.Stopwatch;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.Value;
+import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.impl.HopeMissingValueError;
 import io.appform.hope.core.exceptions.impl.HopeTypeMismatchError;
 import io.appform.hope.core.functions.FunctionRegistry;
@@ -618,6 +619,28 @@ public class HopeLangParsingTest {
     public void testFuncArrIn() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"haystack\" : [1,2,3, 4,8,16], \"needle\" : 2 }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncArrInWithNoExceptionOnNullArr() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{\"needle\" : 2 }");
+
+        HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertFalse(new Evaluator(new InjectValueErrorHandlingStrategy()).evaluate(operator, node));
+    }
+
+    @Test(expected = HopeMissingValueError.class)
+    public void testFuncArrInWithNullArr() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{\"needle\" : 2 }");
 
         HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
