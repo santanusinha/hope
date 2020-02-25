@@ -7,9 +7,9 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
 
-    <name>Dropwizard RabbitMQ Bundle</name>
+    <name>Hope</name>
     <url>https://github.com/santanusinha/hope</url>
     <description>High level language for predicate evaluation on JSON written in java. It uses jackson
         for json handling and json-path for value extraction.</description>
@@ -82,7 +82,7 @@
         <junit.version>4.12</junit.version>
         <guava.version>28.0-jre</guava.version>
         <json-path.version>2.3.0</json-path.version>
-        <jackson.version>2.9.9</jackson.version>
+        <jackson.version>2.10.2</jackson.version>
     </properties>
 
     <dependencyManagement>
