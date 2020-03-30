@@ -43,7 +43,7 @@ public class Exists extends HopeFunction<BooleanValue> {
         }
         final JsonNode node = evaluationContext.getJsonContext()
                 .read(pathValue);
-        if(node.isNull()) {
+        if(null == node || node.isNull()) {
             return new BooleanValue(false);
         }
         return new BooleanValue(true);
