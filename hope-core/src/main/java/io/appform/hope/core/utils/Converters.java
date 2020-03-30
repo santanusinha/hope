@@ -17,6 +17,7 @@ package io.appform.hope.core.utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.base.Strings;
 import io.appform.hope.core.TreeNode;
 import io.appform.hope.core.Value;
@@ -29,10 +30,7 @@ import io.appform.hope.core.visitors.Evaluator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
-import java.util.Collections;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -431,15 +429,20 @@ public class Converters {
             JsonPathValue jsonPathValue,
             Evaluator.EvaluationContext evaluationContext) {
         final String path = jsonPathValue.getPath();
-        final JsonNode existing = evaluationContext.getJsonPathEvalCache()
+        final Map<String, JsonNode> jsonPathEvalCache = evaluationContext.getJsonPathEvalCache();
+        final JsonNode existing = jsonPathEvalCache
                 .getOrDefault(path, null);
 
         final JsonNode value;
         if (null == existing) {
             value = evaluationContext.getJsonContext()
                     .read(path);
-            evaluationContext.getJsonPathEvalCache()
-                    .put(path, value);
+            if(null == value) {
+                jsonPathEvalCache.put(path, NullNode.getInstance());
+            }
+            else {
+                jsonPathEvalCache.put(path, value);
+            }
         }
         else {
             value = existing;
