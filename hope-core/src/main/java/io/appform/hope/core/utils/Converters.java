@@ -435,7 +435,6 @@ public class Converters {
             List<Value> parameters) {
         try {
             final Constructor<? extends HopeFunction> constructor = selectedConstructor.getConstructor();
-            log.info("Found constructor: {}", constructor);
             if (selectedConstructor.isHasVariableArgs()) {
                 return constructor
                         .newInstance(
