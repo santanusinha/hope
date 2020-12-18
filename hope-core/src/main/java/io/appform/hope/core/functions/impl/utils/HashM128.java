@@ -43,27 +43,31 @@ public class HashM128 extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {
         val hasher = Hashing.murmur3_128().newHasher();
-        Converters.handleValue(evaluationContext, arg, "", new RawTypeHandler<Hasher>() {
-            @Override
-            public Hasher handleString(String s) {
-                return hasher.putString(s, Charset.defaultCharset());
-            }
+        val hashValue = Converters.handleValue(
+                evaluationContext, arg, "",
+                new RawTypeHandler<Hasher>() {
+                    @Override
+                    public Hasher handleString(String s) {
+                        return hasher.putString(s, Charset.defaultCharset());
+                    }
 
-            @Override
-            public Hasher handleBoolean(boolean b) {
-                return hasher.putBoolean(b);
-            }
+                    @Override
+                    public Hasher handleBoolean(boolean b) {
+                        return hasher.putBoolean(b);
+                    }
 
-            @Override
-            public Hasher handleNumber(Number n) {
-                return hasher.putDouble(n.doubleValue());
-            }
+                    @Override
+                    public Hasher handleNumber(Number n) {
+                        return hasher.putDouble(n.doubleValue());
+                    }
 
-            @Override
-            public Hasher handleObject(Object o) {
-                return hasher.putString(arg.toString(), Charset.defaultCharset());
-            }
-        });
-        return new NumericValue(hasher.hash().asLong());
+                    @Override
+                    public Hasher handleObject(Object o) {
+                        return hasher.putString(arg.toString(), Charset.defaultCharset());
+                    }
+                })
+                .hash()
+                .asLong();
+        return new NumericValue(hashValue);
     }
 }
