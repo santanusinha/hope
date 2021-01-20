@@ -451,11 +451,46 @@ public class HopeLangParsingTest {
     }
 
     @Test
+    public void testFuncUtilsHashJ() throws Exception {
+        System.out.println("Hash" + new Integer(-23).hashCode());
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.abs(utils.hash_j(-23)) == math.abs(-1070137344)"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncUtilsHashM128() throws Exception {
+        System.out.println("Hash" + new Integer(-23).hashCode());
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.abs(utils.hash_m128(-23)) == 2940310638642342768"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
     public void testJsonPathFuncMathAddLHS() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3 }");
 
         HopeParser parser = new HopeParser(new StringReader("math.add(\"$.a\", \"$.b\", 7) == 12"));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testJsonPathFuncMathAddNested() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"a\" : 2, \"b\" : 3, \"c\" : 9 }");
+
+        HopeParser parser = new HopeParser(new StringReader("math.add(math.add(\"$.a\", \"$.b\", 7), \"$.c\", 4) == 25"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));
@@ -511,6 +546,17 @@ public class HopeLangParsingTest {
         final JsonNode node = mapper.readTree("{ \"val\" : \"abc\" }");
 
         HopeParser parser = new HopeParser(new StringReader("str.upper(\"$.val\") == \"ABC\""));
+        final Evaluatable operator = parser.parse(functionRegistry);
+
+        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+    }
+
+    @Test
+    public void testFuncStrUpperSnakeCase() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"val_txt\" : \"abc\" }");
+
+        HopeParser parser = new HopeParser(new StringReader("str.upper(\"$.val_txt\") == \"ABC\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
         Assert.assertTrue(new Evaluator().evaluate(operator, node));

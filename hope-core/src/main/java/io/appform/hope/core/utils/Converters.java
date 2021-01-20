@@ -336,9 +336,6 @@ public class Converters {
                     if (value.isNumber()) {
                         return value.asDouble();
                     }
-                    if (value.isPojo()) {
-                        return value.isPojo();
-                    }
                 }
                 return errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(), defaultValue);
             }
@@ -370,6 +367,61 @@ public class Converters {
         });
     }
 
+    public static<T> T handleValue(
+            Evaluator.EvaluationContext evaluationContext,
+            TreeNode node,
+            Object defaultValue,
+            RawTypeHandler<T> handler) {
+        final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
+                .getErrorHandlingStrategy();
+        return node.accept(
+                new VisitorAdapter<T>(() -> handler.handleObject(
+                        errorHandlingStrategy.handleIllegalEval("Object eval", defaultValue))) {
+            @Override
+            public T visit(JsonPathValue jsonPathValue) {
+                final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
+                if (null != value && !value.isNull() && !value.isMissingNode()) {
+                    if (value.isTextual()) {
+                        return handler.handleString(value.asText());
+                    }
+                    if (value.isBoolean()) {
+                        return handler.handleBoolean(value.asBoolean());
+                    }
+                    if (value.isNumber()) {
+                        return handler.handleNumber(value.asDouble());
+                    }
+                }
+                return handler.handleObject(errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(), defaultValue));
+            }
+
+            @Override
+            public T visit(ObjectValue objectValue) {
+                return handler.handleObject(objectValue.getValue());
+            }
+
+            @Override
+            public T visit(NumericValue numericValue) {
+                return handler.handleNumber(numericValue(evaluationContext, numericValue, 0));
+            }
+
+            @Override
+            public T visit(StringValue stringValue) {
+                return handler.handleString(stringValue(evaluationContext, stringValue, ""));
+            }
+
+            @Override
+            public T visit(BooleanValue booleanValue) {
+                return handler.handleBoolean(booleanValue(evaluationContext, booleanValue, false));
+            }
+
+            @Override
+            public T visit(FunctionValue functionValue) {
+                return handler.handleObject(objectValue(evaluationContext,
+                                                        function(functionValue).apply(evaluationContext), defaultValue));
+            }
+        });
+    }
+
     private static HopeFunction function(FunctionValue functionValue) {
         final List<Value> parameters = functionValue.getParameters();
         return createFunction(functionValue.getName(),
@@ -383,7 +435,6 @@ public class Converters {
             List<Value> parameters) {
         try {
             final Constructor<? extends HopeFunction> constructor = selectedConstructor.getConstructor();
-            log.info("Found constructor: {}", constructor);
             if (selectedConstructor.isHasVariableArgs()) {
                 return constructor
                         .newInstance(
