@@ -80,7 +80,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.8</lombok.version>
         <junit.version>4.13.1</junit.version>
-        <guava.version>28.0-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <json-path.version>2.3.0</json-path.version>
         <jackson.version>2.10.2</jackson.version>
     </properties>
