@@ -33,6 +33,7 @@ import io.appform.hope.core.utils.Converters;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,7 @@ import java.util.Objects;
 /**
  * Evaluates a hope expression
  */
+@Slf4j
 public class Evaluator {
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -176,6 +178,7 @@ public class Evaluator {
     private void setupCacheProviderForJsonPath() {
         try {
             CacheProvider.setCache(new NOOPCache());
+            log.info(String.format("CacheProvider for JsonPath set to %s", NOOPCache.class.getSimpleName()));
         } catch (JsonPathException e) {
             if (Objects.equals("Cache provider must be configured before cache is accessed.", e.getMessage())) {
                 return;
