@@ -18,8 +18,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import io.appform.hope.core.operators.Equals;
 import io.appform.hope.core.values.ObjectValue;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -31,7 +33,7 @@ public class EvaluatorTest {
     @Test
     public void basicTest() {
         final Evaluator evaluator = new Evaluator();
-        Assert.assertTrue(
+        assertTrue(
                 evaluator.evaluate(
                         Equals.builder()
                                 .lhs(new ObjectValue("a"))
@@ -39,7 +41,7 @@ public class EvaluatorTest {
                                 .build()
                         , node))
         ;
-        Assert.assertFalse(
+        assertFalse(
                 evaluator.evaluate(
                         Equals.builder()
                                 .lhs(new ObjectValue("a"))

@@ -32,13 +32,17 @@ import io.appform.hope.core.visitors.Evaluator;
 import io.appform.hope.lang.parser.HopeParser;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests hope lang parsing
@@ -57,205 +61,203 @@ public class HopeLangParsingTest {
     public void testInt() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("1"));
         final Value operand = parser.NumericRepr();
-        Assert.assertEquals(1.0, NumericValue.class.cast(operand).getValue());
+        assertEquals(1.0, NumericValue.class.cast(operand).getValue());
     }
 
     @Test
     public void testDouble() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("1.5"));
         final Value operand = parser.NumericRepr();
-        Assert.assertEquals(1.5, NumericValue.class.cast(operand).getValue());
+        assertEquals(1.5, NumericValue.class.cast(operand).getValue());
     }
 
     @Test
     public void testBoolean() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("true"));
         final Value operand = parser.BooleanRepr();
-        Assert.assertTrue(BooleanValue.class.cast(operand).getValue());
+        assertTrue(BooleanValue.class.cast(operand).getValue());
     }
 
     @Test
     public void testBooleanFalse() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("false"));
         final Value operand = parser.BooleanRepr();
-        Assert.assertFalse(BooleanValue.class.cast(operand).getValue());
+        assertFalse(BooleanValue.class.cast(operand).getValue());
     }
 
     @Test
     public void testString() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("\"abc\""));
         final Value operand = parser.StringRepr();
-        Assert.assertEquals("abc", StringValue.class.cast(operand).getValue());
+        assertEquals("abc", StringValue.class.cast(operand).getValue());
     }
 
     @Test
     public void testPath() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("\"$.abc\""));
         final Value operand = parser.JsonPathRepr();
-        Assert.assertEquals("$.abc", JsonPathValue.class.cast(operand).getPath());
+        assertEquals("$.abc", JsonPathValue.class.cast(operand).getPath());
     }
 
     @Test
     public void testEqualsSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("23 == 23"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testEqualsFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("23 == 29"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testNotEqualsSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("23 != 29"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        //Assert.assertEquals("$.abc", JsonPathValue.class.cast(operand).getPath());
-        System.out.println(operator);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testNotEqualsFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("23 != 23"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testAndSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("true & true"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testAndFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("true & false"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testOrSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("true | true"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testOrSuccess2() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("true | false"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testOrFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("false | false"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testGreaterSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("3 > 2"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testGreaterFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("2 > 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testGreaterEqualsSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("3 >= 2"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testGreaterEqualsFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("2 >= 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testLesserSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("2 < 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testLesserFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("3 < 2"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testLesserEqualsSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("2 <= 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testLessEqualsFail() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("3 <= 2"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testLessEqualsFailParenthesis() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("(3 <= 2)"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testAndCombinerSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("3 >= 2 && 2 < 5"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testAndCombinerFailure() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("(3 == 2) && (2 < 5)"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testOrCombinerSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("3 >= 2 || 2 < 5"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testOrCombinerSuccessRhs() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("(3 == 2) || (2 < 5)"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testCombinerComplexSuccess() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("((3 >= 2) && (2 < 5)) || 2 == 2 "));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -263,14 +265,14 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("(((3 >= 2) && (2 == 5)) && 2 == 2)"));
         final Evaluatable operator = parser.parse(functionRegistry);
         System.out.println(operator);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
     public void testCombinerComplexSuccessBothSides() throws Exception {
         HopeParser parser = new HopeParser(new StringReader("(((3 <= 2) || (2 == 5)) && ((2 == 2) ||  (2 == 1)))"));
         final Evaluatable operator = parser.parse(functionRegistry);
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -281,7 +283,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.name\" == \"santanu\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -292,7 +294,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.count\" == 93"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -303,7 +305,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("94 > \"$.count\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -314,7 +316,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.count\" > 94"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -325,7 +327,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.lhs\" > \"$.rhs\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -336,7 +338,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("92 < \"$.count\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -347,7 +349,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.count\" < 94"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -358,62 +360,62 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.lhs\" < \"$.rhs\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
-    public void  testNotSimple() throws Exception {
+    public void testNotSimple() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"boolValue\" : false }");
 
         HopeParser parser = new HopeParser(new StringReader("^false"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
-    public void  testNotSimplePath() throws Exception {
+    public void testNotSimplePath() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"boolValue\" : false }");
 
         HopeParser parser = new HopeParser(new StringReader("^\"$.boolValue\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
-    public void  testNotSimplePathParenth() throws Exception {
+    public void testNotSimplePathParenth() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"boolValue\" : false }");
 
         HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\")"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
-    public void  testNotCombinerPathParenth() throws Exception {
+    public void testNotCombinerPathParenth() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"boolValue\" : false, \"num\" : 43 }");
 
         HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\" && \"$.num\" > 40)"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
-    public void  testNotCombinerPathParenthComplex() throws Exception {
+    public void testNotCombinerPathParenthComplex() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"boolValue\" : false, \"num1\" : 43, \"num2\" : 49}");
 
         HopeParser parser = new HopeParser(new StringReader("(^\"$.boolValue\" && (\"$.num1\" > 45 || \"$.num2\" < 50))"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -425,7 +427,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("93 <= math.abs(\"$.count\")"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -436,7 +438,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("7 <= math.add(\"$.a\", \"$.b\", 7)"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -447,7 +449,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("7 <= sys.epoch()"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -459,7 +461,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.abs(utils.hash_j(-23)) == math.abs(-1070137344)"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -471,7 +473,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.abs(utils.hash_m128(-23)) == 2940310638642342768"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -482,7 +484,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.add(\"$.a\", \"$.b\", 7) == 12"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -493,7 +495,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.add(math.add(\"$.a\", \"$.b\", 7), \"$.c\", 4) == 25"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -504,7 +506,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.prod(\"$.a\", \"$.b\", 7) == 42"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -515,7 +517,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.negate(math.sub(math.add(\"$.a\", \"$.b\", 7), 13)) == 1"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -526,7 +528,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("sys.epoch() >= 7"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -537,7 +539,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.lower(\"$.val\") == \"abc\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -548,7 +550,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.upper(\"$.val\") == \"ABC\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -559,7 +561,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.upper(\"$.val_txt\") == \"ABC\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -570,7 +572,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.len(\"$.val\") == 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -581,7 +583,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.match(\"^a.*\", \"$.val\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -592,7 +594,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.substr(\"$.val\", 0, 3) == \"abc\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -603,7 +605,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.substr(\"$.val\", 3) == \"def\""));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -614,7 +616,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("path.exists(\"$.val\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -625,7 +627,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.contains_any(\"$.val\", [2,3]) == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -636,7 +638,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.contains_any([9,7], \"$.val\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -647,7 +649,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.contains_all(\"$.val\", [2,3]) == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -658,7 +660,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.contains_all([1, 9,7], \"$.val\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertFalse(new Evaluator().evaluate(operator, node));
+        assertFalse(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -669,7 +671,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -680,10 +682,10 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertFalse(new Evaluator(new InjectValueErrorHandlingStrategy()).evaluate(operator, node));
+        assertFalse(new Evaluator(new InjectValueErrorHandlingStrategy()).evaluate(operator, node));
     }
 
-    @Test(expected = HopeMissingValueError.class)
+    @Test
     public void testFuncArrInWithNullArr() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{\"needle\" : 2 }");
@@ -691,7 +693,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.in(\"$.needle\", \"$.haystack\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertThrows(HopeMissingValueError.class, () -> new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -702,7 +704,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.not_in(\"$.needle\", \"$.haystack\") == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -713,7 +715,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.is_empty(\"$.empty\") == true  && false == arr.is_empty(\"$.nonempty\")"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -724,7 +726,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("arr.len(\"$.array\") == 6"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertTrue(new Evaluator().evaluate(operator, node));
     }
 
     @Test
@@ -745,17 +747,16 @@ public class HopeLangParsingTest {
                 payload);
 
         IntStream.range(0, 10)
-                .forEach( times -> {
+                .forEach(times -> {
                     Stopwatch stopwatch = Stopwatch.createStarted();
                     IntStream.range(1, 1_000_000)
                             .forEach(i -> hopeLangParser.evaluate(rule, node));
                     log.info("Time taken: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 });
-
     }
 
 
-    @Test(expected = HopeMissingValueError.class)
+    @Test
     public void testFuncStrLenFailNoNode() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ }");
@@ -763,11 +764,11 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.len(\"$.val\") == 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertThrows(HopeMissingValueError.class, () -> new Evaluator().evaluate(operator, node));
     }
 
 
-    @Test(expected = HopeTypeMismatchError.class)
+    @Test
     public void testFuncStrLenFailBadType() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"val\" : 29 }");
@@ -775,10 +776,10 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("str.len(\"$.val\") == 3"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertThrows(HopeTypeMismatchError.class, () -> new Evaluator().evaluate(operator, node));
     }
 
-    @Test(expected = HopeMissingValueError.class)
+    @Test
     public void testFuncIntFailNoNode() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{  }");
@@ -786,10 +787,10 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.negate(\"$.val\") == 1"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertThrows(HopeMissingValueError.class, () -> new Evaluator().evaluate(operator, node));
     }
 
-    @Test(expected = HopeTypeMismatchError.class)
+    @Test
     public void testFuncIntFailBadType() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"val\" : \"Blah\" }");
@@ -797,10 +798,10 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("math.negate(\"$.val\") == 1"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertThrows(HopeTypeMismatchError.class, () -> new Evaluator().evaluate(operator, node));
     }
 
-    @Test(expected = HopeMissingValueError.class)
+    @Test
     public void testFuncBoolFailNoNode() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{  }");
@@ -808,7 +809,7 @@ public class HopeLangParsingTest {
         HopeParser parser = new HopeParser(new StringReader("\"$.val\" == true"));
         final Evaluatable operator = parser.parse(functionRegistry);
 
-        Assert.assertTrue(new Evaluator().evaluate(operator, node));
+        assertThrows(HopeMissingValueError.class, () -> new Evaluator().evaluate(operator, node));
     }
 
 }

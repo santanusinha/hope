@@ -19,8 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -40,7 +42,7 @@ public class HopeLangEngineTest {
 
         //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
         //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
-        Assert.assertFalse(hopeLangParser.evaluate(operator, node));
+        assertFalse(hopeLangParser.evaluate(operator, node));
     }
 
     @Test
@@ -52,6 +54,6 @@ public class HopeLangEngineTest {
                 .build();
 
         JsonNode node = new ObjectMapper().readTree("{}");
-        Assert.assertTrue(hope.evaluate("ss.blah() == \"blah\"", node));
+        assertTrue(hope.evaluate("ss.blah() == \"blah\"", node));
     }
 }

@@ -34,12 +34,14 @@ import java.util.List;
 public class HopeLangEngine {
     private final FunctionRegistry functionRegistry;
     private final ErrorHandlingStrategy errorHandlingStrategy;
+    private final Evaluator evaluator;
 
     private HopeLangEngine(
             FunctionRegistry functionRegistry,
             ErrorHandlingStrategy errorHandlingStrategy) {
         this.functionRegistry = functionRegistry;
         this.errorHandlingStrategy = errorHandlingStrategy;
+        this.evaluator = new Evaluator(errorHandlingStrategy);
     }
 
     /**
@@ -75,7 +77,7 @@ public class HopeLangEngine {
      * @return true in case of match
      */
     public boolean evaluate(Evaluatable rule, JsonNode node) {
-        return new Evaluator(errorHandlingStrategy).evaluate(rule, node);
+        return evaluator.evaluate(rule, node);
     }
 
     public static class Builder {

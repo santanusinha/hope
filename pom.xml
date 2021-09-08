@@ -7,7 +7,7 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 
     <name>Hope</name>
     <url>https://github.com/santanusinha/hope</url>
@@ -79,9 +79,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.8</lombok.version>
-        <junit.version>4.13.1</junit.version>
+        <junit.version>5.7.2</junit.version>
         <guava.version>28.0-jre</guava.version>
-        <json-path.version>2.3.0</json-path.version>
+        <json-path.version>2.6.0</json-path.version>
         <jackson.version>2.10.2</jackson.version>
     </properties>
 
@@ -104,8 +104,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
