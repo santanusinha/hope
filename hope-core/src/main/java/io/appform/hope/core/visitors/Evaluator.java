@@ -17,7 +17,10 @@ package io.appform.hope.core.visitors;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.jayway.jsonpath.*;
+import com.jayway.jsonpath.spi.cache.CacheProvider;
+import com.jayway.jsonpath.spi.cache.NOOPCache;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
@@ -56,10 +59,11 @@ public class Evaluator {
 
     public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
         this.errorHandlingStrategy = errorHandlingStrategy;
+        setupCacheProviderForJsonPath();
         parseContext = JsonPath.using(Configuration.builder()
-                                              .jsonProvider(new JacksonJsonNodeJsonProvider())
-                                              .options(Option.SUPPRESS_EXCEPTIONS)
-                                              .build());
+                .jsonProvider(new JacksonJsonNodeJsonProvider())
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .build());
 
     }
 
@@ -167,6 +171,17 @@ public class Evaluator {
             return !operand;
         }
 
+    }
+
+    private void setupCacheProviderForJsonPath() {
+        try {
+            CacheProvider.setCache(new NOOPCache());
+        } catch (JsonPathException e) {
+            if (Objects.equals("Cache provider must be configured before cache is accessed.", e.getMessage())) {
+                return;
+            }
+            throw e;
+        }
     }
 
 }
