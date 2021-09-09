@@ -7,7 +7,7 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
 
     <name>Hope</name>
     <url>https://github.com/santanusinha/hope</url>
