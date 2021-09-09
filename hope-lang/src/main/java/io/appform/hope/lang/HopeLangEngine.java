@@ -15,6 +15,9 @@
 package io.appform.hope.lang;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.spi.cache.CacheProvider;
+import com.jayway.jsonpath.spi.cache.NOOPCache;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
@@ -23,25 +26,27 @@ import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.functions.HopeFunction;
 import io.appform.hope.core.visitors.Evaluator;
 import io.appform.hope.lang.parser.HopeParser;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Top level accessor for hope. Creation is expensive. Create and reuse.
  */
+@Slf4j
 public class HopeLangEngine {
     private final FunctionRegistry functionRegistry;
     private final ErrorHandlingStrategy errorHandlingStrategy;
-    private final Evaluator evaluator;
 
     private HopeLangEngine(
             FunctionRegistry functionRegistry,
             ErrorHandlingStrategy errorHandlingStrategy) {
         this.functionRegistry = functionRegistry;
         this.errorHandlingStrategy = errorHandlingStrategy;
-        this.evaluator = new Evaluator(errorHandlingStrategy);
+        setupCacheProviderForJsonPath();
     }
 
     /**
@@ -77,7 +82,7 @@ public class HopeLangEngine {
      * @return true in case of match
      */
     public boolean evaluate(Evaluatable rule, JsonNode node) {
-        return evaluator.evaluate(rule, node);
+        return new Evaluator(errorHandlingStrategy).evaluate(rule, node);
     }
 
     public static class Builder {
@@ -138,5 +143,17 @@ public class HopeLangEngine {
      */
     public static Builder builder() {
         return new Builder();
+    }
+
+    private void setupCacheProviderForJsonPath() {
+        try {
+            CacheProvider.setCache(new NOOPCache());
+            log.info(String.format("CacheProvider for JsonPath set to %s", NOOPCache.class.getSimpleName()));
+        } catch (JsonPathException e) {
+            if (Objects.equals("Cache provider must be configured before cache is accessed.", e.getMessage())) {
+                return;
+            }
+            throw e;
+        }
     }
 }

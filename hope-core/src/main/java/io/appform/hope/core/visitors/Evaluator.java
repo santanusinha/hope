@@ -17,10 +17,7 @@ package io.appform.hope.core.visitors;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
 import com.jayway.jsonpath.*;
-import com.jayway.jsonpath.spi.cache.CacheProvider;
-import com.jayway.jsonpath.spi.cache.NOOPCache;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
@@ -33,7 +30,6 @@ import io.appform.hope.core.utils.Converters;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +38,6 @@ import java.util.Objects;
 /**
  * Evaluates a hope expression
  */
-@Slf4j
 public class Evaluator {
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -61,7 +56,6 @@ public class Evaluator {
 
     public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
         this.errorHandlingStrategy = errorHandlingStrategy;
-        setupCacheProviderForJsonPath();
         parseContext = JsonPath.using(Configuration.builder()
                 .jsonProvider(new JacksonJsonNodeJsonProvider())
                 .options(Option.SUPPRESS_EXCEPTIONS)
@@ -173,18 +167,6 @@ public class Evaluator {
             return !operand;
         }
 
-    }
-
-    private void setupCacheProviderForJsonPath() {
-        try {
-            CacheProvider.setCache(new NOOPCache());
-            log.info(String.format("CacheProvider for JsonPath set to %s", NOOPCache.class.getSimpleName()));
-        } catch (JsonPathException e) {
-            if (Objects.equals("Cache provider must be configured before cache is accessed.", e.getMessage())) {
-                return;
-            }
-            throw e;
-        }
     }
 
 }
