@@ -17,15 +17,21 @@ package io.appform.hope.core.visitors;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.*;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
-import io.appform.hope.core.operators.*;
+import io.appform.hope.core.operators.And;
+import io.appform.hope.core.operators.Equals;
+import io.appform.hope.core.operators.Greater;
+import io.appform.hope.core.operators.GreaterEquals;
+import io.appform.hope.core.operators.Lesser;
+import io.appform.hope.core.operators.LesserEquals;
+import io.appform.hope.core.operators.Not;
+import io.appform.hope.core.operators.NotEquals;
+import io.appform.hope.core.operators.Or;
 import io.appform.hope.core.utils.Converters;
 import lombok.Builder;
 import lombok.Data;
@@ -46,7 +52,6 @@ public class Evaluator {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    private final ParseContext parseContext;
     @Getter
     private final ErrorHandlingStrategy errorHandlingStrategy;
 
@@ -56,21 +61,17 @@ public class Evaluator {
 
     public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
         this.errorHandlingStrategy = errorHandlingStrategy;
-        parseContext = JsonPath.using(Configuration.builder()
-                .jsonProvider(new JacksonJsonNodeJsonProvider())
-                .options(Option.SUPPRESS_EXCEPTIONS)
-                .build());
 
     }
 
     public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
-        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), this)));
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(node, this)));
     }
 
     @Data
     @Builder
     public static class EvaluationContext {
-        private final DocumentContext jsonContext;
+        private final JsonNode jsonNode;
         private final Evaluator evaluator;
         private final Map<String, JsonNode> jsonPathEvalCache = new HashMap<>(128);
     }

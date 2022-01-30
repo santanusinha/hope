@@ -15,9 +15,6 @@
 package io.appform.hope.lang;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.jayway.jsonpath.JsonPathException;
-import com.jayway.jsonpath.spi.cache.CacheProvider;
-import com.jayway.jsonpath.spi.cache.NOOPCache;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
@@ -31,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Top level accessor for hope. Creation is expensive. Create and reuse.
@@ -46,13 +42,13 @@ public class HopeLangEngine {
             ErrorHandlingStrategy errorHandlingStrategy) {
         this.functionRegistry = functionRegistry;
         this.errorHandlingStrategy = errorHandlingStrategy;
-        setupCacheProviderForJsonPath();
     }
 
     /**
      * Evaluates a hope expression using the provided json to return true or false.
+     *
      * @param hopeLangExpression A hope language expression
-     * @param root The json node to be evaluated
+     * @param root               The json node to be evaluated
      * @return true in  case of match
      */
     public boolean evaluate(final String hopeLangExpression, JsonNode root) {
@@ -62,6 +58,7 @@ public class HopeLangEngine {
 
     /**
      * Parse a hope lang string. The resultant parsed rule can be reused for multiple evaluations.
+     *
      * @param hopeLangExpression Parse a string
      * @return An evaluatable expression tree
      * @throws HopeExpressionParserError
@@ -69,14 +66,14 @@ public class HopeLangEngine {
     public Evaluatable parse(final String hopeLangExpression) throws HopeExpressionParserError {
         try {
             return new HopeParser(new StringReader(hopeLangExpression)).parse(functionRegistry);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new HopeExpressionParserError(e.getMessage());
         }
     }
 
     /**
      * Evaluate a hope lang parsed expression
+     *
      * @param rule Parsed rule
      * @param node JsonNode for which the match rule is to be evaluated
      * @return true in case of match
@@ -90,10 +87,12 @@ public class HopeLangEngine {
         private final FunctionRegistry functionRegistry = new FunctionRegistry();
         private ErrorHandlingStrategy errorHandlingStrategy = new DefaultErrorHandlingStrategy();
 
-        private Builder() {}
+        private Builder() {
+        }
 
         /**
          * Add a package that will be scanned besides stdlib for implementations of {@link HopeFunction}
+         *
          * @param userPackage package to be scanned
          * @return builder
          */
@@ -104,6 +103,7 @@ public class HopeLangEngine {
 
         /**
          * Register a {@link HopeFunction} implementation directly to the function registry
+         *
          * @param hopeFunctionClass Implementation of {@link HopeFunction}.
          *                          Needs to be annotated with {@link io.appform.hope.core.functions.FunctionImplementation}
          *                          and have a constructor only having zero or more {@link io.appform.hope.core.Value}
@@ -119,6 +119,7 @@ public class HopeLangEngine {
          * Override error handling strategy. Default is {@link DefaultErrorHandlingStrategy}.
          * Can also be {@link io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy}
          * or something custom.
+         *
          * @param errorHandlingStrategy Error handling strategy
          * @return builder
          */
@@ -129,6 +130,7 @@ public class HopeLangEngine {
 
         /**
          * Build a Hope language parser
+         *
          * @return a fully initialized immutable parser
          */
         public HopeLangEngine build() {
@@ -139,21 +141,11 @@ public class HopeLangEngine {
 
     /**
      * Create a builder for the parser.
+     *
      * @return An initialized builder.
      */
     public static Builder builder() {
         return new Builder();
     }
 
-    private void setupCacheProviderForJsonPath() {
-        try {
-            CacheProvider.setCache(new NOOPCache());
-            log.info(String.format("CacheProvider for JsonPath set to %s", NOOPCache.class.getSimpleName()));
-        } catch (JsonPathException e) {
-            if (Objects.equals("Cache provider must be configured before cache is accessed and must not be registered twice.", e.getMessage())) {
-                return;
-            }
-            throw e;
-        }
-    }
 }
