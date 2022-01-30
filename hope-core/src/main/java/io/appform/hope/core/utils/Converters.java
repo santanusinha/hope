@@ -34,7 +34,6 @@ import io.appform.hope.core.values.ObjectValue;
 import io.appform.hope.core.values.StringValue;
 import io.appform.hope.core.visitors.Evaluator;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;
@@ -541,9 +540,15 @@ public class Converters {
     }
 
     public static String toJsonPointer(final String jsonPath) {
-        return jsonPath == null || jsonPath.trim().isEmpty()
-                ? jsonPath
-                : jsonPath.replaceAll("\\.", "/")
+        if (jsonPath == null || jsonPath.trim().isEmpty()) {
+            return jsonPath;
+        }
+
+        if (jsonPath.trim().startsWith("/")) {
+            return jsonPath;
+        }
+
+        return jsonPath.trim().replaceAll("\\.", "/")
                 .replace("$", "");
     }
 
