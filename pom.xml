@@ -82,7 +82,7 @@
         <junit.version>5.7.2</junit.version>
         <guava.version>28.0-jre</guava.version>
         <json-path.version>2.7.0</json-path.version>
-        <jackson.version>2.10.2</jackson.version>
+        <jackson.version>2.13.1</jackson.version>
     </properties>
 
     <dependencies>
