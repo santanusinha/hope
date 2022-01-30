@@ -66,7 +66,8 @@ public class HopeLangEngine {
     public Evaluatable parse(final String hopeLangExpression) throws HopeExpressionParserError {
         try {
             return new HopeParser(new StringReader(hopeLangExpression)).parse(functionRegistry);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new HopeExpressionParserError(e.getMessage());
         }
     }
@@ -87,8 +88,7 @@ public class HopeLangEngine {
         private final FunctionRegistry functionRegistry = new FunctionRegistry();
         private ErrorHandlingStrategy errorHandlingStrategy = new DefaultErrorHandlingStrategy();
 
-        private Builder() {
-        }
+        private Builder() {}
 
         /**
          * Add a package that will be scanned besides stdlib for implementations of {@link HopeFunction}

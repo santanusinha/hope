@@ -71,7 +71,7 @@ public class Evaluator {
     @Data
     @Builder
     public static class EvaluationContext {
-        private final JsonNode jsonNode;
+        private final JsonNode jsonContext;
         private final Evaluator evaluator;
         private final Map<String, JsonNode> jsonPathEvalCache = new HashMap<>(128);
     }
