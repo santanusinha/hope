@@ -150,7 +150,7 @@ public class HopeLangEngine {
             CacheProvider.setCache(new NOOPCache());
             log.info(String.format("CacheProvider for JsonPath set to %s", NOOPCache.class.getSimpleName()));
         } catch (JsonPathException e) {
-            if (Objects.equals("Cache provider must be configured before cache is accessed.", e.getMessage())) {
+            if (Objects.equals("Cache provider must be configured before cache is accessed and must not be registered twice.", e.getMessage())) {
                 return;
             }
             throw e;

@@ -20,7 +20,7 @@ Use the following dependency in your code.
     <dependency>
         <groupId>io.appform.hope</groupId>
         <artifactId>hope-lang</artifactId>
-        <version>1.0.12</version>
+        <version>1.0.13</version>
     </dependency>
 ```
 
@@ -32,7 +32,7 @@ The main class you need to know is `HopeLangEngine`. To use this class use the p
     final HopeLangEngine hope = HopeLangEngine.builder()
                                 .build();
 ```
-> **Note:** Creation of this class is a time consuming affair. Create and resue this. This class is thread-safe.
+> **Note:** Creation of this class is a time-consuming affair. Create and re-use this. This class is thread-safe.
 #### Evaluate an expression
 The following code snippet evaluates an expression against a parsed jackson Json node.
 ```
