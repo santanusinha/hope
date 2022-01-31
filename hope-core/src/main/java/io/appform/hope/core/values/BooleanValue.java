@@ -39,6 +39,13 @@ public class BooleanValue extends EvaluatableValue<Boolean> {
     }
 
     /**
+     * @param pointerValue json pointer value
+     */
+    public BooleanValue(JsonPointerValue pointerValue) {
+        super(pointerValue);
+    }
+
+    /**
      * @param function A function that evaluates to a boolean
      */
     public BooleanValue(FunctionValue function) {

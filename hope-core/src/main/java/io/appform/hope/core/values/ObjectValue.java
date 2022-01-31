@@ -42,6 +42,13 @@ public class ObjectValue extends EvaluatableValue<Object> {
     }
 
     /**
+     * @param pointerValue json pointer value
+     */
+    public ObjectValue(JsonPointerValue pointerValue) {
+        super(pointerValue);
+    }
+
+    /**
      * @param function A function that evaluates to an object
      */
     public ObjectValue(FunctionValue function) {

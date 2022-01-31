@@ -46,6 +46,8 @@ public interface Visitor<T> {
 
     T visit(JsonPathValue jsonPathValue);
 
+    T visit(JsonPointerValue jsonPointerValue);
+
     T visit(ObjectValue objectValue);
 
     T visit(NumericValue numericValue);

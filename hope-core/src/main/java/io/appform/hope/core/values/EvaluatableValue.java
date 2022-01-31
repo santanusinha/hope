@@ -27,22 +27,33 @@ import lombok.ToString;
 public abstract class EvaluatableValue<T> extends FunctionEvaluatableValue {
     private final T value;
     private final JsonPathValue pathValue;
+    private final JsonPointerValue pointerValue;
 
     protected EvaluatableValue(T value) {
         super();
         this.value = value;
         this.pathValue = null;
+        this.pointerValue = null;
     }
 
     protected EvaluatableValue(JsonPathValue pathValue) {
         super();
         this.value = null;
         this.pathValue = pathValue;
+        this.pointerValue = null;
+    }
+
+    protected EvaluatableValue(JsonPointerValue pointerValue) {
+        super();
+        this.value = null;
+        this.pathValue = null;
+        this.pointerValue = pointerValue;
     }
 
     protected EvaluatableValue(FunctionValue function) {
         super(function);
         this.value = null;
         this.pathValue = null;
+        this.pointerValue = null;
     }
 }
