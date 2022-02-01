@@ -46,8 +46,8 @@ public class ContainsAny extends HopeFunction<BooleanValue> {
     public BooleanValue apply(Evaluator.EvaluationContext evaluationContext) {
         Set<Object> lhsValues = new TreeSet<>(Converters.flattenArray(evaluationContext, lhs, Collections.emptyList()));
         Set<Object> rhsValues = new HashSet<>(Converters.flattenArray(evaluationContext, rhs, Collections.emptyList()));
-        log.info("LHS: {}", lhsValues);
-        log.info("RHS: {}", rhsValues);
+        log.debug("LHS: {}", lhsValues);
+        log.debug("RHS: {}", rhsValues);
         return new BooleanValue(!Sets.intersection(lhsValues, rhsValues).isEmpty());
     }
 }
