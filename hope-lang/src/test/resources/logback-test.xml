@@ -4,7 +4,7 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="io.appform.hope" level="DEBUG">
+    <logger name="io.appform.hope" level="INFO">
         <appender-ref ref="STDOUT" />
     </logger>
     <root level="DEBUG" />

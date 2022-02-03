@@ -42,6 +42,13 @@ public class NumericValue extends EvaluatableValue<Number> {
     }
 
     /**
+     * @param pointerValue json pointer value
+     */
+    public NumericValue(JsonPointerValue pointerValue) {
+        super(pointerValue);
+    }
+
+    /**
      * @param function A function that evaluates to a number
      */
     public NumericValue(FunctionValue function) {

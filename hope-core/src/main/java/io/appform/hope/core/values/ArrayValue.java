@@ -39,6 +39,13 @@ public class ArrayValue extends EvaluatableValue<List<Value>> {
     }
 
     /**
+     * @param pointerValue A json pointer that will get evaluated to an array
+     */
+    public ArrayValue(JsonPointerValue pointerValue) {
+        super(pointerValue);
+    }
+
+    /**
      * @param function A function that evaluates to an array
      */
     public ArrayValue(FunctionValue function) {

@@ -27,6 +27,7 @@ import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrateg
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.utils.Converters;
+import io.appform.hope.core.values.JsonPointerValue;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -64,15 +65,17 @@ public class Evaluator {
     }
 
     public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
-        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), this)));
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node,this)));
     }
 
     @Data
     @Builder
     public static class EvaluationContext {
         private final DocumentContext jsonContext;
+        private final JsonNode rootNode;
         private final Evaluator evaluator;
         private final Map<String, JsonNode> jsonPathEvalCache = new HashMap<>(128);
+        private final Map<String, JsonNode> jsonPointerEvalCache = new HashMap<>(128);
     }
 
     public static class LogicEvaluator extends VisitorAdapter<Boolean> {
@@ -165,6 +168,11 @@ public class Evaluator {
         public Boolean visit(Not not) {
             boolean operand = Converters.booleanValue(evaluationContext, not.getOperand(), false);
             return !operand;
+        }
+
+        @Override
+        public Boolean visit(JsonPointerValue jsonPointerValue) {
+            return null;
         }
 
     }

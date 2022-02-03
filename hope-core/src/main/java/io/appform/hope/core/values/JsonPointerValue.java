@@ -25,37 +25,25 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class StringValue extends EvaluatableValue<String> {
+public class JsonPointerValue extends FunctionEvaluatableValue {
+
+    private final String pointer;
 
     /**
-     * @param value String value
+     * @param pointer Json path value
      */
-    public StringValue(String value) {
-        super(value);
+    public JsonPointerValue(String pointer) {
+        this.pointer = pointer;
     }
 
     /**
-     * @param pathValue A json path that will get evaluated to a string
+     * @param function A function that evaluates to a json path
      */
-    public StringValue(JsonPathValue pathValue) {
-        super(pathValue);
-    }
-
-    /**
-     * @param pointerValue json pointer value
-     */
-    public StringValue(JsonPointerValue pointerValue) {
-        super(pointerValue);
-    }
-
-    /**
-     * @param function A function that evaluates to a string
-     */
-    public StringValue(FunctionValue function) {
+    public JsonPointerValue(FunctionValue function) {
         super(function);
+        this.pointer = null;
     }
 
-    @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }

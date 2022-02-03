@@ -88,6 +88,11 @@ public abstract class VisitorAdapter<T> implements Visitor<T> {
     }
 
     @Override
+    public T visit(JsonPointerValue jsonPointerValue) {
+        return defaultValueGenerator.get();
+    }
+
+    @Override
     public T visit(ObjectValue objectValue) {
         return defaultValueGenerator.get();
     }

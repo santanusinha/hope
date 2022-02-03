@@ -6,7 +6,7 @@ options {
 PARSER_BEGIN(HopeParser)
 package io.appform.hope.lang.parser;
 
-import io.appform.hope.core.*;
+import com.google.common.collect.Lists;import io.appform.hope.core.*;
 import io.appform.hope.core.combiners.*;
 import io.appform.hope.core.operators.*;
 import io.appform.hope.core.values.*;
@@ -42,26 +42,33 @@ TOKEN : {<AND : "&">}
 TOKEN : {<AND_COMBINER : "&&">}
 TOKEN : {<OR_COMBINER : "||">}
 TOKEN : {<QUOTE : "\"">}
+TOKEN : {<SINGLEQUOTE : "'">}
 TOKEN : {<MINUS : "-">}
 TOKEN : {<PLUS : "+">}
 TOKEN : {<#NUMLITERAL : (["0"-"9"])+|(["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "."(["0"-"9"])+>}
 TOKEN : {<NUMBER : (<NUMLITERAL>) | (<MINUS> <NUMLITERAL>)>}
 TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
 TOKEN : {<FUNCTION_CALL : ["a"-"z", "A"-"Z"](["0"-"9", "a"-"z", "A"-"Z" , "_", "."])+>}
-TOKEN : {<#PATH_VALUE : "$" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ",", ":", "-", "'", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
-TOKEN : {<#STRING_VALUE :
-            (~["$"])
-            (
-                (~["\"","\\","\n","\r"])
-                | ("\\"
-                     (["n","t","b","r","f","\\","'","\""]
-                     | ["0"-"7"] ( ["0"-"7"] )?
-                     | ["0"-"3"] ["0"-"7"] ["0"-"7"]
-                     )
-                )
-            )*>}
-TOKEN : {<STRING: <QUOTE> <STRING_VALUE> <QUOTE>>}
+TOKEN : {<#PATH_VALUE : "$" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ":", "-", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
+TOKEN : {<#POINTER_VALUE : "/" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ":", "-", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
+TOKEN : {<STRING: <QUOTE>
+                    (~["$","/"])
+                    (
+                        (~["\\","\r","\n","\f","\t", ","]) |
+                        ( "\\" ( "r" | "n" | "f" | "\\" | "/" | "\"" | "b" | "t") )
+                      )+
+                  <QUOTE>>}
+TOKEN : {<SQSTRING: <SINGLEQUOTE>
+                    (~["$","/"])
+                    (
+                        (~["\\","\r","\n","\f","\t", ","]) |
+                        ( "\\" ( "r" | "n" | "f" | "\\" | "/" | "'" | "b" | "t") )
+                      )+
+                  <SINGLEQUOTE> >}
 TOKEN : {<PATH: <QUOTE> <PATH_VALUE> <QUOTE>>}
+TOKEN : {<SQPATH: <SINGLEQUOTE> <PATH_VALUE> <SINGLEQUOTE> >}
+TOKEN : {<POINTER: <QUOTE> <POINTER_VALUE> <QUOTE>>}
+TOKEN : {<SQPOINTER: <SINGLEQUOTE> <POINTER_VALUE> <SINGLEQUOTE> >}
 TOKEN : {<ARRAY_START: "[">}
 TOKEN : {<ARRAY_END: "]">}
 TOKEN : {<ARRAY_NAME : (["a"-"z", "A"-"Z"]["0"-"9", "a"-"z", "A"-"Z" , "_"])+>}
@@ -132,6 +139,7 @@ Evaluatable NativeOperations() : {
         | value = NumericalOpsRepr()
         | value = StringOpsRepr()
         | value = JsonPathOpsRepr()
+        | value = JsonPointerOpsRepr()
         | value = FunctionOpsRepr()
         | value = UnaryOpRepr()
     )
@@ -177,6 +185,51 @@ Evaluatable JsonPathOpsRepr(): {
 }
 {
     lhs = JsonPathRepr()
+    (
+        <EQUALS>
+        rhs = RhsOperand() {
+            return new Equals(lhs, rhs);
+        }
+        | <NOT_EQUALS>
+        rhs = RhsOperand() {
+            return new NotEquals(lhs, rhs);
+        }
+        | <GREATER>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new Greater(new NumericValue(lhs), nRhs);
+        }
+        | <GREATER_EQUALS>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new GreaterEquals(new NumericValue(lhs), nRhs);
+        }
+        | <LESSER>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new Lesser(new NumericValue(lhs), nRhs);
+        }
+        | <LESSER_EQUALS>
+        nRhs = NumericOrJsonPathRhsOperand() {
+            return new LesserEquals(new NumericValue(lhs), nRhs);
+        }
+        | <AND>
+        bRhs = BooleanOrJsonPathRhsOperand() {
+            return new And(new BooleanValue(lhs), bRhs);
+        }
+        | <OR>
+        bRhs = BooleanOrJsonPathRhsOperand() {
+            return new Or(new BooleanValue(lhs), bRhs);
+        }
+    )
+}
+
+Evaluatable JsonPointerOpsRepr(): {
+    JsonPointerValue lhs = null;
+    Value rhs = null;
+    NumericValue nRhs = null;
+    BooleanValue bRhs = null;
+    StringValue sRhs = null;
+}
+{
+    lhs = JsonPointerRepr()
     (
         <EQUALS>
         rhs = RhsOperand() {
@@ -324,6 +377,7 @@ Value RhsOperand(): {
 {
     (result = StringRepr()
      | result = JsonPathRepr()
+     | result = JsonPointerRepr()
      | result = NumericRepr()
      | result = BooleanRepr()
      | result = FunctionRepr()
@@ -335,7 +389,7 @@ Value RhsOperand(): {
 
 FunctionValue FunctionRepr() : {
     Token t = null;
-    List<Value> params = new ArrayList();
+    List<Value> params = Lists.newArrayList();
     Value value = null;
 }
 {
@@ -357,7 +411,7 @@ FunctionValue FunctionRepr() : {
 }
 
 ArrayValue ArrayRepr() : {
-    List<Value> params = new ArrayList();
+    List<Value> params = Lists.newArrayList();
     Value value = null;
 }
 {
@@ -394,6 +448,7 @@ JsonPathValue PathOrEvaluatedPathRhsOperand(): {
 StringValue StringOrJsonPathRhsOperand(): {
     StringValue sResult = null;;
     JsonPathValue jResult = null;;
+    JsonPointerValue pResult = null;
     FunctionValue fResult = null;
 }
 {
@@ -404,6 +459,9 @@ StringValue StringOrJsonPathRhsOperand(): {
         | jResult = JsonPathRepr() {
             return new StringValue(jResult);
         }
+        | pResult = JsonPointerRepr() {
+            return new StringValue(pResult);
+        }
         | fResult = FunctionRepr() {
             return new StringValue(fResult);
         }
@@ -413,6 +471,7 @@ StringValue StringOrJsonPathRhsOperand(): {
 NumericValue NumericOrJsonPathRhsOperand(): {
     NumericValue nResult = null;
     JsonPathValue jResult = null;
+    JsonPointerValue pResult = null;
     FunctionValue fResult = null;
 }
 {
@@ -424,6 +483,9 @@ NumericValue NumericOrJsonPathRhsOperand(): {
         {
             return new NumericValue(jResult);
         }
+        | pResult = JsonPointerRepr() {
+            return new NumericValue(pResult);
+        }
         | fResult = FunctionRepr() {
             return new NumericValue(fResult);
         }
@@ -433,6 +495,7 @@ NumericValue NumericOrJsonPathRhsOperand(): {
 BooleanValue BooleanOrJsonPathRhsOperand(): {
     BooleanValue bResult = null;
     JsonPathValue jResult = null;
+    JsonPointerValue pResult = null;
     FunctionValue fResult = null;
 }
 {
@@ -442,6 +505,9 @@ BooleanValue BooleanOrJsonPathRhsOperand(): {
         }
         | jResult = JsonPathRepr() {
             return new BooleanValue(jResult);
+        }
+        | pResult = JsonPointerRepr() {
+            return new BooleanValue(pResult);
         }
         | fResult = FunctionRepr() {
             return new BooleanValue(fResult);
@@ -457,6 +523,10 @@ StringValue StringRepr() : {
     {
         return new StringValue(t.image.replaceAll("^\"|\"$", ""));
     }
+    | t = <SQSTRING>
+    {
+        return new StringValue(t.image.replaceAll("^'|'$", ""));
+    }
 }
 
 JsonPathValue JsonPathRepr() : {
@@ -466,6 +536,24 @@ JsonPathValue JsonPathRepr() : {
     t = <PATH>
     {
         return new JsonPathValue(t.image.replaceAll("^\"|\"$", ""));
+    }
+    | t = <SQPATH>
+    {
+        return new JsonPathValue(t.image.replaceAll("^'|'$", ""));
+    }
+}
+
+JsonPointerValue JsonPointerRepr() : {
+    Token t = null;
+}
+{
+    t = <POINTER>
+    {
+        return new JsonPointerValue(t.image.replaceAll("^\"|\"$", ""));
+    }
+    | t = <SQPOINTER>
+    {
+        return new JsonPointerValue(t.image.replaceAll("^'|'$", ""));
     }
 }
 
