@@ -24,7 +24,7 @@ import io.appform.hope.core.values.BooleanValue;
 import io.appform.hope.core.visitors.Evaluator;
 
 /**
- *
+ * Returns true {@link BooleanValue} if a json node/value exists at provided pointer.
  */
 @FunctionImplementation("pointer.exists")
 public class Exists extends HopeFunction<BooleanValue> {

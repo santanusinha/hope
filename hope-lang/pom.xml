@@ -12,7 +12,7 @@
     <artifactId>hope-lang</artifactId>
 
     <properties>
-        <logback.version>1.2.5</logback.version>
+        <logback.version>1.2.10</logback.version>
     </properties>
 
     <dependencies>

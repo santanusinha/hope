@@ -46,6 +46,21 @@ class HopeLangEngineTest {
     }
 
     @Test
+    void testFuncIntFailNoExceptNoNodeSQ() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("{ \"x\" : true }");
+        final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
+                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
+                .build();
+
+        final Evaluatable operator = hopeLangParser.parse("\"$.x\" == \"true\"");
+
+        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
+        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
+        assertFalse(hopeLangParser.evaluate(operator, node));
+    }
+
+    @Test
     void testFuncIntFailNoExceptNoNodeJPtr() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.readTree("{ \"x\" : true }");

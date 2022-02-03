@@ -77,7 +77,7 @@ public class FunctionRegistry {
                         .setUrls(packageUrls)
                         .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner())
                         .filterInputsBy(new FilterBuilder().includePackage("io.appform.hope.core.functions.impl")));
-        log.info("Type scanning complete");
+        log.debug("Type scanning complete");
         final Set<Class<? extends HopeFunction>> classes = reflections.getSubTypesOf(HopeFunction.class);
         classes
                 .stream()

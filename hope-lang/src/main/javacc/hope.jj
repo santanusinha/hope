@@ -42,28 +42,33 @@ TOKEN : {<AND : "&">}
 TOKEN : {<AND_COMBINER : "&&">}
 TOKEN : {<OR_COMBINER : "||">}
 TOKEN : {<QUOTE : "\"">}
+TOKEN : {<SINGLEQUOTE : "'">}
 TOKEN : {<MINUS : "-">}
 TOKEN : {<PLUS : "+">}
 TOKEN : {<#NUMLITERAL : (["0"-"9"])+|(["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "."(["0"-"9"])+>}
 TOKEN : {<NUMBER : (<NUMLITERAL>) | (<MINUS> <NUMLITERAL>)>}
 TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
 TOKEN : {<FUNCTION_CALL : ["a"-"z", "A"-"Z"](["0"-"9", "a"-"z", "A"-"Z" , "_", "."])+>}
-TOKEN : {<#PATH_VALUE : "$" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ",", ":", "-", "'", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
-TOKEN : {<#POINTER_VALUE : "/" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ",", ":", "-", "'", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
-TOKEN : {<#STRING_VALUE :
-            (~["$","/"])
-            (
-                (~["\"","\\","\n","\r"])
-                | ("\\"
-                     (["n","t","b","r","f","\\","'","\""]
-                     | ["0"-"7"] ( ["0"-"7"] )?
-                     | ["0"-"3"] ["0"-"7"] ["0"-"7"]
-                     )
-                )
-            )*>}
-TOKEN : {<STRING: <QUOTE> <STRING_VALUE> <QUOTE>>}
+TOKEN : {<#PATH_VALUE : "$" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ":", "-", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
+TOKEN : {<#POINTER_VALUE : "/" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ":", "-", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
+TOKEN : {<STRING: <QUOTE>
+                    (~["$","/"])
+                    (
+                        (~["\\","\r","\n","\f","\t", ","]) |
+                        ( "\\" ( "r" | "n" | "f" | "\\" | "/" | "\"" | "b" | "t") )
+                      )+
+                  <QUOTE>>}
+TOKEN : {<SQSTRING: <SINGLEQUOTE>
+                    (~["$","/"])
+                    (
+                        (~["\\","\r","\n","\f","\t", ","]) |
+                        ( "\\" ( "r" | "n" | "f" | "\\" | "/" | "'" | "b" | "t") )
+                      )+
+                  <SINGLEQUOTE> >}
 TOKEN : {<PATH: <QUOTE> <PATH_VALUE> <QUOTE>>}
+TOKEN : {<SQPATH: <SINGLEQUOTE> <PATH_VALUE> <SINGLEQUOTE> >}
 TOKEN : {<POINTER: <QUOTE> <POINTER_VALUE> <QUOTE>>}
+TOKEN : {<SQPOINTER: <SINGLEQUOTE> <POINTER_VALUE> <SINGLEQUOTE> >}
 TOKEN : {<ARRAY_START: "[">}
 TOKEN : {<ARRAY_END: "]">}
 TOKEN : {<ARRAY_NAME : (["a"-"z", "A"-"Z"]["0"-"9", "a"-"z", "A"-"Z" , "_"])+>}
@@ -518,6 +523,10 @@ StringValue StringRepr() : {
     {
         return new StringValue(t.image.replaceAll("^\"|\"$", ""));
     }
+    | t = <SQSTRING>
+    {
+        return new StringValue(t.image.replaceAll("^'|'$", ""));
+    }
 }
 
 JsonPathValue JsonPathRepr() : {
@@ -528,6 +537,10 @@ JsonPathValue JsonPathRepr() : {
     {
         return new JsonPathValue(t.image.replaceAll("^\"|\"$", ""));
     }
+    | t = <SQPATH>
+    {
+        return new JsonPathValue(t.image.replaceAll("^'|'$", ""));
+    }
 }
 
 JsonPointerValue JsonPointerRepr() : {
@@ -537,6 +550,10 @@ JsonPointerValue JsonPointerRepr() : {
     t = <POINTER>
     {
         return new JsonPointerValue(t.image.replaceAll("^\"|\"$", ""));
+    }
+    | t = <SQPOINTER>
+    {
+        return new JsonPointerValue(t.image.replaceAll("^'|'$", ""));
     }
 }
 
