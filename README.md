@@ -1,10 +1,10 @@
-# Hope
+# Hope [![Java CI with Maven](https://github.com/santanusinha/hope/actions/workflows/ci.yml/badge.svg)](https://github.com/santanusinha/hope/actions/workflows/ci.yml)
 Hope is a high level language for predicate evaluation on JSON written in java. It uses jackson for json handling and json-path for value extraction.
 
 #### Sample Hope expressions/rules
 ```
- "$.val" + 2 > 3
- "$.a" + "$.b" <= math.abs("$.c")
+ '/val' + 2 > 3
+ '/a' + '/b' <= math.abs('/c')
  ```
  
 #### Features
@@ -37,7 +37,7 @@ The main class you need to know is `HopeLangEngine`. To use this class use the p
 The following code snippet evaluates an expression against a parsed jackson Json node.
 ```
     final JsonNode root = new ObjectMapper().readTree("{\"val\" : 10 }");
-    final String expr = " \"$.val\" + 2 > 9";
+    final String expr = " '/val' + 2 > 9";
     if(engine.evaluate(expr, root)) {
         ...
     }
