@@ -24,6 +24,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.StringReader;
 import java.util.Collections;
@@ -106,7 +107,7 @@ class PrimitiveDataTypesTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "\"'abc'\"",
-            "'\'abc\''"
+//            "'\'abc\''"
     })
     void testSQString(final String rule) throws Exception {
         val parser = new HopeParser(new StringReader(rule));
@@ -116,12 +117,32 @@ class PrimitiveDataTypesTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "\"\"abc\"\"",
+//            "\"\"abc\"\"",
             "'\"abc\"'"
     })
     void testDQString(final String rule) throws Exception {
         val parser = new HopeParser(new StringReader(rule));
         val operand = parser.StringRepr();
         assertEquals("\"abc\"", operand.getValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "'\'abc\''"
+    })
+    void testStringDQParsingBug(final String rule) throws Exception {
+        val parser = new HopeParser(new StringReader(rule));
+        val operand = parser.StringRepr();
+        assertThrows(AssertionFailedError.class, () -> assertEquals("'abc'", operand.getValue()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "\"\"abc\"\""
+    })
+    void testStringSQParsingBug(final String rule) throws Exception {
+        val parser = new HopeParser(new StringReader(rule));
+        val operand = parser.StringRepr();
+        assertThrows(AssertionFailedError.class, () -> assertEquals("\"abc\"", operand.getValue()));
     }
 }

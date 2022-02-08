@@ -51,20 +51,8 @@ TOKEN : {<BOOLEAN: ("true" | "TRUE" | "false" | "FALSE")>}
 TOKEN : {<FUNCTION_CALL : ["a"-"z", "A"-"Z"](["0"-"9", "a"-"z", "A"-"Z" , "_", "."])+>}
 TOKEN : {<#PATH_VALUE : "$" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ":", "-", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
 TOKEN : {<#POINTER_VALUE : "/" (["0"-"9", "a"-"z", "A"-"Z", "@", "[", "]", "(", ")", "{", "}", "*", ".", " ", "?", ":", "-", "&", "|", "<", ">", "=", "~", "!", "/", "_"])+>}
-TOKEN : {<STRING: <QUOTE>
-                    (~["$","/"])
-                    (
-                        (~["\\","\r","\n","\f","\t", ","]) |
-                        ( "\\" ( "r" | "n" | "f" | "\\" | "/" | "\"" | "b" | "t") )
-                      )+
-                  <QUOTE>>}
-TOKEN : {<SQSTRING: <SINGLEQUOTE>
-                    (~["$","/"])
-                    (
-                        (~["\\","\r","\n","\f","\t", ","]) |
-                        ( "\\" ( "r" | "n" | "f" | "\\" | "/" | "'" | "b" | "t") )
-                      )+
-                  <SINGLEQUOTE> >}
+TOKEN : {<STRING: <QUOTE> (~["$","/"]) (~["\""])* <QUOTE>>}
+TOKEN : {<SQSTRING: <SINGLEQUOTE> (~["$","/"]) (~["'"])* <SINGLEQUOTE> >}
 TOKEN : {<PATH: <QUOTE> <PATH_VALUE> <QUOTE>>}
 TOKEN : {<SQPATH: <SINGLEQUOTE> <PATH_VALUE> <SINGLEQUOTE> >}
 TOKEN : {<POINTER: <QUOTE> <POINTER_VALUE> <QUOTE>>}
