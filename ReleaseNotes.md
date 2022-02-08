@@ -1,3 +1,6 @@
+# 1.1.1
+- Fixed parser issue in escaped string parsing
+
 # 1.1.0
 
 - Supported field reference using json pointers
