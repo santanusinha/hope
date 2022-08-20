@@ -69,6 +69,13 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>ankush.nakaskar</id>
+            <name>Ankush Nakaskar</name>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <ciManagement>
