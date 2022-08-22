@@ -1,3 +1,6 @@
+# 1.1.2
+- Reflections version bump
+
 # 1.1.1
 - Fixed parser issue in escaped string parsing
 
