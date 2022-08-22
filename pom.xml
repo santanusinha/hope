@@ -7,7 +7,7 @@
     <groupId>io.appform.hope</groupId>
     <artifactId>hope</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <name>Hope</name>
     <url>https://github.com/santanusinha/hope</url>
@@ -65,6 +65,13 @@
         <developer>
             <id>mohit.gupta</id>
             <name>Mohit Gupta</name>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>ankush.nakaskar</id>
+            <name>Ankush Nakaskar</name>
             <roles>
                 <role>developer</role>
             </roles>
