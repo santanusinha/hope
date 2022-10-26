@@ -67,7 +67,7 @@ public class JsonPointerPerfTest {
             rules = hopeRules.stream()
                     .map(rule -> hopeLangEngine.parse(rule))
                     .collect(Collectors.toList());
-            contextNode = mapper.readTree("{ \"value\": 20, \"string\" : \"Hello\" }");
+            contextNode = mapper.readTree("{ \"providerType\": \"BANK\", \"instrument\" : \"ABC\" }");
         }
 
         private List<String> readAllHopeRulesForJsonPointer() throws IOException {

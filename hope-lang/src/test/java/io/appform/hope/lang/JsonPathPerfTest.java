@@ -20,6 +20,7 @@ import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
@@ -90,12 +91,24 @@ public class JsonPathPerfTest {
                 .shouldDoGC(true)
                 .build();
         Collection<RunResult> results = new Runner(opt).run();
+        results.iterator()
+                .forEachRemaining(new Consumer<>() {
+                    @SneakyThrows
+                    @Override
+                    public void accept(RunResult runResult) {
+                        val benchmarkName = runResult.getParams().getBenchmark();
+                        val outputFilePath = Paths.get(String.format("perf/results/%s.json", benchmarkName));
+                        val outputNode = mapper.createObjectNode();
+                        outputNode.put("name", benchmarkName);
+                        outputNode.put("mode", runResult.getParams().getMode().name());
+                        outputNode.put("count", runResult.getParams().getMeasurement().getCount());
+                        outputNode.put("threads", runResult.getParams().getThreads());
+                        outputNode.put("mean_ops", runResult.getPrimaryResult().getStatistics().getMean());
 
-        results.forEach(runResult -> System.out.printf("%s:%s:%s:%s%n",
-                runResult.getParams().getBenchmark(),
-                runResult.getParams().getMode(),
-                runResult.getParams().getMeasurement().getCount(),
-                runResult.getPrimaryResult().getStatistics().getMean()));
+                        Files.writeString(outputFilePath, mapper.writerWithDefaultPrettyPrinter()
+                                .writeValueAsString(outputNode));
+                    }
+                });
     }
 
     @SneakyThrows
