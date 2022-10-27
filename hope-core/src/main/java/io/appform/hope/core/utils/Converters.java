@@ -25,23 +25,12 @@ import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
 import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.functions.HopeFunction;
-import io.appform.hope.core.values.ArrayValue;
-import io.appform.hope.core.values.BooleanValue;
-import io.appform.hope.core.values.FunctionValue;
-import io.appform.hope.core.values.JsonPathValue;
-import io.appform.hope.core.values.JsonPointerValue;
-import io.appform.hope.core.values.NumericValue;
-import io.appform.hope.core.values.ObjectValue;
-import io.appform.hope.core.values.StringValue;
+import io.appform.hope.core.values.*;
 import io.appform.hope.core.visitors.Evaluator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -75,19 +64,19 @@ public class Converters {
             @Override
             public String visit(JsonPathValue jsonPathValue) {
                 return extractNodeValue(jsonPathValue,
-                        evaluationContext,
-                        JsonNodeType.STRING,
-                        JsonNode::asText,
-                        defaultValue);
+                                        evaluationContext,
+                                        JsonNodeType.STRING,
+                                        JsonNode::asText,
+                                        defaultValue);
             }
 
             @Override
             public String visit(JsonPointerValue jsonPointerValue) {
                 return extractNodeValue(jsonPointerValue,
-                        evaluationContext,
-                        JsonNodeType.STRING,
-                        JsonNode::asText,
-                        defaultValue);
+                                        evaluationContext,
+                                        JsonNodeType.STRING,
+                                        JsonNode::asText,
+                                        defaultValue);
             }
 
             @Override
@@ -99,7 +88,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = stringValue.getPointerValue();
-                    if (null != pointerValue) {
+                    if(null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = stringValue.getFunction();
@@ -132,24 +121,24 @@ public class Converters {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
         return node.accept(new VisitorAdapter<Number>(() -> errorHandlingStrategy.handleIllegalEval("Number eval",
-                defaultValue)) {
+                                                                                                    defaultValue)) {
             @Override
             public Number visit(JsonPathValue jsonPathValue) {
                 return extractNodeValue(jsonPathValue,
-                        evaluationContext,
-                        JsonNodeType.NUMBER,
-                        JsonNode::asDouble,
-                        defaultValue);
+                                        evaluationContext,
+                                        JsonNodeType.NUMBER,
+                                        JsonNode::asDouble,
+                                        defaultValue);
 
             }
 
             @Override
             public Number visit(JsonPointerValue jsonPointerValue) {
                 return extractNodeValue(jsonPointerValue,
-                        evaluationContext,
-                        JsonNodeType.NUMBER,
-                        JsonNode::asDouble,
-                        defaultValue);
+                                        evaluationContext,
+                                        JsonNodeType.NUMBER,
+                                        JsonNode::asDouble,
+                                        defaultValue);
 
             }
 
@@ -162,7 +151,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = numericValue.getPointerValue();
-                    if (null != pointerValue) {
+                    if(null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = numericValue.getFunction();
@@ -200,20 +189,20 @@ public class Converters {
             @Override
             public Boolean visit(JsonPathValue jsonPathValue) {
                 return extractNodeValue(jsonPathValue,
-                        evaluationContext,
-                        JsonNodeType.BOOLEAN,
-                        JsonNode::asBoolean,
-                        defaultValue);
+                                        evaluationContext,
+                                        JsonNodeType.BOOLEAN,
+                                        JsonNode::asBoolean,
+                                        defaultValue);
 
             }
 
             @Override
             public Boolean visit(JsonPointerValue jsonPointerValue) {
                 return extractNodeValue(jsonPointerValue,
-                        evaluationContext,
-                        JsonNodeType.BOOLEAN,
-                        JsonNode::asBoolean,
-                        defaultValue);
+                                        evaluationContext,
+                                        JsonNodeType.BOOLEAN,
+                                        JsonNode::asBoolean,
+                                        defaultValue);
 
             }
 
@@ -226,7 +215,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = booleanValue.getPointerValue();
-                    if (null != pointerValue) {
+                    if(null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = booleanValue.getFunction();
@@ -323,7 +312,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = arrayValue.getPointerValue();
-                    if (null != pointerValue) {
+                    if(null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = arrayValue.getFunction();
@@ -354,8 +343,8 @@ public class Converters {
             Value value,
             Object defaultValue) {
         return arrayToObjectList(evaluationContext,
-                explodeArray(evaluationContext, value, Collections.emptyList()),
-                defaultValue);
+                                 explodeArray(evaluationContext, value, Collections.emptyList()),
+                                 defaultValue);
     }
 
 
@@ -437,7 +426,7 @@ public class Converters {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
         return node.accept(new VisitorAdapter<Object>(() -> errorHandlingStrategy.handleIllegalEval("Object eval",
-                defaultValue)) {
+                                                                                                    defaultValue)) {
             @Override
             public Object visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
@@ -524,7 +513,7 @@ public class Converters {
                             }
                         }
                         return handler.handleObject(errorHandlingStrategy.handleMissingValue(jsonPathValue.getPath(),
-                                defaultValue));
+                                                                                             defaultValue));
                     }
 
                     @Override
@@ -542,7 +531,7 @@ public class Converters {
                             }
                         }
                         return handler.handleObject(errorHandlingStrategy.handleMissingValue(jsonPointerValue.getPointer(),
-                                defaultValue));
+                                                                                             defaultValue));
                     }
 
                     @Override
@@ -568,8 +557,8 @@ public class Converters {
                     @Override
                     public T visit(FunctionValue functionValue) {
                         return handler.handleObject(objectValue(evaluationContext,
-                                function(functionValue).apply(evaluationContext),
-                                defaultValue));
+                                                                function(functionValue).apply(evaluationContext),
+                                                                defaultValue));
                     }
                 });
     }
@@ -577,8 +566,8 @@ public class Converters {
     private static HopeFunction function(FunctionValue functionValue) {
         final List<Value> parameters = functionValue.getParameters();
         return createFunction(functionValue.getName(),
-                functionValue.getSelectedConstructor(),
-                parameters);
+                              functionValue.getSelectedConstructor(),
+                              parameters);
     }
 
     private static HopeFunction createFunction(
@@ -591,12 +580,14 @@ public class Converters {
                 return constructor
                         .newInstance(
                                 new Object[]{parameters.toArray(new Value[parameters.size()])});
-            } else {
+            }
+            else {
                 return constructor
                         .newInstance(
                                 parameters.toArray(new Object[parameters.size()]));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new IllegalArgumentException("Could not create instance of function: '" + name + "'", e);
         }
     }
@@ -617,13 +608,13 @@ public class Converters {
         if (node.isArray()) {
             return new ArrayValue(StreamSupport.stream(
                             Spliterators.spliteratorUnknownSize(ArrayNode.class.cast(node)
-                                    .elements(), Spliterator.ORDERED),
+                                                                        .elements(), Spliterator.ORDERED),
                             false)
-                    .map(child -> jsonNodeToValue(node))
-                    .collect(Collectors.toList()));
+                                          .map(child -> jsonNodeToValue(node))
+                                          .collect(Collectors.toList()));
         }
         throw new UnsupportedOperationException(node.getNodeType()
-                .name() + " is not supported");
+                                                        .name() + " is not supported");
     }
 
     private static JsonNode nodeForJsonPath(
@@ -635,8 +626,8 @@ public class Converters {
                 .computeIfAbsent(path, key -> {
                     final JsonNode value = evaluationContext.getJsonContext().read(jsonPathValue.getJsonPath());
                     return null == value
-                            ? NullNode.getInstance()
-                            : value;
+                           ? NullNode.getInstance()
+                           : value;
                 });
     }
 
@@ -656,11 +647,11 @@ public class Converters {
             Function<JsonNode, T> extractor,
             T defaultValue) {
         return extractNodeValue(() -> nodeForJsonPath(jsonPathValue, evaluationContext),
-                jsonPathValue.getPath(),
-                evaluationContext,
-                expectedType,
-                extractor,
-                defaultValue);
+                                jsonPathValue.getPath(),
+                                evaluationContext,
+                                expectedType,
+                                extractor,
+                                defaultValue);
     }
 
     private static <T> T extractNodeValue(
@@ -670,11 +661,11 @@ public class Converters {
             Function<JsonNode, T> extractor,
             T defaultValue) {
         return extractNodeValue(() -> nodeForJsonPointer(jsonPointerValue, evaluationContext),
-                jsonPointerValue.getPointer(),
-                evaluationContext,
-                expectedType,
-                extractor,
-                defaultValue);
+                                jsonPointerValue.getPointer(),
+                                evaluationContext,
+                                expectedType,
+                                extractor,
+                                defaultValue);
     }
 
     private static <T> T extractNodeValue(
