@@ -3,6 +3,6 @@
   "mode" : "Throughput",
   "count" : 3,
   "threads" : 1,
-  "forks" : 0,
-  "mean_ops" : 24552.57371356693
+  "forks" : 1,
+  "mean_ops" : 26880.76897267993
 }
