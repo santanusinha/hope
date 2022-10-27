@@ -32,7 +32,7 @@ public abstract class BenchmarkTest {
                 .measurementTime(TimeValue.seconds(5))
                 .measurementIterations(3)
                 .threads(1)
-                .forks(3)
+                .forks(0)
                 .shouldFailOnError(true)
                 .shouldDoGC(true)
                 .build();

@@ -127,7 +127,7 @@ public class Evaluator {
         @Override
         public Boolean visit(OrCombiner orCombiner) {
             for (Evaluatable evaluatable: orCombiner.getExpressions()){
-                if (evaluatable.accept(this)){
+                if (evaluatable.accept(this)) {
                     return true;
                 }
             }

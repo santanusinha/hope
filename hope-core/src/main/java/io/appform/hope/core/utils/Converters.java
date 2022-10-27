@@ -635,14 +635,14 @@ public class Converters {
             JsonPointerValue jsonPathValue,
             Evaluator.EvaluationContext evaluationContext) {
         final String pointer = jsonPathValue.getPointer();
-        final Map<String, JsonNode> jsonPointerEvalCache = evaluationContext.getJsonPointerEvalCache();
-        return jsonPointerEvalCache
-                .computeIfAbsent(pointer, key -> {
+//        final Map<String, JsonNode> jsonPointerEvalCache = evaluationContext.getJsonPointerEvalCache();
+//        return jsonPointerEvalCache
+//                .computeIfAbsent(pointer, key -> {
                     final JsonNode value = evaluationContext.getRootNode().at(pointer);
                     return null == value
                            ? NullNode.getInstance()
                            : value;
-                });
+//                });
     }
 
     private static <T> T extractNodeValue(
