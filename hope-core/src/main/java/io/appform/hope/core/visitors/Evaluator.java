@@ -49,8 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Evaluates a hope expression
@@ -93,16 +94,13 @@ public class Evaluator {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Integer> evaluateFirst(
+    public OptionalInt evaluateFirst(
             final List<Evaluatable> rules,
             final JsonNode node) {
         val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
-        for (int i = 0 ; i < rules.size(); i++) {
-            if (rules.get(i).accept(logicEvaluator)){
-                return Optional.of(i);
-            }
-        }
-        return Optional.empty();
+        return IntStream.range(0, rules.size())
+                .filter(index -> rules.get(index).accept(logicEvaluator))
+                .findFirst();
     }
 
     @Data
