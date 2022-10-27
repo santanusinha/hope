@@ -27,9 +27,9 @@ public abstract class BenchmarkTest {
                 .include(String.format("%s.*", this.getClass().getName()))
                 .mode(Mode.Throughput)
                 .timeUnit(TimeUnit.SECONDS)
-                .warmupTime(TimeValue.seconds(5))
+                .warmupTime(TimeValue.seconds(4))
                 .warmupIterations(2)
-                .measurementTime(TimeValue.seconds(5))
+                .measurementTime(TimeValue.seconds(4))
                 .measurementIterations(3)
                 .threads(1)
                 .forks(3)
@@ -47,7 +47,7 @@ public abstract class BenchmarkTest {
                         val outputNode = mapper.createObjectNode();
                         outputNode.put("name", benchmarkName);
                         outputNode.put("mode", runResult.getParams().getMode().name());
-                        outputNode.put("count", runResult.getParams().getMeasurement().getCount());
+                        outputNode.put("iterations", runResult.getParams().getMeasurement().getCount());
                         outputNode.put("threads", runResult.getParams().getThreads());
                         outputNode.put("forks", runResult.getParams().getForks());
                         outputNode.put("mean_ops", runResult.getPrimaryResult().getStatistics().getMean());

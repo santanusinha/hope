@@ -279,7 +279,7 @@ public class Converters {
             @Override
             public List<Value> visit(JsonPointerValue jsonPointerValue) {
                 final JsonNode value = evaluationContext.getRootNode()
-                        .at(jsonPointerValue.getPointer());
+                        .at(jsonPointerValue.getJsonPointer());
                 if (null == value || value.isNull() || value.isMissingNode()) {
                     return errorHandlingStrategy.handleMissingValue(
                             jsonPointerValue.getPointer(),
@@ -624,7 +624,7 @@ public class Converters {
         final Map<String, JsonNode> jsonPathEvalCache = evaluationContext.getJsonPathEvalCache();
         return jsonPathEvalCache
                 .computeIfAbsent(path, key -> {
-                    final JsonNode value = evaluationContext.getJsonContext().read(path);
+                    final JsonNode value = evaluationContext.getJsonContext().read(jsonPathValue.getJsonPath());
                     return null == value
                            ? NullNode.getInstance()
                            : value;
@@ -632,13 +632,13 @@ public class Converters {
     }
 
     private static JsonNode nodeForJsonPointer(
-            JsonPointerValue jsonPathValue,
+            JsonPointerValue jsonPointerValue,
             Evaluator.EvaluationContext evaluationContext) {
-        final String pointer = jsonPathValue.getPointer();
+        final String pointer = jsonPointerValue.getPointer();
         final Map<String, JsonNode> jsonPointerEvalCache = evaluationContext.getJsonPointerEvalCache();
         return jsonPointerEvalCache
                 .computeIfAbsent(pointer, key -> {
-                    final JsonNode value = evaluationContext.getRootNode().at(pointer);
+                    final JsonNode value = evaluationContext.getRootNode().at(jsonPointerValue.getJsonPointer());
                     return null == value
                            ? NullNode.getInstance()
                            : value;

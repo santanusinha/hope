@@ -14,6 +14,7 @@
 
 package io.appform.hope.core.values;
 
+import com.jayway.jsonpath.JsonPath;
 import io.appform.hope.core.Visitor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,12 +29,14 @@ import lombok.ToString;
 public class JsonPathValue extends FunctionEvaluatableValue {
 
     private final String path;
+    private final JsonPath jsonPath;
 
     /**
      * @param path Json path value
      */
     public JsonPathValue(String path) {
         this.path = path;
+        this.jsonPath = JsonPath.compile(path);
     }
 
     /**
@@ -42,6 +45,7 @@ public class JsonPathValue extends FunctionEvaluatableValue {
     public JsonPathValue(FunctionValue function) {
         super(function);
         this.path = null;
+        this.jsonPath = null;
     }
 
     public <T> T accept(Visitor<T> visitor) {
