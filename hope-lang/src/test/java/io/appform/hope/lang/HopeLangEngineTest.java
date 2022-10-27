@@ -92,7 +92,7 @@ class HopeLangEngineTest {
                 hopeLangParser.parse("\"$.x\" == \"A\""),
                 hopeLangParser.parse("\"$.y\" == \"U\"")
         );
-        Integer matchedRuleIndex = hopeLangParser.evaluateFirst(evaluatables, node).orElse(null);
+        Integer matchedRuleIndex = hopeLangParser.evaluateFirst(evaluatables, node).orElse(-1);
         Assertions.assertEquals(1, matchedRuleIndex);
     }
 
