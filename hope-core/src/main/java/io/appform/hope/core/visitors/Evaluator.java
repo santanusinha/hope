@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -83,11 +84,25 @@ public class Evaluator {
         return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this)));
     }
 
-    public List<Boolean> evaluate(final List<Evaluatable> evaluatables, final JsonNode node) {
+    public List<Boolean> evaluate(
+            final List<Evaluatable> evaluatables,
+            final JsonNode node) {
         val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
         return evaluatables.stream()
                 .map(evaluatable -> evaluatable.accept(logicEvaluator))
                 .collect(Collectors.toList());
+    }
+
+    public Optional<Integer> evaluateFirst(
+            final List<Evaluatable> rules,
+            final JsonNode node) {
+        val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
+        for (int i = 0 ; i < rules.size(); i++) {
+            if (rules.get(i).accept(logicEvaluator)){
+                return Optional.of(i);
+            }
+        }
+        return Optional.empty();
     }
 
     @Data
