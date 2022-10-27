@@ -15,42 +15,28 @@
 package io.appform.hope.lang;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
-import org.openjdk.jmh.results.RunResult;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * Test performance between different constructs
  */
 @Slf4j
-public class JsonPathPerfTest {
-
-    public static final ObjectMapper mapper = new ObjectMapper();
+public class JsonPathPerfTest extends BenchmarkTest {
 
     @State(Scope.Benchmark)
     public static class BenchmarkState {
@@ -73,42 +59,6 @@ public class JsonPathPerfTest {
         private List<String> readAllHopeRulesForJsonPath() throws IOException {
             return Files.readAllLines(Paths.get("src/test/resources/samples/jsonpath.txt"));
         }
-    }
-
-    @Test
-    public void testPerf() throws Exception {
-        Options opt = new OptionsBuilder()
-                .include(this.getClass().getName() + ".*")
-                .mode(Mode.Throughput)
-                .timeUnit(TimeUnit.SECONDS)
-                .warmupTime(TimeValue.seconds(2))
-                .warmupIterations(2)
-                .measurementTime(TimeValue.seconds(5))
-                .measurementIterations(10)
-                .threads(1)
-                .forks(1)
-                .shouldFailOnError(true)
-                .shouldDoGC(true)
-                .build();
-        Collection<RunResult> results = new Runner(opt).run();
-        results.iterator()
-                .forEachRemaining(new Consumer<>() {
-                    @SneakyThrows
-                    @Override
-                    public void accept(RunResult runResult) {
-                        val benchmarkName = runResult.getParams().getBenchmark();
-                        val outputFilePath = Paths.get(String.format("perf/results/%s.json", benchmarkName));
-                        val outputNode = mapper.createObjectNode();
-                        outputNode.put("name", benchmarkName);
-                        outputNode.put("mode", runResult.getParams().getMode().name());
-                        outputNode.put("count", runResult.getParams().getMeasurement().getCount());
-                        outputNode.put("threads", runResult.getParams().getThreads());
-                        outputNode.put("mean_ops", runResult.getPrimaryResult().getStatistics().getMean());
-
-                        Files.writeString(outputFilePath, mapper.writerWithDefaultPrettyPrinter()
-                                .writeValueAsString(outputNode));
-                    }
-                });
     }
 
     @SneakyThrows

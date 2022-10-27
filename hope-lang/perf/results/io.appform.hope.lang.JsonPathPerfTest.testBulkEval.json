@@ -3,5 +3,5 @@
   "mode" : "Throughput",
   "count" : 10,
   "threads" : 1,
-  "mean_ops" : 56467.27860304974
+  "mean_ops" : 44787.38488667213
 }
