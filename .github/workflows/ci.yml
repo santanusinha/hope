@@ -24,3 +24,4 @@ jobs:
         with:
           commit_message: Comitting benchmark results created by Github Actions
           commit_options: '--no-verify --signoff'
+          skip_checkout: true
