@@ -17,7 +17,11 @@ package io.appform.hope.core.visitors;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.*;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
@@ -25,16 +29,27 @@ import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
-import io.appform.hope.core.operators.*;
+import io.appform.hope.core.operators.And;
+import io.appform.hope.core.operators.Equals;
+import io.appform.hope.core.operators.Greater;
+import io.appform.hope.core.operators.GreaterEquals;
+import io.appform.hope.core.operators.Lesser;
+import io.appform.hope.core.operators.LesserEquals;
+import io.appform.hope.core.operators.Not;
+import io.appform.hope.core.operators.NotEquals;
+import io.appform.hope.core.operators.Or;
 import io.appform.hope.core.utils.Converters;
 import io.appform.hope.core.values.JsonPointerValue;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.val;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Evaluates a hope expression
@@ -65,7 +80,14 @@ public class Evaluator {
     }
 
     public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
-        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node,this)));
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this)));
+    }
+
+    public List<Boolean> evaluate(final List<Evaluatable> evaluatables, final JsonNode node) {
+        val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
+        return evaluatables.stream()
+                .map(evaluatable -> evaluatable.accept(logicEvaluator))
+                .collect(Collectors.toList());
     }
 
     @Data

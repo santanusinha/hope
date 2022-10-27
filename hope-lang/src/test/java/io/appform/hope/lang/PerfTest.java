@@ -74,25 +74,25 @@ class PerfTest {
     private static Stream<Arguments> rules() {
         return Stream.of(
                 Arguments.of("\"/value\" > 11" +
-                                     " && \"/value\" <30" +
-                                     " && \"/value\" > 19 && \"/value\" < 21" +
-                                     " && \"/value\" >=20 && \"/value\" < 21" +
-                                     " && \"/value\" > 11 && \"/value\" <= 20"),
+                        " && \"/value\" <30" +
+                        " && \"/value\" > 19 && \"/value\" < 21" +
+                        " && \"/value\" >=20 && \"/value\" < 21" +
+                        " && \"/value\" > 11 && \"/value\" <= 20"),
                 Arguments.of("\"$.value\" > 11" +
-                                     " && \"$.value\" <30" +
-                                     " && \"$.value\" > 19 && \"$.value\" < 21" +
-                                     " && \"$.value\" >=20 && \"$.value\" < 21" +
-                                     " && \"$.value\" > 11 && \"$.value\" <= 20"),
+                        " && \"$.value\" <30" +
+                        " && \"$.value\" > 19 && \"$.value\" < 21" +
+                        " && \"$.value\" >=20 && \"$.value\" < 21" +
+                        " && \"$.value\" > 11 && \"$.value\" <= 20"),
                 Arguments.of("'/value' > 11" +
-                                     " && '/value' <30" +
-                                     " && '/value' > 19 && '/value' < 21" +
-                                     " && '/value' >=20 && '/value' < 21" +
-                                     " && '/value' > 11 && '/value' <= 20"),
+                        " && '/value' <30" +
+                        " && '/value' > 19 && '/value' < 21" +
+                        " && '/value' >=20 && '/value' < 21" +
+                        " && '/value' > 11 && '/value' <= 20"),
                 Arguments.of("'$.value' > 11" +
-                                     " && '$.value' <30" +
-                                     " && '$.value' > 19 && '$.value' < 21" +
-                                     " && '$.value' >=20 && '$.value' < 21" +
-                                     " && '$.value' > 11 && '$.value' <= 20")
-                        );
+                        " && '$.value' <30" +
+                        " && '$.value' > 19 && '$.value' < 21" +
+                        " && '$.value' >=20 && '$.value' < 21" +
+                        " && '$.value' > 11 && '$.value' <= 20")
+        );
     }
 }
