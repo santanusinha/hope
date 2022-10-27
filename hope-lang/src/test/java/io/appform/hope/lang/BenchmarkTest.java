@@ -47,7 +47,7 @@ public abstract class BenchmarkTest {
                         val outputNode = mapper.createObjectNode();
                         outputNode.put("name", benchmarkName);
                         outputNode.put("mode", runResult.getParams().getMode().name());
-                        outputNode.put("count", runResult.getParams().getMeasurement().getCount());
+                        outputNode.put("iterations", runResult.getParams().getMeasurement().getCount());
                         outputNode.put("threads", runResult.getParams().getThreads());
                         outputNode.put("forks", runResult.getParams().getForks());
                         outputNode.put("mean_ops", runResult.getPrimaryResult().getStatistics().getMean());

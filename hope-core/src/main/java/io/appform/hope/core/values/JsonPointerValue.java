@@ -14,6 +14,7 @@
 
 package io.appform.hope.core.values;
 
+import com.fasterxml.jackson.core.JsonPointer;
 import io.appform.hope.core.Visitor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,12 +29,14 @@ import lombok.ToString;
 public class JsonPointerValue extends FunctionEvaluatableValue {
 
     private final String pointer;
+    private final JsonPointer jsonPointer;
 
     /**
      * @param pointer Json path value
      */
     public JsonPointerValue(String pointer) {
         this.pointer = pointer;
+        this.jsonPointer = JsonPointer.compile(pointer);
     }
 
     /**
@@ -42,6 +45,7 @@ public class JsonPointerValue extends FunctionEvaluatableValue {
     public JsonPointerValue(FunctionValue function) {
         super(function);
         this.pointer = null;
+        this.jsonPointer = null;
     }
 
     public <T> T accept(Visitor<T> visitor) {
