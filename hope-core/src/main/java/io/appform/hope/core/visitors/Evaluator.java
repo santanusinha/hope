@@ -58,6 +58,11 @@ import java.util.stream.IntStream;
  */
 public class Evaluator {
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static final JacksonJsonNodeJsonProvider jsonProvider = new JacksonJsonNodeJsonProvider();
+    private static final Configuration configuration = Configuration.builder()
+            .jsonProvider(jsonProvider)
+            .options(Option.SUPPRESS_EXCEPTIONS)
+            .build();
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -74,11 +79,7 @@ public class Evaluator {
 
     public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
         this.errorHandlingStrategy = errorHandlingStrategy;
-        parseContext = JsonPath.using(Configuration.builder()
-                .jsonProvider(new JacksonJsonNodeJsonProvider())
-                .options(Option.SUPPRESS_EXCEPTIONS)
-                .build());
-
+        parseContext = JsonPath.using(configuration);
     }
 
     public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
