@@ -116,16 +116,22 @@ public class Evaluator {
 
         @Override
         public Boolean visit(AndCombiner andCombiner) {
-            return andCombiner.getExpressions()
-                    .stream()
-                    .allMatch(expression -> expression.accept(new LogicEvaluator(evaluationContext)));
+            for (Evaluatable evaluatable: andCombiner.getExpressions()){
+                if (!evaluatable.accept(this)){
+                    return false;
+                }
+            }
+            return true;
         }
 
         @Override
         public Boolean visit(OrCombiner orCombiner) {
-            return orCombiner.getExpressions()
-                    .stream()
-                    .anyMatch(expression -> expression.accept(new LogicEvaluator(evaluationContext)));
+            for (Evaluatable evaluatable: orCombiner.getExpressions()){
+                if (evaluatable.accept(this)){
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
