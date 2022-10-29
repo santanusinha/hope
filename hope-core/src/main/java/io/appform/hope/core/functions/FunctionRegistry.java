@@ -133,9 +133,6 @@ public class FunctionRegistry {
         final Constructor<? extends HopeFunction>[] declaredConstructors
                 = (Constructor<? extends HopeFunction>[]) type.getDeclaredConstructors();
         FunctionImplementation annotation = type.getAnnotation(FunctionImplementation.class);
-/*        Preconditions.checkArgument(
-                declaredConstructors != null && declaredConstructors.length == 1,
-                "Function " + annotation.value() + " must have only one constructor");*/
         return Arrays.stream(declaredConstructors)
                 .map(declaredConstructor -> {
                     final Class<?>[] declaredParamTypes = declaredConstructor

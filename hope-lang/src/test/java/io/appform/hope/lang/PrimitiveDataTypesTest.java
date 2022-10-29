@@ -54,21 +54,21 @@ class PrimitiveDataTypesTest {
     void testDouble() throws Exception {
         val parser = new HopeParser(new StringReader("1.5"));
         val operand = parser.NumericRepr();
-        assertEquals(1.5, NumericValue.class.cast(operand).getValue());
+        assertEquals(1.5, ((NumericValue) operand).getValue());
     }
 
     @Test
     void testBoolean() throws Exception {
         val parser = new HopeParser(new StringReader("true"));
         val operand = parser.BooleanRepr();
-        assertTrue(BooleanValue.class.cast(operand).getValue());
+        assertTrue(((BooleanValue) operand).getValue());
     }
 
     @Test
     void testBooleanFalse() throws Exception {
         val parser = new HopeParser(new StringReader("false"));
         val operand = parser.BooleanRepr();
-        assertFalse(BooleanValue.class.cast(operand).getValue());
+        assertFalse(((BooleanValue) operand).getValue());
     }
 
     @ParameterizedTest
@@ -128,7 +128,7 @@ class PrimitiveDataTypesTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "'\'abc\''"
+            "''abc''"
     })
     void testStringDQParsingBug(final String rule) throws Exception {
         val parser = new HopeParser(new StringReader(rule));

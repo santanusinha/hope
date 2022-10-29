@@ -14,7 +14,6 @@
 
 package io.appform.hope.lang;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -81,7 +80,7 @@ class HopeLangEngineTest {
     }
 
     @Test
-    void testEvaluateFirst() throws JsonProcessingException {
+    void testEvaluateFirst() {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode node = mapper.createObjectNode().put("x", "A");
         final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
