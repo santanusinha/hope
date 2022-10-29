@@ -12,7 +12,8 @@
     <name>Hope</name>
     <url>https://github.com/santanusinha/hope</url>
     <description>High level language for predicate evaluation on JSON written in java. It uses jackson
-        for json handling and json-path for value extraction.</description>
+        for json handling and json-path for value extraction.
+    </description>
     <inceptionYear>2018</inceptionYear>
 
     <modules>
@@ -163,7 +164,6 @@
     </dependencies>
 
 
-
     <profiles>
         <profile>
             <id>release</id>
@@ -298,6 +298,11 @@
                     <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.3.0</version>
             </plugin>
         </plugins>
     </build>
