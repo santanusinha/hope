@@ -1,8 +1,8 @@
 {
   "name" : "io.appform.hope.lang.JsonPointerPerfTest.testPerfBulkEval",
   "mode" : "Throughput",
-  "iterations" : 50,
+  "iterations" : 5,
   "threads" : 1,
   "forks" : 3,
-  "mean_ops" : 80012.29601480313
+  "mean_ops" : 61664.03036901588
 }
