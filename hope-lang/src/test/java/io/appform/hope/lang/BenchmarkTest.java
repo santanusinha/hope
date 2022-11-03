@@ -30,9 +30,9 @@ public abstract class BenchmarkTest {
                 .warmupTime(TimeValue.seconds(5))
                 .warmupIterations(5)
                 .measurementTime(TimeValue.seconds(10))
-                .measurementIterations(50)
+                .measurementIterations(5)
                 .threads(1)
-                .forks(1)
+                .forks(3)
                 .shouldFailOnError(true)
                 .shouldDoGC(true)
                 .build();
