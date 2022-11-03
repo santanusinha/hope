@@ -129,8 +129,10 @@ public class Evaluator {
 
         @Override
         public Boolean visit(AndCombiner andCombiner) {
-            for (Evaluatable evaluatable: andCombiner.getExpressions()){
-                if (!evaluatable.accept(this)){
+            val expressions = andCombiner.getExpressions();
+            val expressionSize = expressions.size();
+            for (int i = 0 ; i < expressionSize; i++){
+                if (!expressions.get(i).accept(this)){
                     return false;
                 }
             }
@@ -139,8 +141,10 @@ public class Evaluator {
 
         @Override
         public Boolean visit(OrCombiner orCombiner) {
-            for (Evaluatable evaluatable: orCombiner.getExpressions()){
-                if (evaluatable.accept(this)) {
+            val expressions = orCombiner.getExpressions();
+            val expressionSize = expressions.size();
+            for (int i = 0 ; i < expressionSize; i++){
+                if (expressions.get(i).accept(this)) {
                     return true;
                 }
             }
