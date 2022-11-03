@@ -32,6 +32,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * Top level accessor for hope. Creation is expensive. Create and reuse.
@@ -85,8 +86,12 @@ public class HopeLangEngine {
         return new Evaluator(errorHandlingStrategy).evaluate(rule, node);
     }
 
-    public List<Boolean> evaluate(List<Evaluatable> rules, JsonNode node){
+    public List<Boolean> evaluate(List<Evaluatable> rules, JsonNode node) {
         return new Evaluator(errorHandlingStrategy).evaluate(rules, node);
+    }
+
+    public OptionalInt evaluateFirst(List<Evaluatable> rules, JsonNode node) {
+        return new Evaluator(errorHandlingStrategy).evaluateFirst(rules, node);
     }
 
     public static class Builder {
