@@ -1,4 +1,4 @@
-io.appform.hope:hope-core:jar:1.1.2
+io.appform.hope:hope-core:jar:2.0
 +- org.reflections:reflections:jar:0.9.12:compile
 |  \- org.javassist:javassist:jar:3.26.0-GA:compile
 +- org.openjdk.jmh:jmh-core:jar:1.35:test
