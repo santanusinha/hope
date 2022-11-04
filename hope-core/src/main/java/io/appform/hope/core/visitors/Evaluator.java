@@ -109,7 +109,7 @@ public class Evaluator {
         private final DocumentContext jsonContext;
         private final JsonNode rootNode;
         private final Evaluator evaluator;
-        private final Map<String, JsonNode> jsonPathEvalCache = new HashMap<>(128);
+        private final Map<String, JsonNode> jsonPathEvalCache = new HashMap<>(32);
     }
 
     public static class LogicEvaluator extends VisitorAdapter<Boolean> {
