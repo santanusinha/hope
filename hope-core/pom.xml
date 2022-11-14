@@ -40,7 +40,7 @@
                                     <include>org.reflections:reflections</include>
                                 </includes>
                             </artifactSet>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <relocations>
                                 <relocation>
