@@ -26,7 +26,17 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.4.1</version>
                 <configuration>
-                    <!-- put your configurations here -->
+                    <artifactSet>
+                        <includes>
+                            <include>org.reflections:reflections</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.reflections</pattern>
+                            <shadedPattern>io.appform.shaded.org.reflections</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>
@@ -34,21 +44,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.reflections:reflections</include>
-                                </includes>
-                            </artifactSet>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <shadeSourcesContent>true</shadeSourcesContent>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.reflections</pattern>
-                                    <shadedPattern>io.appform.shaded.org.reflections</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
