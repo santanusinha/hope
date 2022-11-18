@@ -1,3 +1,6 @@
+# 2.0.1
+- Reflections library shaded
+
 # 2.0
 - Bulk evaluation api added
     - Additional api to return index of first matching rule
