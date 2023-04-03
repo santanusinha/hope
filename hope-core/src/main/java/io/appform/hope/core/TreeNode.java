@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 /**
  * Node for parse tree.
  */
-@JsonTypeInfo(include= JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
+@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @EqualsAndHashCode
 public abstract class TreeNode {
     public abstract <T> T accept(Visitor<T> visitor);

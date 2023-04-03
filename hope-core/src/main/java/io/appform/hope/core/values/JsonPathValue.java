@@ -14,12 +14,13 @@
 
 package io.appform.hope.core.values;
 
-import com.google.common.base.Objects;
 import com.jayway.jsonpath.JsonPath;
 import io.appform.hope.core.Visitor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.val;
+
+import java.util.Objects;
 
 /**
  *
@@ -54,11 +55,17 @@ public class JsonPathValue extends FunctionEvaluatableValue {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) { return false; }
-        if (obj == this) { return true; }
-        if (obj.getClass() != getClass()) { return false; }
-        JsonPathValue other = (JsonPathValue) obj;
-        return Objects.equal(this.getPath(), other.getPath());
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        val other = (JsonPathValue) obj;
+        return Objects.equals(this.getPath(), other.getPath());
     }
 
     @Override
