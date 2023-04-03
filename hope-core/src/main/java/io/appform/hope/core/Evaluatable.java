@@ -14,8 +14,12 @@
 
 package io.appform.hope.core;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * Abstraction for core expression that can be evaluated as a hope rule
  */
+@EqualsAndHashCode(callSuper = true)
+
 public abstract class Evaluatable extends TreeNode {
 }
