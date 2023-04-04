@@ -1,3 +1,6 @@
+# 2.0.2
+- Added equals and hashCode to value types
+
 # 2.0.1
 - Reflections library shaded
 
