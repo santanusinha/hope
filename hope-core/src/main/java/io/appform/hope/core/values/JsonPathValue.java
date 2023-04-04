@@ -17,14 +17,15 @@ package io.appform.hope.core.values;
 import com.jayway.jsonpath.JsonPath;
 import io.appform.hope.core.Visitor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.val;
+
+import java.util.Objects;
 
 /**
  *
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class JsonPathValue extends FunctionEvaluatableValue {
 
@@ -52,4 +53,23 @@ public class JsonPathValue extends FunctionEvaluatableValue {
         return visitor.visit(this);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        val other = (JsonPathValue) obj;
+        return Objects.equals(this.getPath(), other.getPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getPath());
+    }
 }
