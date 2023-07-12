@@ -192,6 +192,8 @@ class LibraryFunctionsTest {
                 Arguments.of("{ \"val\" : \"abcdef\" }", "path.exists('$.val') == true", true),
                 Arguments.of("{ \"val\" : \"abcdef\" }", "pointer.exists(\"/val\") == true", true),
                 Arguments.of("{ \"val\" : \"abcdef\" }", "pointer.exists('/val') == true", true),
+                Arguments.of("{ \"val\" : \"abcdef\" }", "pointer.exists('/xxx') == true", false),
+                Arguments.of("{ \"val\" : \"abcdef\" }", "path.exists('$.xxx') == true", false),
                 Arguments.of("{ \"val\" : [1,2,4,8,16] }", "arr.contains_any(\"$.val\", [2,3]) == true", true),
                 Arguments.of("{ \"val\" : [1,2,4,8,16] }", "arr.contains_any('$.val', [2,3]) == true", true),
                 Arguments.of("{ \"val\" : [1,2,4,8,16] }", "arr.contains_any(\"/val\", [2,3]) == true", true),

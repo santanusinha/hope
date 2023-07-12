@@ -1,3 +1,7 @@
+# 2.0.3
+- Bugfix in `pointer.exists`
+- Version bump for vulnerable components
+- 
 # 2.0.2
 - Added equals and hashCode to value types
 
