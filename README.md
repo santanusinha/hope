@@ -1,4 +1,4 @@
-# Hope [![Java CI with Maven](https://github.com/santanusinha/hope/actions/workflows/ci.yml/badge.svg)](https://github.com/santanusinha/hope/actions/workflows/ci.yml)
+# Hope [![SonarCloud](https://github.com/santanusinha/hope/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/santanusinha/hope/actions/workflows/build.yml)
 Hope is a high level language for predicate evaluation on JSON written in java. It uses jackson for json handling and json-path for value extraction.
 
 #### Sample Hope expressions/rules
