@@ -25,11 +25,11 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public abstract class HopeException extends RuntimeException {
-    public HopeException(String message) {
+    protected HopeException(String message) {
         super(message);
     }
 
-    public HopeException(String message, Throwable cause) {
+    protected HopeException(String message, Throwable cause) {
         super(message, cause);
     }
 }

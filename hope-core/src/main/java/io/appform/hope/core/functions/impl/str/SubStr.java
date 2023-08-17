@@ -27,7 +27,7 @@ import io.appform.hope.core.visitors.Evaluator;
  * to {@link io.appform.hope.core.values.NumericValue} end (exclusive).
  */
 @FunctionImplementation("str.substr")
-public class SubStr extends HopeFunction {
+public class SubStr extends HopeFunction<StringValue> {
     private final Value arg;
     private final Value start;
     private final Value end;
@@ -43,7 +43,7 @@ public class SubStr extends HopeFunction {
     }
 
     @Override
-    public Value apply(Evaluator.EvaluationContext evaluationContext) {
+    public StringValue apply(Evaluator.EvaluationContext evaluationContext) {
         final String argValue = Converters.stringValue(evaluationContext, arg, "");
         int startIndex = Converters.numericValue(evaluationContext, start, 0).intValue();
         final int endIndex;

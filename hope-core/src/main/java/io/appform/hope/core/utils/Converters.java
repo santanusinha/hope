@@ -33,7 +33,6 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
@@ -51,7 +50,8 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return Evaluated value on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static String stringValue(
             Evaluator.EvaluationContext evaluationContext,
@@ -59,7 +59,7 @@ public class Converters {
             String defaultValue) {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
-        return node.accept(new VisitorAdapter<String>(
+        return node.accept(new VisitorAdapter<>(
                 () -> errorHandlingStrategy.handleIllegalEval("String value eval", defaultValue)) {
             @Override
             public String visit(JsonPathValue jsonPathValue) {
@@ -88,7 +88,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = stringValue.getPointerValue();
-                    if(null != pointerValue) {
+                    if (null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = stringValue.getFunction();
@@ -112,7 +112,8 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return Evaluated value on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static Number numericValue(
             Evaluator.EvaluationContext evaluationContext,
@@ -120,8 +121,8 @@ public class Converters {
             Number defaultValue) {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
-        return node.accept(new VisitorAdapter<Number>(() -> errorHandlingStrategy.handleIllegalEval("Number eval",
-                                                                                                    defaultValue)) {
+        return node.accept(new VisitorAdapter<>(() -> errorHandlingStrategy.handleIllegalEval("Number eval",
+                                                                                              defaultValue)) {
             @Override
             public Number visit(JsonPathValue jsonPathValue) {
                 return extractNodeValue(jsonPathValue,
@@ -151,7 +152,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = numericValue.getPointerValue();
-                    if(null != pointerValue) {
+                    if (null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = numericValue.getFunction();
@@ -176,7 +177,8 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return Evaluated value on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return Evaluated value on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static Boolean booleanValue(
             Evaluator.EvaluationContext evaluationContext,
@@ -184,7 +186,7 @@ public class Converters {
             boolean defaultValue) {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
-        return node.accept(new VisitorAdapter<Boolean>(
+        return node.accept(new VisitorAdapter<>(
                 () -> errorHandlingStrategy.handleIllegalEval("Boolean eval", defaultValue)) {
             @Override
             public Boolean visit(JsonPathValue jsonPathValue) {
@@ -215,7 +217,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = booleanValue.getPointerValue();
-                    if(null != pointerValue) {
+                    if (null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = booleanValue.getFunction();
@@ -240,7 +242,8 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return Evaluated array on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return Evaluated array on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static List<Value> explodeArray(
             Evaluator.EvaluationContext evaluationContext,
@@ -248,7 +251,7 @@ public class Converters {
             List<Value> defaultValue) {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
-        return node.accept(new VisitorAdapter<List<Value>>(() -> defaultValue) {
+        return node.accept(new VisitorAdapter<>(() -> defaultValue) {
             @Override
             public List<Value> visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = evaluationContext.getJsonContext()
@@ -260,13 +263,10 @@ public class Converters {
                 }
                 if (value.isArray()) {
                     return StreamSupport.stream(
-                                    Spliterators.spliteratorUnknownSize(
-                                            ArrayNode.class.cast(value)
-                                                    .elements(),
-                                            Spliterator.ORDERED),
+                                    Spliterators.spliteratorUnknownSize(value.elements(), Spliterator.ORDERED),
                                     false)
                             .map(Converters::jsonNodeToValue)
-                            .collect(Collectors.toList());
+                            .toList();
                 }
                 return errorHandlingStrategy.handleTypeMismatch(
                         jsonPathValue.getPath(),
@@ -287,13 +287,10 @@ public class Converters {
                 }
                 if (value.isArray()) {
                     return StreamSupport.stream(
-                                    Spliterators.spliteratorUnknownSize(
-                                            ArrayNode.class.cast(value)
-                                                    .elements(),
-                                            Spliterator.ORDERED),
+                                    Spliterators.spliteratorUnknownSize(value.elements(), Spliterator.ORDERED),
                                     false)
                             .map(Converters::jsonNodeToValue)
-                            .collect(Collectors.toList());
+                            .toList();
                 }
                 return errorHandlingStrategy.handleTypeMismatch(
                         jsonPointerValue.getPointer(),
@@ -312,7 +309,7 @@ public class Converters {
                         return pathValue.accept(this);
                     }
                     final JsonPointerValue pointerValue = arrayValue.getPointerValue();
-                    if(null != pointerValue) {
+                    if (null != pointerValue) {
                         return pointerValue.accept(this);
                     }
                     final FunctionValue functionValue = arrayValue.getFunction();
@@ -336,7 +333,8 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param value             Value that evaluates to an array
      * @param defaultValue      Default value if eval fails
-     * @return Evaluated list on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return Evaluated list on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static List<Object> flattenArray(
             Evaluator.EvaluationContext evaluationContext,
@@ -354,13 +352,14 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return provided json path on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return provided json path on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static String jsonPathValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             String defaultValue) {
-        return node.accept(new VisitorAdapter<String>(() -> defaultValue) {
+        return node.accept(new VisitorAdapter<>(() -> defaultValue) {
             @Override
             public String visit(JsonPathValue jsonPathValue) {
                 final String path = jsonPathValue.getPath();
@@ -385,13 +384,14 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return provided json path on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return provided json path on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static String jsonPointerValue(
             Evaluator.EvaluationContext evaluationContext,
             TreeNode node,
             String defaultValue) {
-        return node.accept(new VisitorAdapter<String>(() -> defaultValue) {
+        return node.accept(new VisitorAdapter<>(() -> defaultValue) {
             @Override
             public String visit(JsonPointerValue jsonPointerValue) {
                 final String pointer = jsonPointerValue.getPointer();
@@ -405,7 +405,9 @@ public class Converters {
 
             @Override
             public String visit(FunctionValue functionValue) {
-                return jsonPointerValue(evaluationContext, function(functionValue).apply(evaluationContext), defaultValue);
+                return jsonPointerValue(evaluationContext,
+                                        function(functionValue).apply(evaluationContext),
+                                        defaultValue);
             }
         });
     }
@@ -417,7 +419,8 @@ public class Converters {
      * @param evaluationContext Current eval context
      * @param node              Node to be evaluated
      * @param defaultValue      Default value if eval fails
-     * @return Evaluated object on success, defaultValue or excption in case of failure depending on {@link ErrorHandlingStrategy}
+     * @return Evaluated object on success, defaultValue or exception in case of failure depending on
+     * {@link ErrorHandlingStrategy}
      */
     public static Object objectValue(
             Evaluator.EvaluationContext evaluationContext,
@@ -425,8 +428,8 @@ public class Converters {
             Object defaultValue) {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
-        return node.accept(new VisitorAdapter<Object>(() -> errorHandlingStrategy.handleIllegalEval("Object eval",
-                                                                                                    defaultValue)) {
+        return node.accept(new VisitorAdapter<>(() -> errorHandlingStrategy.handleIllegalEval("Object eval",
+                                                                                              defaultValue)) {
             @Override
             public Object visit(JsonPathValue jsonPathValue) {
                 final JsonNode value = nodeForJsonPath(jsonPathValue, evaluationContext);
@@ -496,7 +499,7 @@ public class Converters {
         final ErrorHandlingStrategy errorHandlingStrategy = evaluationContext.getEvaluator()
                 .getErrorHandlingStrategy();
         return node.accept(
-                new VisitorAdapter<T>(() -> handler.handleObject(
+                new VisitorAdapter<>(() -> handler.handleObject(
                         errorHandlingStrategy.handleIllegalEval("Object eval", defaultValue))) {
                     @Override
                     public T visit(JsonPathValue jsonPathValue) {
@@ -563,6 +566,7 @@ public class Converters {
                 });
     }
 
+    @SuppressWarnings("java:S3740")
     private static HopeFunction function(FunctionValue functionValue) {
         final List<Value> parameters = functionValue.getParameters();
         return createFunction(functionValue.getName(),
@@ -570,6 +574,7 @@ public class Converters {
                               parameters);
     }
 
+    @SuppressWarnings({"java:S3740", "java:S3878", "java:S3776"})
     private static HopeFunction createFunction(
             String name,
             FunctionRegistry.ConstructorMeta selectedConstructor,
@@ -607,11 +612,10 @@ public class Converters {
         }
         if (node.isArray()) {
             return new ArrayValue(StreamSupport.stream(
-                            Spliterators.spliteratorUnknownSize(ArrayNode.class.cast(node)
-                                                                        .elements(), Spliterator.ORDERED),
+                            Spliterators.spliteratorUnknownSize(node.elements(), Spliterator.ORDERED),
                             false)
                                           .map(child -> jsonNodeToValue(node))
-                                          .collect(Collectors.toList()));
+                                          .toList());
         }
         throw new UnsupportedOperationException(node.getNodeType()
                                                         .name() + " is not supported");
@@ -704,7 +708,7 @@ public class Converters {
         return values
                 .stream()
                 .map(value -> objectValue(evaluationContext, value, defaultValue))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

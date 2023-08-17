@@ -26,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  *
  */
-public class EvaluatorTest {
+class EvaluatorTest {
 
     final JsonNode node = NullNode.getInstance();
 
     @Test
-    public void basicTest() {
+    void basicTest() {
         final Evaluator evaluator = new Evaluator();
         assertTrue(
                 evaluator.evaluate(

@@ -28,7 +28,7 @@ public abstract class BinaryOperator<T extends Value> extends Evaluatable {
     protected final T lhs;
     protected final T rhs;
 
-    public BinaryOperator(T lhs, T rhs) {
+    protected BinaryOperator(T lhs, T rhs) {
         this.lhs = lhs;
         this.rhs = rhs;
     }

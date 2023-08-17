@@ -70,7 +70,7 @@ public class FunctionRegistry {
                 .addAll(packages.stream()
                                 .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath)
                                         .stream())
-                                .collect(Collectors.toList()))
+                                .toList())
                 .build();
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
@@ -133,9 +133,6 @@ public class FunctionRegistry {
         final Constructor<? extends HopeFunction>[] declaredConstructors
                 = (Constructor<? extends HopeFunction>[]) type.getDeclaredConstructors();
         FunctionImplementation annotation = type.getAnnotation(FunctionImplementation.class);
-/*        Preconditions.checkArgument(
-                declaredConstructors != null && declaredConstructors.length == 1,
-                "Function " + annotation.value() + " must have only one constructor");*/
         return Arrays.stream(declaredConstructors)
                 .map(declaredConstructor -> {
                     final Class<?>[] declaredParamTypes = declaredConstructor
@@ -145,13 +142,13 @@ public class FunctionRegistry {
                                     ? parameterType.getComponentType()
                                     .isAssignableFrom(Value.class)
                                     : parameterType.isAssignableFrom(Value.class))
-                            .collect(Collectors.toList());
+                            .toList();
                     Preconditions.checkArgument(
                             paramTypes.size() == declaredParamTypes.length,
                             "Non value parameter types declared for constructor in function '"
                                     + annotation.value() + "'. Param types: " + Arrays.stream(declaredParamTypes)
                                     .map(Class::getSimpleName)
-                                    .collect(Collectors.toList()));
+                                    .toList());
                     final boolean variantArgs = paramTypes.stream()
                             .anyMatch(Class::isArray);
                     Preconditions.checkArgument(!variantArgs || paramTypes.size() == 1,

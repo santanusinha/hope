@@ -20,7 +20,6 @@ import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.values.FunctionValue;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A bunch of utils used by parser
@@ -42,7 +41,7 @@ public class TypeUtils {
         final List<FunctionRegistry.ConstructorMeta> matchingConstructors = constructors.stream()
                 .filter(constructorMeta -> constructorMeta.getParamTypes()
                         .size() == numProvidedParams)
-                .collect(Collectors.toList());
+                .toList();
         Preconditions.checkArgument(!matchingConstructors.isEmpty(),
                                     String.format("No matching function named %s that accepts %d params.",
                                                   name, numProvidedParams));

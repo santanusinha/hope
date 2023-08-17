@@ -37,47 +37,20 @@ class HopeLangEngineTest {
 
     @Test
     void testFuncIntFailNoExceptNoNode() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode node = mapper.readTree("{ \"x\" : true }");
-        final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
-                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
-                .build();
-
-        final Evaluatable operator = hopeLangParser.parse("\"$.x\" == \"true\"");
-
-        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
-        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
-        assertFalse(hopeLangParser.evaluate(operator, node));
+        testRuleFalse("""
+                              "$.x" == true""");
     }
 
     @Test
     void testFuncIntFailNoExceptNoNodeSQ() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode node = mapper.readTree("{ \"x\" : true }");
-        final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
-                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
-                .build();
-
-        final Evaluatable operator = hopeLangParser.parse("\"$.x\" == \"true\"");
-
-        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
-        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
-        assertFalse(hopeLangParser.evaluate(operator, node));
+        testRuleFalse("""
+                              '$.x' == true""");
     }
 
     @Test
     void testFuncIntFailNoExceptNoNodeJPtr() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode node = mapper.readTree("{ \"x\" : true }");
-        final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
-                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
-                .build();
-
-        final Evaluatable operator = hopeLangParser.parse("\"$.x\" == \"true\"");
-
-        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
-        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
-        assertFalse(hopeLangParser.evaluate(operator, node));
+        testRuleFalse("""
+                              "/x" == true""");
     }
 
     @Test
@@ -91,7 +64,7 @@ class HopeLangEngineTest {
                 hopeLangParser.parse("\"$.x\" == \"E\""),
                 hopeLangParser.parse("\"$.x\" == \"A\""),
                 hopeLangParser.parse("\"$.y\" == \"U\"")
-        );
+                                                           );
         Integer matchedRuleIndex = hopeLangParser.evaluateFirst(evaluatables, node).orElse(-1);
         Assertions.assertEquals(1, matchedRuleIndex);
     }
@@ -106,5 +79,19 @@ class HopeLangEngineTest {
 
         JsonNode node = new ObjectMapper().readTree("{}");
         assertTrue(hope.evaluate("ss.blah() == \"blah\"", node));
+    }
+
+    private static void testRuleFalse(String hopeLangExpression) throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode node = mapper.readTree("");
+        final HopeLangEngine hopeLangParser = HopeLangEngine.builder()
+                .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
+                .build();
+
+        final Evaluatable operator = hopeLangParser.parse(hopeLangExpression);
+
+        //NOTE::THIS IS HOW THE BEHAVIOUR IS FOR EQUALS/NOT_EQUALS:
+        //BASICALLY THE NODE WILL EVALUATE TO NULL AND WILL MISMATCH EVERYTHING
+        assertFalse(hopeLangParser.evaluate(operator, node));
     }
 }

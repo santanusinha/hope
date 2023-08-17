@@ -16,7 +16,7 @@ package io.appform.hope.lang;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
+import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.impl.HopeMissingValueError;
 import io.appform.hope.core.exceptions.impl.HopeTypeMismatchError;
@@ -42,7 +42,6 @@ class LibraryFunctionsTest {
 
     final ObjectMapper mapper = new ObjectMapper();
 
-    final JsonNode node = NullNode.getInstance();
     final FunctionRegistry functionRegistry;
 
     LibraryFunctionsTest() {
@@ -80,8 +79,10 @@ class LibraryFunctionsTest {
         val parser = new HopeParser(new StringReader(rule));
         val operator = parser.parse(functionRegistry);
 
-        assertThrows(HopeMissingValueError.class, () -> new Evaluator().evaluate(operator, node));
+        assertThrows(HopeMissingValueError.class, () -> evaluate(operator, node));
     }
+
+
 
     @ParameterizedTest
     @MethodSource("rulesWrongTypes")
@@ -91,7 +92,7 @@ class LibraryFunctionsTest {
         val parser = new HopeParser(new StringReader(rule));
         val operator = parser.parse(functionRegistry);
 
-        assertThrows(HopeTypeMismatchError.class, () -> new Evaluator().evaluate(operator, node));
+        assertThrows(HopeTypeMismatchError.class, () -> evaluate(operator, node));
     }
 
     private static Stream<Arguments> rulesWrongTypes() {
@@ -235,6 +236,10 @@ class LibraryFunctionsTest {
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len('/array') == 6", true)
 
                  );
+    }
+
+    private static void evaluate(Evaluatable operator, JsonNode node) {
+        new Evaluator().evaluate(operator, node);
     }
 }
 

@@ -25,7 +25,7 @@ import io.appform.hope.core.visitors.Evaluator;
  * Returns upper case {@link StringValue} of provided {@link StringValue} parameter.
  */
 @FunctionImplementation("str.upper")
-public class UpperCase extends HopeFunction {
+public class UpperCase extends HopeFunction<StringValue> {
     private final Value arg;
 
     public UpperCase(Value arg) {
@@ -33,7 +33,7 @@ public class UpperCase extends HopeFunction {
     }
 
     @Override
-    public Value apply(Evaluator.EvaluationContext evaluationContext) {
+    public StringValue apply(Evaluator.EvaluationContext evaluationContext) {
         return new StringValue(Converters.stringValue(evaluationContext, arg, "").toUpperCase());
     }
 }

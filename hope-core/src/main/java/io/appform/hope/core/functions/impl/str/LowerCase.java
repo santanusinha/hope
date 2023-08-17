@@ -25,7 +25,7 @@ import io.appform.hope.core.visitors.Evaluator;
  * Returns lower case {@link StringValue} of provided {@link StringValue} parameter.
  */
 @FunctionImplementation("str.lower")
-public class LowerCase extends HopeFunction {
+public class LowerCase extends HopeFunction<StringValue> {
     private final Value arg;
 
     public LowerCase(Value arg) {
@@ -33,7 +33,7 @@ public class LowerCase extends HopeFunction {
     }
 
     @Override
-    public Value apply(Evaluator.EvaluationContext evaluationContext) {
+    public StringValue apply(Evaluator.EvaluationContext evaluationContext) {
         return new StringValue(Converters.stringValue(evaluationContext, arg, "").toLowerCase());
     }
 }
