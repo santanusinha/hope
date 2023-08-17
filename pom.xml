@@ -338,9 +338,9 @@
                 </executions>
                 <configuration>
 
-<!--                    <excludes>
+                    <excludes>
                         <exclude>**/io/appform/hope/lang/parser/*.class</exclude>
-                    </excludes>-->
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
