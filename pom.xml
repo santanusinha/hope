@@ -95,6 +95,8 @@
         <json-smart.version>2.4.11</json-smart.version>
         <surefire.version>3.0.0-M5</surefire.version>
         <normalBuild>false</normalBuild>
+        <sonar.organization>santanusinha</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencyManagement>
