@@ -26,7 +26,7 @@ import io.appform.hope.core.visitors.Evaluator;
  * Returns {@link NumericValue} length of provided evaluated {@link StringValue} parameter.
  */
 @FunctionImplementation("str.len")
-public class Length extends HopeFunction {
+public class Length extends HopeFunction<NumericValue> {
     private final Value arg;
 
     public Length(Value arg) {
@@ -34,7 +34,7 @@ public class Length extends HopeFunction {
     }
 
     @Override
-    public Value apply(Evaluator.EvaluationContext evaluationContext) {
+    public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {
         return new NumericValue((double)Converters.stringValue(evaluationContext, arg, "").length());
     }
 }

@@ -17,11 +17,7 @@ package io.appform.hope.core.visitors;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.ParseContext;
+import com.jayway.jsonpath.*;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
@@ -29,27 +25,14 @@ import io.appform.hope.core.combiners.AndCombiner;
 import io.appform.hope.core.combiners.OrCombiner;
 import io.appform.hope.core.exceptions.errorstrategy.DefaultErrorHandlingStrategy;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
-import io.appform.hope.core.operators.And;
-import io.appform.hope.core.operators.Equals;
-import io.appform.hope.core.operators.Greater;
-import io.appform.hope.core.operators.GreaterEquals;
-import io.appform.hope.core.operators.Lesser;
-import io.appform.hope.core.operators.LesserEquals;
-import io.appform.hope.core.operators.Not;
-import io.appform.hope.core.operators.NotEquals;
-import io.appform.hope.core.operators.Or;
+import io.appform.hope.core.operators.*;
 import io.appform.hope.core.utils.Converters;
-import io.appform.hope.core.values.JsonPointerValue;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.val;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -75,9 +58,9 @@ public class Evaluator {
     public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
         this.errorHandlingStrategy = errorHandlingStrategy;
         parseContext = JsonPath.using(Configuration.builder()
-                .jsonProvider(new JacksonJsonNodeJsonProvider())
-                .options(Option.SUPPRESS_EXCEPTIONS)
-                .build());
+                                              .jsonProvider(new JacksonJsonNodeJsonProvider())
+                                              .options(Option.SUPPRESS_EXCEPTIONS)
+                                              .build());
 
     }
 
@@ -113,6 +96,7 @@ public class Evaluator {
         private final Map<String, JsonNode> jsonPointerEvalCache = new HashMap<>(128);
     }
 
+    @SuppressWarnings("java:S5411")
     public static class LogicEvaluator extends VisitorAdapter<Boolean> {
 
         private final EvaluationContext evaluationContext;
@@ -211,11 +195,6 @@ public class Evaluator {
         public Boolean visit(Not not) {
             boolean operand = Converters.booleanValue(evaluationContext, not.getOperand(), false);
             return !operand;
-        }
-
-        @Override
-        public Boolean visit(JsonPointerValue jsonPointerValue) {
-            return null;
         }
 
     }
