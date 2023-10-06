@@ -1,7 +1,10 @@
+# 2.0.4
+- Bugfix: Removed the filterInputsBy package line, which prevents scanning custom packages that are registered on hopebuilder
+
 # 2.0.3
 - Bugfix in `pointer.exists`
 - Version bump for vulnerable components
-- 
+ 
 # 2.0.2
 - Added equals and hashCode to value types
 
