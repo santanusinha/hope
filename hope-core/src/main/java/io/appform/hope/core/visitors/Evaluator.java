@@ -72,18 +72,24 @@ public class Evaluator {
             final List<Evaluatable> evaluatables,
             final JsonNode node) {
         val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
-        return evaluatables.stream()
-                .map(evaluatable -> evaluatable.accept(logicEvaluator))
-                .collect(Collectors.toList());
+        List<Boolean> list = new ArrayList<>();
+        for (Evaluatable evaluatable : evaluatables) {
+            list.add(evaluatable.accept(logicEvaluator));
+        }
+        return list;
     }
 
     public OptionalInt evaluateFirst(
             final List<Evaluatable> rules,
             final JsonNode node) {
         val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
-        return IntStream.range(0, rules.size())
-                .filter(index -> rules.get(index).accept(logicEvaluator))
-                .findFirst();
+        int bound = rules.size();
+        for (int index = 0; index < bound; index++) {
+            if (rules.get(index).accept(logicEvaluator)) {
+                return OptionalInt.of(index);
+            }
+        }
+        return OptionalInt.empty();
     }
 
     @Data
