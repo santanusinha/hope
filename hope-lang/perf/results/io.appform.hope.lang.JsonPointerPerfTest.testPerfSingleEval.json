@@ -1,8 +1,8 @@
 {
   "name" : "io.appform.hope.lang.JsonPointerPerfTest.testPerfSingleEval",
   "mode" : "Throughput",
-  "iterations" : 2,
+  "iterations" : 3,
   "threads" : 1,
-  "forks" : 3,
-  "mean_ops" : 14457.761592563897
+  "forks" : 2,
+  "mean_ops" : 38475.51902529204
 }
