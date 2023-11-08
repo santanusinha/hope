@@ -25,12 +25,25 @@ import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.exceptions.errorstrategy.ErrorHandlingStrategy;
 import io.appform.hope.core.functions.FunctionRegistry;
 import io.appform.hope.core.functions.HopeFunction;
-import io.appform.hope.core.values.*;
+import io.appform.hope.core.values.ArrayValue;
+import io.appform.hope.core.values.BooleanValue;
+import io.appform.hope.core.values.FunctionValue;
+import io.appform.hope.core.values.JsonPathValue;
+import io.appform.hope.core.values.JsonPointerValue;
+import io.appform.hope.core.values.NumericValue;
+import io.appform.hope.core.values.ObjectValue;
+import io.appform.hope.core.values.StringValue;
 import io.appform.hope.core.visitors.Evaluator;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
@@ -705,10 +718,12 @@ public class Converters {
             Evaluator.EvaluationContext evaluationContext,
             List<Value> values,
             Object defaultValue) {
-        return values
-                .stream()
-                .map(value -> objectValue(evaluationContext, value, defaultValue))
-                .toList();
+        val list = new ArrayList<>();
+        for (final Value value : values) {
+            val o = objectValue(evaluationContext, value, defaultValue);
+            list.add(o);
+        }
+        return list;
     }
 
 }
