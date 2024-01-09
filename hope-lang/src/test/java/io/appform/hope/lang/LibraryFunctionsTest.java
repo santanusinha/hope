@@ -30,7 +30,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.StringReader;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.WeekFields;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,12 +86,10 @@ class LibraryFunctionsTest {
         assertThrows(HopeMissingValueError.class, () -> evaluate(operator, node));
     }
 
-
-
     @ParameterizedTest
     @MethodSource("rulesWrongTypes")
     @SneakyThrows
-    void testWongTypeError(final String json, final String rule) {
+    void testWrongTypeError(final String json, final String rule) {
         val node = mapper.readTree(json);
         val parser = new HopeParser(new StringReader(rule));
         val operator = parser.parse(functionRegistry);
@@ -131,6 +133,11 @@ class LibraryFunctionsTest {
     }
 
     private static Stream<Arguments> rules() {
+        final var dateTime = LocalDateTime.now();
+        final long epochMilli = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        final long weekOfMonth = dateTime.get(WeekFields.of(Locale.getDefault()).weekOfMonth());
+        final long weekOfYear = dateTime.get(WeekFields.of(Locale.getDefault()).weekOfYear());
+
         return Stream.of(
                 Arguments.of("{ \"count\" : 93 }", "93 <= math.abs(\"$.count\")", true),
                 Arguments.of("{ \"count\" : 93 }", "93 <= math.abs('$.count')", true),
@@ -233,7 +240,19 @@ class LibraryFunctionsTest {
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len(\"$.array\") == 6", true),
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len('$.array') == 6", true),
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len(\"/array\") == 6", true),
-                Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len('/array') == 6", true)
+                Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len('/array') == 6", true),
+
+                Arguments.of("{}", "math.sub(datetime.now(), %d) <= 1000 && math.sub(datetime.now(), %d) >= 0".formatted(epochMilli, epochMilli), true),
+                Arguments.of("{}", "math.sub(datetime.second_of_minute(), %d) <= 1 && math.sub(datetime.second_of_minute(), %d) >= 0".formatted(dateTime.getSecond(), dateTime.getSecond()), true),
+                Arguments.of("{}", "math.sub(datetime.minute_of_hour(), %d) <= 1 && math.sub(datetime.minute_of_hour(), %d) >= 0".formatted(dateTime.getMinute(), dateTime.getMinute()), true),
+                Arguments.of("{}", "math.sub(datetime.hour_of_day(), %d) <= 1 && math.sub(datetime.hour_of_day(), %d) >= 0".formatted(dateTime.getHour(), dateTime.getHour()), true),
+                Arguments.of("{}", "math.sub(datetime.day_of_week(), %d) <= 1 && math.sub(datetime.day_of_week(), %d) >= 0".formatted(dateTime.getDayOfWeek().getValue(), dateTime.getDayOfWeek().getValue()), true),
+                Arguments.of("{}", "math.sub(datetime.day_of_month(), %d) <= 1 && math.sub(datetime.day_of_month(), %d) >= 0".formatted(dateTime.getDayOfMonth(), dateTime.getDayOfMonth()), true),
+                Arguments.of("{}", "math.sub(datetime.day_of_year(), %d) <= 1 && math.sub(datetime.day_of_year(), %d) >= 0".formatted(dateTime.getDayOfYear(), dateTime.getDayOfYear()), true),
+                Arguments.of("{}", "math.sub(datetime.week_of_month(), %d) <= 1 && math.sub(datetime.week_of_month(), %d) >= 0".formatted(weekOfMonth, weekOfMonth), true),
+                Arguments.of("{}", "math.sub(datetime.week_of_year(), %d) <= 1 && math.sub(datetime.week_of_year(), %d) >= 0".formatted(weekOfYear, weekOfYear), true),
+                Arguments.of("{}", "math.sub(datetime.month_of_year(), %d) <= 1 && math.sub(datetime.month_of_year(), %d) >= 0".formatted(dateTime.getMonth().getValue(), dateTime.getMonth().getValue()), true),
+                Arguments.of("{}", "math.sub(datetime.year(), %d) <= 1 && math.sub(datetime.year(), %d) >= 0".formatted(dateTime.getYear(), dateTime.getYear()), true)
 
                  );
     }
