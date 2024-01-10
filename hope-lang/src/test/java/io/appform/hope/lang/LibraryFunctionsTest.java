@@ -242,17 +242,23 @@ class LibraryFunctionsTest {
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len(\"/array\") == 6", true),
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len('/array') == 6", true),
 
-                Arguments.of("{}", "math.sub(date.now(), %d) <= 10000 && math.sub(date.now(), %d) >= 0".formatted(epochMilli, epochMilli), true),
-                Arguments.of("{}", "math.sub(date.second_of_minute(), %d) <= 10 && math.sub(date.second_of_minute(), %d) >= 0".formatted(dateTime.getSecond(), dateTime.getSecond()), true),
-                Arguments.of("{}", "math.sub(date.minute_of_hour(), %d) <= 1 && math.sub(date.minute_of_hour(), %d) >= 0".formatted(dateTime.getMinute(), dateTime.getMinute()), true),
-                Arguments.of("{}", "math.sub(date.hour_of_day(), %d) <= 1 && math.sub(date.hour_of_day(), %d) >= 0".formatted(dateTime.getHour(), dateTime.getHour()), true),
-                Arguments.of("{}", "math.sub(date.day_of_week(), %d) <= 1 && math.sub(date.day_of_week(), %d) >= 0".formatted(dateTime.getDayOfWeek().getValue(), dateTime.getDayOfWeek().getValue()), true),
-                Arguments.of("{}", "math.sub(date.day_of_month(), %d) <= 1 && math.sub(date.day_of_month(), %d) >= 0".formatted(dateTime.getDayOfMonth(), dateTime.getDayOfMonth()), true),
-                Arguments.of("{}", "math.sub(date.day_of_year(), %d) <= 1 && math.sub(date.day_of_year(), %d) >= 0".formatted(dateTime.getDayOfYear(), dateTime.getDayOfYear()), true),
-                Arguments.of("{}", "math.sub(date.week_of_month(), %d) <= 1 && math.sub(date.week_of_month(), %d) >= 0".formatted(weekOfMonth, weekOfMonth), true),
-                Arguments.of("{}", "math.sub(date.week_of_year(), %d) <= 1 && math.sub(date.week_of_year(), %d) >= 0".formatted(weekOfYear, weekOfYear), true),
-                Arguments.of("{}", "math.sub(date.month_of_year(), %d) <= 1 && math.sub(date.month_of_year(), %d) >= 0".formatted(dateTime.getMonth().getValue(), dateTime.getMonth().getValue()), true),
-                Arguments.of("{}", "math.sub(date.year(), %d) <= 1 && math.sub(date.year(), %d) >= 0".formatted(dateTime.getYear(), dateTime.getYear()), true)
+                /* below set tests all date functions.
+                * Note: We generate a time at the start of the test and compare the generated values from the builtin function with this time.
+                * But in the off chance that the test is running at the 999th millisecond of the second, the diff can be more than 1 (00-59 = -59)
+                * And the same analogy applies for minute/hour/week etc as all the values are like circular buffers [0,1.2...59..0,1..]
+                * The tests below handle this (so unfortunately, it is a little complicated) */
+
+                Arguments.of("{}", "(math.abs(math.sub(date.now(), %d)) <= 3000 && math.abs(math.sub(date.now(), %d)) >= 0) || (math.abs(math.sub(date.now(), %d)) >= 58000 && math.abs(math.sub(date.now(), %d)) <= 60000)".formatted(epochMilli, epochMilli, epochMilli, epochMilli), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.second_of_minute(), %d)) <= 10 && math.abs(math.sub(date.second_of_minute(), %d)) >= 0) || (math.abs(math.sub(date.second_of_minute(), %d)) <= 60 && math.abs(math.sub(date.second_of_minute(), %d)) >= 58)".formatted(dateTime.getSecond(), dateTime.getSecond(), dateTime.getSecond(), dateTime.getSecond()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.minute_of_hour(), %d)) <= 1 && math.abs(math.sub(date.minute_of_hour(), %d)) >= 0) || (math.abs(math.sub(date.minute_of_hour(), %d)) <= 60 && math.abs(math.sub(date.minute_of_hour(), %d)) >= 58)".formatted(dateTime.getMinute(), dateTime.getMinute(), dateTime.getMinute(), dateTime.getMinute()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.hour_of_day(), %d)) <= 1 && math.abs(math.sub(date.hour_of_day(), %d)) >= 0) || (math.abs(math.sub(date.hour_of_day(), %d)) <= 24 && math.abs(math.sub(date.hour_of_day(), %d)) >= 23)".formatted(dateTime.getHour(), dateTime.getHour(), dateTime.getHour(), dateTime.getHour()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.day_of_week(), %d)) <= 1 && math.abs(math.sub(date.day_of_week(), %d)) >= 0) || (math.abs(math.sub(date.day_of_week(), %d)) <= 7 && math.abs(math.sub(date.day_of_week(), %d)) >= 6)".formatted(dateTime.getDayOfWeek().getValue(), dateTime.getDayOfWeek().getValue(), dateTime.getDayOfWeek().getValue(), dateTime.getDayOfWeek().getValue()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.day_of_month(), %d)) <= 1 && math.abs(math.sub(date.day_of_month(), %d)) >= 0) || (math.abs(math.sub(date.day_of_month(), %d)) <= 31 && math.abs(math.sub(date.day_of_month(), %d)) >= 27)".formatted(dateTime.getDayOfMonth(), dateTime.getDayOfMonth(), dateTime.getDayOfMonth(), dateTime.getDayOfMonth()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.day_of_year(), %d)) <= 1 && math.abs(math.sub(date.day_of_year(), %d)) >= 0) || (math.abs(math.sub(date.day_of_year(), %d)) <= 366 && math.abs(math.sub(date.day_of_year(), %d)) >= 364)".formatted(dateTime.getDayOfYear(), dateTime.getDayOfYear(), dateTime.getDayOfYear(), dateTime.getDayOfYear()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.week_of_month(), %d)) <= 1 && math.abs(math.sub(date.week_of_month(), %d)) >= 0) || (math.abs(math.sub(date.week_of_month(), %d)) <= 6 && math.abs(math.sub(date.week_of_month(), %d)) >= 3)".formatted(weekOfMonth, weekOfMonth, weekOfMonth, weekOfMonth), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.week_of_year(), %d)) <= 1 && math.abs(math.sub(date.week_of_year(), %d)) >= 0) || (math.abs(math.sub(date.week_of_year(), %d)) <= 54 && math.abs(math.sub(date.week_of_year(), %d)) >= 51)".formatted(weekOfYear, weekOfYear, weekOfYear, weekOfYear), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.month_of_year(), %d)) <= 1 && math.abs(math.sub(date.month_of_year(), %d)) >= 0) || (math.abs(math.sub(date.month_of_year(), %d)) <= 12 && math.abs(math.sub(date.month_of_year(), %d)) >= 11)".formatted(dateTime.getMonth().getValue(), dateTime.getMonth().getValue(), dateTime.getMonth().getValue(), dateTime.getMonth().getValue()), true),
+                Arguments.of("{}", "(math.abs(math.sub(date.year(), %d)) <= 1 && math.abs(math.sub(date.year(), %d)) >= 0)".formatted(dateTime.getYear(), dateTime.getYear()), true)
 
                  );
     }
