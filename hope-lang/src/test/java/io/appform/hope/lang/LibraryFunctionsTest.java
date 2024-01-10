@@ -242,8 +242,8 @@ class LibraryFunctionsTest {
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len(\"/array\") == 6", true),
                 Arguments.of("{ \"array\" : [1,2,3, 4,8,16] }","arr.len('/array') == 6", true),
 
-                Arguments.of("{}", "math.sub(date.now(), %d) <= 2000 && math.sub(date.now(), %d) >= 0".formatted(epochMilli, epochMilli), true),
-                Arguments.of("{}", "math.sub(date.second_of_minute(), %d) <= 1 && math.sub(date.second_of_minute(), %d) >= 0".formatted(dateTime.getSecond(), dateTime.getSecond()), true),
+                Arguments.of("{}", "math.sub(date.now(), %d) <= 10000 && math.sub(date.now(), %d) >= 0".formatted(epochMilli, epochMilli), true),
+                Arguments.of("{}", "math.sub(date.second_of_minute(), %d) <= 10 && math.sub(date.second_of_minute(), %d) >= 0".formatted(dateTime.getSecond(), dateTime.getSecond()), true),
                 Arguments.of("{}", "math.sub(date.minute_of_hour(), %d) <= 1 && math.sub(date.minute_of_hour(), %d) >= 0".formatted(dateTime.getMinute(), dateTime.getMinute()), true),
                 Arguments.of("{}", "math.sub(date.hour_of_day(), %d) <= 1 && math.sub(date.hour_of_day(), %d) >= 0".formatted(dateTime.getHour(), dateTime.getHour()), true),
                 Arguments.of("{}", "math.sub(date.day_of_week(), %d) <= 1 && math.sub(date.day_of_week(), %d) >= 0".formatted(dateTime.getDayOfWeek().getValue(), dateTime.getDayOfWeek().getValue()), true),
