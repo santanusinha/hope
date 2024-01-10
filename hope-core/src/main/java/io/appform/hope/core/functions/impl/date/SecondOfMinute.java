@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 /**
  * Returns the current second of the minute as a NumericValue.
  */
-@FunctionImplementation("datetime.second_of_minute")
+@FunctionImplementation("date.second_of_minute")
 public class SecondOfMinute extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

@@ -26,7 +26,7 @@ import java.util.Locale;
 /**
  * returns the current month of the year as a NumericValue.
  */
-@FunctionImplementation("datetime.month_of_year")
+@FunctionImplementation("date.month_of_year")
 public class MonthOfYear extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

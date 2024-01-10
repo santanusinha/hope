@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 /**
  * Returns the current hour of the day as a NumericValue.
  */
-@FunctionImplementation("datetime.hour_of_day")
+@FunctionImplementation("date.hour_of_day")
 public class HourOfDay extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

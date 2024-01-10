@@ -22,7 +22,7 @@ import io.appform.hope.core.visitors.Evaluator;
 /**
  * Returns current UNIX epoch time {@link NumericValue} in milliseconds.
  */
-@FunctionImplementation("datetime.now")
+@FunctionImplementation("date.now")
 public class Now extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

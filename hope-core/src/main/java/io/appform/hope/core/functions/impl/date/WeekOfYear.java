@@ -26,7 +26,7 @@ import java.util.Locale;
 /**
  * returns the current week of the year as a NumericValue.
  */
-@FunctionImplementation("datetime.week_of_year")
+@FunctionImplementation("date.week_of_year")
 public class WeekOfYear extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

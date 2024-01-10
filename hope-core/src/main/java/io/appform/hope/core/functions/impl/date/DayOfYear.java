@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 /**
  * returns the current day of the year as a NumericValue.
  */
-@FunctionImplementation("datetime.day_of_year")
+@FunctionImplementation("date.day_of_year")
 public class DayOfYear extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 /**
  * returns the current day of the month as a NumericValue.
  */
-@FunctionImplementation("datetime.day_of_month")
+@FunctionImplementation("date.day_of_month")
 public class DayOfMonth extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

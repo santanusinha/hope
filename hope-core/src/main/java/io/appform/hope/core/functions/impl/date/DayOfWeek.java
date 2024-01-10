@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 /**
  * returns the current day of the week as a NumericValue.
  */
-@FunctionImplementation("datetime.day_of_week")
+@FunctionImplementation("date.day_of_week")
 public class DayOfWeek extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {

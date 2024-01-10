@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 /**
  * returns the current year as a NumericValue.
  */
-@FunctionImplementation("datetime.year")
+@FunctionImplementation("date.year")
 public class Year extends HopeFunction<NumericValue> {
     @Override
     public NumericValue apply(Evaluator.EvaluationContext evaluationContext) {
