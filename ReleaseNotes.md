@@ -1,3 +1,7 @@
+# 2.0.5
+- A host of Date functions are now supported as built-in functions 
+  - `date.now()`, `date.secondOfMinute()`, `date.minuteOfHour()`, `date.hourOfDay()`, `date.dayOfWeek()`, `date.dayOfMonth()`, `date.dayOfYear()`, `date.weekOfMonth()`, `date.weekOfYear()`, `date.monthOfYear()`, `date.year()`
+
 # 2.0.4
 - Bugfix: Removed the filterInputsBy package line, which prevents scanning custom packages that are registered on hopebuilder
 
