@@ -20,7 +20,7 @@ Use the following dependency in your code.
     <dependency>
         <groupId>io.appform.hope</groupId>
         <artifactId>hope-lang</artifactId>
-        <version>2.0.5</version>
+        <version>2.0.6</version>
     </dependency>
 ```
 
