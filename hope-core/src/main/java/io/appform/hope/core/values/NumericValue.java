@@ -25,13 +25,13 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class NumericValue extends EvaluatableValue<Number> {
+public class NumericValue extends EvaluatableValue<Double> {
 
     /**
      * @param value Number value
      */
     public NumericValue(Number value) {
-        super(value);
+        super(value.doubleValue());
     }
 
     /**
