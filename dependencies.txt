@@ -1,4 +1,4 @@
-io.appform.hope:hope:pom:2.0.5
+io.appform.hope:hope:pom:2.0.6
 +- org.openjdk.jmh:jmh-core:jar:1.35:test
 |  +- net.sf.jopt-simple:jopt-simple:jar:5.0.4:test
 |  \- org.apache.commons:commons-math3:jar:3.2:test
