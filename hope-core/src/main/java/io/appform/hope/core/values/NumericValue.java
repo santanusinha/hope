@@ -25,7 +25,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class NumericValue extends EvaluatableValue<Double> {
+public class NumericValue extends EvaluatableValue<Number> {
 
     /**
      * @param value Number value
