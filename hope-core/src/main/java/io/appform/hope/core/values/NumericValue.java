@@ -31,7 +31,7 @@ public class NumericValue extends EvaluatableValue<Number> {
      * @param value Number value
      */
     public NumericValue(Number value) {
-        super(value);
+        super(value.doubleValue());
     }
 
     /**

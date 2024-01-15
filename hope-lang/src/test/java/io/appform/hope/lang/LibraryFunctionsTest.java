@@ -258,7 +258,8 @@ class LibraryFunctionsTest {
                 Arguments.of("{}", "(math.abs(math.sub(date.week_of_month(), %d)) <= 1 && math.abs(math.sub(date.week_of_month(), %d)) >= 0) || (math.abs(math.sub(date.week_of_month(), %d)) <= 6 && math.abs(math.sub(date.week_of_month(), %d)) >= 3)".formatted(weekOfMonth, weekOfMonth, weekOfMonth, weekOfMonth), true),
                 Arguments.of("{}", "(math.abs(math.sub(date.week_of_year(), %d)) <= 1 && math.abs(math.sub(date.week_of_year(), %d)) >= 0) || (math.abs(math.sub(date.week_of_year(), %d)) <= 54 && math.abs(math.sub(date.week_of_year(), %d)) >= 51)".formatted(weekOfYear, weekOfYear, weekOfYear, weekOfYear), true),
                 Arguments.of("{}", "(math.abs(math.sub(date.month_of_year(), %d)) <= 1 && math.abs(math.sub(date.month_of_year(), %d)) >= 0) || (math.abs(math.sub(date.month_of_year(), %d)) <= 12 && math.abs(math.sub(date.month_of_year(), %d)) >= 11)".formatted(dateTime.getMonth().getValue(), dateTime.getMonth().getValue(), dateTime.getMonth().getValue(), dateTime.getMonth().getValue()), true),
-                Arguments.of("{}", "(math.abs(math.sub(date.year(), %d)) <= 1 && math.abs(math.sub(date.year(), %d)) >= 0)".formatted(dateTime.getYear(), dateTime.getYear()), true)
+                Arguments.of("{}", "(math.abs(math.sub(date.year(), %d)) <= 1 && math.abs(math.sub(date.year(), %d)) >= 0)".formatted(dateTime.getYear(), dateTime.getYear()), true),
+                Arguments.of("{}", "date.week_of_month() == 1 || date.week_of_month() == 2 || date.week_of_month() == 3 || date.week_of_month() == 4 || date.week_of_month() == 5", true)
 
                  );
     }
