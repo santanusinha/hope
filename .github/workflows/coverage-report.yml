@@ -22,11 +22,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          java-version: '8' # Or your project's Java version
-          distribution: 'temurin' # Or your preferred distribution
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
 
       - name: Build and Test with Maven
         run: mvn clean verify --batch-mode # The 'verify' phase usually triggers the jacoco:report goal
