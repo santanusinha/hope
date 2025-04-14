@@ -1,4 +1,4 @@
-name: SonarCloud
+name: SonarQube
 on:
   push:
     branches:
@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available.
-      - name: Cache SonarCloud packages
+      - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
@@ -34,9 +34,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=santanusinha_hope
-      - name: Create dependency tree
-        run: mvn dependency:tree -DoutputFile=dependencies.txt
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Comitting files changed by Github Actions
-          commit_options: '--no-verify --signoff'
