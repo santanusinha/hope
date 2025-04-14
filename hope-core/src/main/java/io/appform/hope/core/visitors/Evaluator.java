@@ -87,7 +87,7 @@ public class Evaluator {
             final List<Evaluatable> evaluatables,
             final JsonNode node) {
         val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
-        val list = new ArrayList<Boolean>();
+        val list = new ArrayList<Boolean>(evaluatables.size());
         for (final Evaluatable evaluatable : evaluatables) {
             Boolean accept = evaluatable.accept(logicEvaluator);
             list.add(accept);
