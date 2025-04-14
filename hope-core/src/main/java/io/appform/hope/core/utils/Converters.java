@@ -718,7 +718,7 @@ public class Converters {
             Evaluator.EvaluationContext evaluationContext,
             List<Value> values,
             Object defaultValue) {
-        val list = new ArrayList<>();
+        val list = new ArrayList<>(values.size());
         for (final Value value : values) {
             val o = objectValue(evaluationContext, value, defaultValue);
             list.add(o);
