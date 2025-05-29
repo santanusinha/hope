@@ -61,7 +61,7 @@ public class FunctionRegistry {
      *
      * @param packages Extra packages to be scanned besides the standard library.
      */
-    public synchronized void discover(List<String> packages) {
+    public synchronized void discover(List<String> packages, boolean discoverFunctionOnlyInSpecifiedPackages) {
         if (discoveredAlready) {
             return;
         }
@@ -72,13 +72,16 @@ public class FunctionRegistry {
                                         .stream())
                                 .toList())
                 .build();
-        final FilterBuilder filterBuilder = new FilterBuilder();
-        packages.forEach(filterBuilder::includePackage);
-        Reflections reflections = new Reflections(
-                new ConfigurationBuilder()
-                        .setUrls(packageUrls)
-                        .filterInputsBy(filterBuilder)
-                        .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner()));
+        final ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+                .setUrls(packageUrls)
+                .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner());
+
+        if (discoverFunctionOnlyInSpecifiedPackages) {
+            final FilterBuilder filter = new FilterBuilder();
+            packages.forEach(filter::includePackage);
+            configurationBuilder.filterInputsBy(filter);
+        }
+        Reflections reflections = new Reflections(configurationBuilder);
         log.debug("Type scanning complete");
         final Set<Class<? extends HopeFunction>> classes = reflections.getSubTypesOf(HopeFunction.class);
         classes

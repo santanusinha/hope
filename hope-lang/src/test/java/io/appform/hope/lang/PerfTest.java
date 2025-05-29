@@ -47,7 +47,7 @@ class PerfTest {
 
     PerfTest() {
         this.functionRegistry = new FunctionRegistry();
-        functionRegistry.discover(Collections.emptyList());
+        functionRegistry.discover(Collections.emptyList(), true);
     }
 
     @ParameterizedTest
