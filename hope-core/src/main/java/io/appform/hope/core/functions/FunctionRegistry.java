@@ -72,9 +72,12 @@ public class FunctionRegistry {
                                         .stream())
                                 .toList())
                 .build();
+        final FilterBuilder filterBuilder = new FilterBuilder();
+        packages.forEach(filterBuilder::includePackage);
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
                         .setUrls(packageUrls)
+                        .filterInputsBy(filterBuilder)
                         .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner()));
         log.debug("Type scanning complete");
         final Set<Class<? extends HopeFunction>> classes = reflections.getSubTypesOf(HopeFunction.class);
