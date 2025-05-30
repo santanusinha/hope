@@ -50,7 +50,7 @@ class LibraryFunctionsTest {
 
     LibraryFunctionsTest() {
         this.functionRegistry = new FunctionRegistry();
-        functionRegistry.discover(Collections.emptyList(), true);
+        functionRegistry.discover(Collections.emptyList());
     }
 
     @ParameterizedTest

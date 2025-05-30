@@ -44,7 +44,7 @@ class CoreEvalTest {
 
     CoreEvalTest() {
         this.functionRegistry = new FunctionRegistry();
-        functionRegistry.discover(Collections.emptyList(), true);
+        functionRegistry.discover(Collections.emptyList());
     }
 
     @ParameterizedTest

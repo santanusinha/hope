@@ -98,7 +98,7 @@ public class HopeLangEngine {
         private final List<String> userPackages = new ArrayList<>();
         private final FunctionRegistry functionRegistry = new FunctionRegistry();
         private ErrorHandlingStrategy errorHandlingStrategy = new DefaultErrorHandlingStrategy();
-        private boolean discoverFunctionOnlyInSpecifiedPackages = false;
+        private boolean autoFunctionDiscoveryEnabled = true;
 
         private Builder() {}
 
@@ -144,7 +144,7 @@ public class HopeLangEngine {
          */
 
         public Builder discoverFunctionOnlyInSpecifiedPackages(boolean discoverFunctionOnlyInSpeficiedPackages) {
-            this.discoverFunctionOnlyInSpecifiedPackages = discoverFunctionOnlyInSpeficiedPackages;
+            this.autoFunctionDiscoveryEnabled = discoverFunctionOnlyInSpeficiedPackages;
             return this;
         }
 
@@ -153,7 +153,7 @@ public class HopeLangEngine {
          * @return a fully initialized immutable parser
          */
         public HopeLangEngine build() {
-            functionRegistry.discover(userPackages, discoverFunctionOnlyInSpecifiedPackages);
+            functionRegistry.discover(userPackages, autoFunctionDiscoveryEnabled);
             return new HopeLangEngine(functionRegistry, errorHandlingStrategy);
         }
     }

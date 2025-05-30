@@ -61,7 +61,7 @@ public class FunctionRegistry {
      *
      * @param packages Extra packages to be scanned besides the standard library.
      */
-    public synchronized void discover(List<String> packages, boolean discoverFunctionOnlyInSpecifiedPackages) {
+    public synchronized void discover(List<String> packages, boolean autoFunctionDiscoveryEnabled) {
         if (discoveredAlready) {
             return;
         }
@@ -76,7 +76,7 @@ public class FunctionRegistry {
                 .setUrls(packageUrls)
                 .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner());
 
-        if (discoverFunctionOnlyInSpecifiedPackages) {
+        if (!autoFunctionDiscoveryEnabled) {
             final FilterBuilder filter = new FilterBuilder();
             packages.forEach(filter::includePackage);
             configurationBuilder.filterInputsBy(filter);
@@ -89,6 +89,10 @@ public class FunctionRegistry {
                 .filter(type -> type.getAnnotation(FunctionImplementation.class) != null)
                 .forEach(this::register);
         discoveredAlready = true;
+    }
+
+    public synchronized void discover(List<String> packages) {
+        discover(packages, true);
     }
 
     /**

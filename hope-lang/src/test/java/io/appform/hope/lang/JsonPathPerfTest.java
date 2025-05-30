@@ -48,7 +48,6 @@ public class JsonPathPerfTest extends BenchmarkTest {
         public void setUp() throws IOException {
             hopeLangEngine = HopeLangEngine.builder()
                     .errorHandlingStrategy(new InjectValueErrorHandlingStrategy())
-                    .discoverFunctionOnlyInSpecifiedPackages(true)
                     .build();
             List<String> hopeRules = readAllHopeRulesForJsonPath();
             rules = hopeRules.stream()
