@@ -139,12 +139,12 @@ public class HopeLangEngine {
 
         /**
          * Override the function discovery strategy , by default it scans whole jar
-         * @param discoverFunctionOnlyInSpeficiedPackages
+         * @param autoFunctionDiscoveryEnabled
          * @return builder
          */
 
-        public Builder discoverFunctionOnlyInSpecifiedPackages(boolean discoverFunctionOnlyInSpeficiedPackages) {
-            this.autoFunctionDiscoveryEnabled = discoverFunctionOnlyInSpeficiedPackages;
+        public Builder autoFunctionDiscoveryEnabled(boolean autoFunctionDiscoveryEnabled) {
+            this.autoFunctionDiscoveryEnabled = autoFunctionDiscoveryEnabled;
             return this;
         }
 
