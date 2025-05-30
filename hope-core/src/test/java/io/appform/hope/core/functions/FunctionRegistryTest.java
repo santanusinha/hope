@@ -13,7 +13,7 @@ class FunctionRegistryTest {
     @ValueSource(booleans = {true, false})
     void testDiscovery(boolean autoDiscoveryEnabled) {
         FunctionRegistry functionRegistry = new FunctionRegistry();
-        //only adding function1 package but on autoDiscoveryEnabledFunction2 should also be discovered
+        //only adding function1 package but on autoDiscoveryEnabled = true function2 should also be discovered
         functionRegistry.discover(List.of("io.appform.hope.core.functions.testFunction1"), autoDiscoveryEnabled);
 
         Optional<FunctionRegistry.FunctionMeta> testFunction1 = functionRegistry.find("testFunction1");
