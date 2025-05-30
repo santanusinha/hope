@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FunctionRegistry {
 
+    public static final String HOPE_CORE_FUNCTIONS_IMPL = "io.appform.hope.core.functions.impl";
+
     @Data
     @Builder
     public static class ConstructorMeta {
@@ -66,7 +68,7 @@ public class FunctionRegistry {
             return;
         }
         final List<URL> packageUrls = new ImmutableList.Builder<URL>()
-                .addAll(ClasspathHelper.forPackage("io.appform.hope.core.functions.impl"))
+                .addAll(ClasspathHelper.forPackage(HOPE_CORE_FUNCTIONS_IMPL))
                 .addAll(packages.stream()
                                 .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath)
                                         .stream())
@@ -78,6 +80,7 @@ public class FunctionRegistry {
 
         if (!autoFunctionDiscoveryEnabled) {
             final FilterBuilder filter = new FilterBuilder();
+            filter.includePackage(HOPE_CORE_FUNCTIONS_IMPL);
             packages.forEach(filter::includePackage);
             configurationBuilder.filterInputsBy(filter);
         }
