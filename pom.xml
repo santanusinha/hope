@@ -79,6 +79,15 @@
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Ashish Patel</name>
+            <email>patelashish769@gmail.com</email>
+            <organization>PhonePe</organization>
+            <url>https://github.com/Ashi769</url>
+        </contributor>
+    </contributors>
+
     <ciManagement>
         <system>Travis CI</system>
         <url>https://travis-ci.org/santanusinha/hope</url>
