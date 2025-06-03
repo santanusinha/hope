@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FunctionRegistry {
 
+    public static final String DEFAULT_FUNCTIONS_PACKAGE = "io.appform.hope.core.functions.impl";
+
     @Data
     @Builder
     public static class ConstructorMeta {
@@ -61,21 +63,28 @@ public class FunctionRegistry {
      *
      * @param packages Extra packages to be scanned besides the standard library.
      */
-    public synchronized void discover(List<String> packages) {
+    public synchronized void discover(List<String> packages, boolean autoFunctionDiscoveryEnabled) {
         if (discoveredAlready) {
             return;
         }
         final List<URL> packageUrls = new ImmutableList.Builder<URL>()
-                .addAll(ClasspathHelper.forPackage("io.appform.hope.core.functions.impl"))
+                .addAll(ClasspathHelper.forPackage(DEFAULT_FUNCTIONS_PACKAGE))
                 .addAll(packages.stream()
                                 .flatMap(packagePath -> ClasspathHelper.forPackage(packagePath)
                                         .stream())
                                 .toList())
                 .build();
-        Reflections reflections = new Reflections(
-                new ConfigurationBuilder()
-                        .setUrls(packageUrls)
-                        .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner()));
+        final ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+                .setUrls(packageUrls)
+                .setScanners(new SubTypesScanner(), new TypeAnnotationsScanner());
+
+        if (!autoFunctionDiscoveryEnabled) {
+            final FilterBuilder filter = new FilterBuilder();
+            filter.includePackage(DEFAULT_FUNCTIONS_PACKAGE);
+            packages.forEach(filter::includePackage);
+            configurationBuilder.filterInputsBy(filter);
+        }
+        Reflections reflections = new Reflections(configurationBuilder);
         log.debug("Type scanning complete");
         final Set<Class<? extends HopeFunction>> classes = reflections.getSubTypesOf(HopeFunction.class);
         classes
@@ -83,6 +92,10 @@ public class FunctionRegistry {
                 .filter(type -> type.getAnnotation(FunctionImplementation.class) != null)
                 .forEach(this::register);
         discoveredAlready = true;
+    }
+
+    public synchronized void discover(List<String> packages) {
+        discover(packages, true);
     }
 
     /**

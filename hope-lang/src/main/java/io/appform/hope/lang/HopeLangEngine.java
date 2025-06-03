@@ -98,6 +98,7 @@ public class HopeLangEngine {
         private final List<String> userPackages = new ArrayList<>();
         private final FunctionRegistry functionRegistry = new FunctionRegistry();
         private ErrorHandlingStrategy errorHandlingStrategy = new DefaultErrorHandlingStrategy();
+        private boolean autoFunctionDiscoveryEnabled = true;
 
         private Builder() {}
 
@@ -137,11 +138,22 @@ public class HopeLangEngine {
         }
 
         /**
+         * Override the function discovery strategy , by default it scans whole jar
+         * @param autoFunctionDiscoveryEnabled
+         * @return builder
+         */
+
+        public Builder autoFunctionDiscoveryEnabled(boolean autoFunctionDiscoveryEnabled) {
+            this.autoFunctionDiscoveryEnabled = autoFunctionDiscoveryEnabled;
+            return this;
+        }
+
+        /**
          * Build a Hope language parser
          * @return a fully initialized immutable parser
          */
         public HopeLangEngine build() {
-            functionRegistry.discover(userPackages);
+            functionRegistry.discover(userPackages, autoFunctionDiscoveryEnabled);
             return new HopeLangEngine(functionRegistry, errorHandlingStrategy);
         }
     }
