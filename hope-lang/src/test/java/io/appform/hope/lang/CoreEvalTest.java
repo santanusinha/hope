@@ -69,7 +69,8 @@ class CoreEvalTest {
                     "'abc' == 'abc'",
                     "\"abc\" == \"abc\"",
                     "'abc' == \"abc\"",
-                    "\"abc\" == 'abc'"
+                    "\"abc\" == 'abc'",
+                    "\"a b c\" == 'a b c'"
             }
     )
     void testBasicSuccess(final String rule) throws Exception {
@@ -114,6 +115,8 @@ class CoreEvalTest {
 
     private static Stream<Arguments> rules() {
         return Stream.of(
+                Arguments.of("{ \"first name\" : \"santanu\" }", "\"/first name\" == \"santanu\"", true),
+                Arguments.of("{ \"first name\" : \"santanu\" }", "'/first name' == \"santanu\"", true),
                 Arguments.of("{ \"name\" : \"santanu\" }", "\"$.name\" == \"santanu\"", true),
                 Arguments.of("{ \"name\" : \"santanu\" }", "'$.name' == 'santanu'", true),
                 Arguments.of("{ \"name\" : \"santanu\" }", "\"/name\" == \"santanu\"", true),
