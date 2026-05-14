@@ -627,7 +627,7 @@ public class Converters {
             return new ArrayValue(StreamSupport.stream(
                             Spliterators.spliteratorUnknownSize(node.elements(), Spliterator.ORDERED),
                             false)
-                                          .map(child -> jsonNodeToValue(node))
+                                          .map(child -> jsonNodeToValue(child))
                                           .toList());
         }
         throw new UnsupportedOperationException(node.getNodeType()
