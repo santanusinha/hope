@@ -22,7 +22,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.VisitorAdapter;
 import io.appform.hope.core.combiners.AndCombiner;
@@ -45,6 +45,7 @@ import lombok.Getter;
 import lombok.val;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import java.util.OptionalInt;
  * Evaluates a hope expression
  */
 public class Evaluator {
+    @Getter
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
@@ -73,20 +75,20 @@ public class Evaluator {
     public Evaluator(ErrorHandlingStrategy errorHandlingStrategy) {
         this.errorHandlingStrategy = errorHandlingStrategy;
         parseContext = JsonPath.using(Configuration.builder()
-                .jsonProvider(new JacksonJsonNodeJsonProvider())
+                .jsonProvider(new JacksonJsonProvider(mapper))
                 .options(Option.SUPPRESS_EXCEPTIONS)
                 .build());
 
     }
 
     public boolean evaluate(Evaluatable evaluatable, JsonNode node) {
-        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this)));
+        return evaluatable.accept(new LogicEvaluator(new EvaluationContext(parseContext.parse(toPojo(node)), node, this)));
     }
 
     public List<Boolean> evaluate(
             final List<Evaluatable> evaluatables,
             final JsonNode node) {
-        val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
+        val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(toPojo(node)), node, this));
         val list = new ArrayList<Boolean>(evaluatables.size());
         for (final Evaluatable evaluatable : evaluatables) {
             Boolean accept = evaluatable.accept(logicEvaluator);
@@ -98,7 +100,7 @@ public class Evaluator {
     public OptionalInt evaluateFirst(
             final List<Evaluatable> rules,
             final JsonNode node) {
-        val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(node), node, this));
+        val logicEvaluator = new LogicEvaluator(new EvaluationContext(parseContext.parse(toPojo(node)), node, this));
         val bound = rules.size();
         for (int index = 0; index < bound; index++) {
             if (rules.get(index).accept(logicEvaluator)) {
@@ -106,6 +108,11 @@ public class Evaluator {
             }
         }
         return OptionalInt.empty();
+    }
+
+    private static Object toPojo(JsonNode node) {
+        final Object pojo = mapper.convertValue(node, Object.class);
+        return pojo != null ? pojo : Collections.emptyMap();
     }
 
     @Data
